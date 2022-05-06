@@ -3,13 +3,16 @@ using System.Threading;
 using System.Threading.Tasks;
 using BirdsiteLive.Common.Settings;
 using Microsoft.Extensions.Logging;
-using Tweetinvi;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Text.Json;
 
 namespace BirdsiteLive.Twitter.Tools
 {
     public interface ITwitterAuthenticationInitializer
     {
-        void EnsureAuthenticationIsInitialized();
+        String Token { get; }
+        Task EnsureAuthenticationIsInitialized();
     }
 
     public class TwitterAuthenticationInitializer : ITwitterAuthenticationInitializer
@@ -17,7 +20,11 @@ namespace BirdsiteLive.Twitter.Tools
         private readonly TwitterSettings _settings;
         private readonly ILogger<TwitterAuthenticationInitializer> _logger;
         private static bool _initialized;
-        private readonly SemaphoreSlim _semaphoregate = new SemaphoreSlim(1);
+        private readonly HttpClient _httpClient = new HttpClient();
+        private String _token;
+        public String Token { 
+            get { return _token; }
+        }
 
         #region Ctor
         public TwitterAuthenticationInitializer(TwitterSettings settings, ILogger<TwitterAuthenticationInitializer> logger)
@@ -27,36 +34,42 @@ namespace BirdsiteLive.Twitter.Tools
         }
         #endregion
 
-        public void EnsureAuthenticationIsInitialized()
+        public async Task EnsureAuthenticationIsInitialized()
         {
             if (_initialized) return;
-            _semaphoregate.Wait();
            
-            try
-            {
-                if (_initialized) return;
-                InitTwitterCredentials();
-            }
-            finally
-            {
-                _semaphoregate.Release();
-            }
+            await InitTwitterCredentials();
         }
 
-        private void InitTwitterCredentials()
+        private async Task InitTwitterCredentials()
         {
             for (;;)
             {
                 try
                 {
-                    Auth.SetApplicationOnlyCredentials(_settings.ConsumerKey, _settings.ConsumerSecret, true);
+
+                    using (var request = new HttpRequestMessage(new HttpMethod("POST"), "https://api.twitter.com/oauth2/token"))
+                    {
+                        var base64authorization = Convert.ToBase64String(System.Text.Encoding.ASCII.GetBytes(_settings.ConsumerKey + ":" + _settings.ConsumerSecret));
+                        request.Headers.TryAddWithoutValidation("Authorization", $"Basic {base64authorization}"); 
+
+                        request.Content = new StringContent("grant_type=client_credentials");
+                        request.Content.Headers.ContentType = MediaTypeHeaderValue.Parse("application/x-www-form-urlencoded"); 
+
+                        var httpResponse = await _httpClient.SendAsync(request);
+
+                        var c = await httpResponse.Content.ReadAsStringAsync();
+                        httpResponse.EnsureSuccessStatusCode();
+                        var doc = JsonDocument.Parse(c);
+                        _token = doc.RootElement.GetProperty("access_token").GetString();
+                    }
                     _initialized = true;
                     return;
                 }
                 catch (Exception e)
                 {
                     _logger.LogError(e, "Twitter Authentication Failed");
-                    Thread.Sleep(250);
+                    await Task.Delay(3600*1000);
                 }
             }
         }

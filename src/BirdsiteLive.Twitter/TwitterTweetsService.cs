@@ -1,15 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
+using System.Text.Json;
+using System.Threading.Tasks;
 using BirdsiteLive.Common.Settings;
 using BirdsiteLive.Statistics.Domain;
 using BirdsiteLive.Twitter.Extractors;
 using BirdsiteLive.Twitter.Models;
 using BirdsiteLive.Twitter.Tools;
 using Microsoft.Extensions.Logging;
-using Tweetinvi;
-using Tweetinvi.Models;
-using Tweetinvi.Parameters;
 
 namespace BirdsiteLive.Twitter
 {
@@ -26,6 +26,7 @@ namespace BirdsiteLive.Twitter
         private readonly ITwitterStatisticsHandler _statisticsHandler;
         private readonly ITwitterUserService _twitterUserService;
         private readonly ILogger<TwitterTweetsService> _logger;
+        private HttpClient _httpClient = new HttpClient();
 
         #region Ctor
         public TwitterTweetsService(ITwitterAuthenticationInitializer twitterAuthenticationInitializer, ITweetExtractor tweetExtractor, ITwitterStatisticsHandler statisticsHandler, ITwitterUserService twitterUserService, ILogger<TwitterTweetsService> logger)
@@ -38,15 +39,27 @@ namespace BirdsiteLive.Twitter
         }
         #endregion
 
+
         public ExtractedTweet GetTweet(long statusId)
+        {
+            return GetTweetAsync(statusId).Result;
+        }
+        public async Task<ExtractedTweet> GetTweetAsync(long statusId)
         {
             try
             {
-                _twitterAuthenticationInitializer.EnsureAuthenticationIsInitialized();
-                ExceptionHandler.SwallowWebExceptions = false;
-                TweetinviConfig.CurrentThreadSettings.TweetMode = TweetMode.Extended;
+                await _twitterAuthenticationInitializer.EnsureAuthenticationIsInitialized();
+                JsonDocument tweet;
+                using (var request = new HttpRequestMessage(new HttpMethod("GET"), "https://api.twitter.com/2/tweets?ids=" + statusId))
+    {
+                    request.Headers.TryAddWithoutValidation("Authorization", "Bearer " + _twitterAuthenticationInitializer.Token); 
 
-                var tweet = Tweet.GetTweet(statusId);
+                    var httpResponse = await _httpClient.SendAsync(request);
+                    httpResponse.EnsureSuccessStatusCode();
+                    var c = await httpResponse.Content.ReadAsStringAsync();
+                    tweet = JsonDocument.Parse(c);
+                }
+
                 _statisticsHandler.CalledTweetApi();
                 if (tweet == null) return null; //TODO: test this
                 return _tweetExtractor.Extract(tweet);
@@ -60,34 +73,41 @@ namespace BirdsiteLive.Twitter
 
         public ExtractedTweet[] GetTimeline(string username, int nberTweets, long fromTweetId = -1)
         {
-            var tweets = new List<ITweet>();
+            return GetTimelineAsync(username, nberTweets, fromTweetId).Result;
+        }
+        public async Task<ExtractedTweet[]> GetTimelineAsync(string username, int nberTweets, long fromTweetId = -1)
+        {
 
-            _twitterAuthenticationInitializer.EnsureAuthenticationIsInitialized();
-            ExceptionHandler.SwallowWebExceptions = false;
-            TweetinviConfig.CurrentThreadSettings.TweetMode = TweetMode.Extended;
+            await _twitterAuthenticationInitializer.EnsureAuthenticationIsInitialized();
 
             var user = _twitterUserService.GetUser(username);
             if (user == null || user.Protected) return new ExtractedTweet[0];
 
-            if (fromTweetId == -1)
+            JsonDocument tweets;
+            try
             {
-                var timeline = Timeline.GetUserTimeline(user.Id, nberTweets);
-                _statisticsHandler.CalledTimelineApi();
-                if (timeline != null) tweets.AddRange(timeline);
+                using (var request = new HttpRequestMessage(new HttpMethod("GET"), "https://api.twitter.com/2/users/" + user + "/tweets?expansions=in_reply_to_user_id,attachments.media_keys,entities.mentions.username,referenced_tweets.id.author_id&tweet.fields=id"))
+    {
+                    request.Headers.TryAddWithoutValidation("Authorization", "Bearer " + _twitterAuthenticationInitializer.Token); 
+
+                    var httpResponse = await _httpClient.SendAsync(request);
+                    httpResponse.EnsureSuccessStatusCode();
+                    var c = await httpResponse.Content.ReadAsStringAsync();
+                    tweets = JsonDocument.Parse(c);
+                }
+
+                _statisticsHandler.CalledTweetApi();
+                if (tweets == null) return null; //TODO: test this
             }
-            else
+            catch (Exception e)
             {
-                var timelineRequestParameters = new UserTimelineParameters
-                {
-                    SinceId = fromTweetId,
-                    MaximumNumberOfTweetsToRetrieve = nberTweets
-                };
-                var timeline = Timeline.GetUserTimeline(user.Id, timelineRequestParameters);
-                _statisticsHandler.CalledTimelineApi();
-                if (timeline != null) tweets.AddRange(timeline);
+                _logger.LogError(e, "Error retrieving timeline ", username);
+                return null;
             }
 
-            return tweets.Select(_tweetExtractor.Extract).ToArray();
+
+            return Array.Empty<ExtractedTweet>();
+            //return tweets.RootElement.GetProperty("data").Select(_tweetExtractor.Extract).ToArray();
         }
     }
 }

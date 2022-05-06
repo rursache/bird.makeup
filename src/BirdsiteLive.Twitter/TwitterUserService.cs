@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Linq;
+using System.Net.Http;
+using System.Text.Json;
+using System.Threading.Tasks;
 using BirdsiteLive.Common.Settings;
 using BirdsiteLive.Statistics.Domain;
 using BirdsiteLive.Twitter.Models;
 using BirdsiteLive.Twitter.Tools;
 using Microsoft.Extensions.Logging;
-using Tweetinvi;
-using Tweetinvi.Exceptions;
-using Tweetinvi.Models;
 
 namespace BirdsiteLive.Twitter
 {
@@ -22,6 +22,7 @@ namespace BirdsiteLive.Twitter
         private readonly ITwitterAuthenticationInitializer _twitterAuthenticationInitializer;
         private readonly ITwitterStatisticsHandler _statisticsHandler;
         private readonly ILogger<TwitterUserService> _logger;
+        private HttpClient _httpClient = new HttpClient();
 
         #region Ctor
         public TwitterUserService(ITwitterAuthenticationInitializer twitterAuthenticationInitializer, ITwitterStatisticsHandler statisticsHandler, ILogger<TwitterUserService> logger)
@@ -34,37 +35,49 @@ namespace BirdsiteLive.Twitter
 
         public TwitterUser GetUser(string username)
         {
+            return GetUserAsync(username).Result;
+        }
+        public async Task<TwitterUser> GetUserAsync(string username)
+        {
             //Check if API is saturated 
             if (IsUserApiRateLimited()) throw new RateLimitExceededException();
 
             //Proceed to account retrieval
-            _twitterAuthenticationInitializer.EnsureAuthenticationIsInitialized();
-            ExceptionHandler.SwallowWebExceptions = false;
-            RateLimit.RateLimitTrackerMode = RateLimitTrackerMode.TrackOnly;
+            await _twitterAuthenticationInitializer.EnsureAuthenticationIsInitialized();
 
-            IUser user;
+            JsonDocument res;
             try
             {
-                user = User.GetUserFromScreenName(username);
+                using (var request = new HttpRequestMessage(new HttpMethod("GET"), "https://api.twitter.com/2/users/by/username/"+ username + "?user.fields=name,username,protected,profile_image_url,url,description"))
+    {
+                    request.Headers.TryAddWithoutValidation("Authorization", "Bearer " + _twitterAuthenticationInitializer.Token); 
+
+                    var httpResponse = await _httpClient.SendAsync(request);
+                    httpResponse.EnsureSuccessStatusCode();
+
+                    var c = await httpResponse.Content.ReadAsStringAsync();
+                    res = JsonDocument.Parse(c);
+                }
             }
-            catch (TwitterException e)
+            catch (HttpRequestException e)
             {
-                if (e.TwitterExceptionInfos.Any(x => x.Message.ToLowerInvariant().Contains("User has been suspended".ToLowerInvariant())))
-                {
-                    throw new UserHasBeenSuspendedException();
-                }
-                else if (e.TwitterExceptionInfos.Any(x => x.Message.ToLowerInvariant().Contains("User not found".ToLowerInvariant())))
-                {
-                    throw new UserNotFoundException();
-                }
-                else if (e.TwitterExceptionInfos.Any(x => x.Message.ToLowerInvariant().Contains("Rate limit exceeded".ToLowerInvariant())))
-                {
-                    throw new RateLimitExceededException();
-                }
-                else
-                {
-                    throw;
-                }
+                throw;
+                //if (e.TwitterExceptionInfos.Any(x => x.Message.ToLowerInvariant().Contains("User has been suspended".ToLowerInvariant())))
+                //{
+                //    throw new UserHasBeenSuspendedException();
+                //}
+                //else if (e.TwitterExceptionInfos.Any(x => x.Message.ToLowerInvariant().Contains("User not found".ToLowerInvariant())))
+                //{
+                //    throw new UserNotFoundException();
+                //}
+                //else if (e.TwitterExceptionInfos.Any(x => x.Message.ToLowerInvariant().Contains("Rate limit exceeded".ToLowerInvariant())))
+                //{
+                //    throw new RateLimitExceededException();
+                //}
+                //else
+                //{
+                //    throw;
+                //}
             }
             catch (Exception e)
             {
@@ -77,49 +90,50 @@ namespace BirdsiteLive.Twitter
             }
 
             // Expand URLs
-            var description = user.Description;
-            foreach (var descriptionUrl in user.Entities?.Description?.Urls?.OrderByDescending(x => x.URL.Length))
-                description = description.Replace(descriptionUrl.URL, descriptionUrl.ExpandedURL);
+            //var description = user.Description;
+            //foreach (var descriptionUrl in user.Entities?.Description?.Urls?.OrderByDescending(x => x.URL.Length))
+            //    description = description.Replace(descriptionUrl.URL, descriptionUrl.ExpandedURL);
 
             return new TwitterUser
             {
-                Id = user.Id,
-                Acct = username,
-                Name = user.Name,
-                Description = description,
-                Url = $"https://twitter.com/{username}",
-                ProfileImageUrl = user.ProfileImageUrlFullSize.Replace("http://", "https://"),
-                ProfileBackgroundImageUrl = user.ProfileBackgroundImageUrlHttps,
-                ProfileBannerURL = user.ProfileBannerURL,
-                Protected = user.Protected
+                Id = long.Parse(res.RootElement.GetProperty("data").GetProperty("id").GetString()),
+                Acct = res.RootElement.GetProperty("data").GetProperty("username").GetString(),
+                Name = res.RootElement.GetProperty("data").GetProperty("name").GetString(),
+                Description = res.RootElement.GetProperty("data").GetProperty("description").GetString(),
+                Url = res.RootElement.GetProperty("data").GetProperty("url").GetString(),
+                ProfileImageUrl = res.RootElement.GetProperty("data").GetProperty("profile_image_url").GetString(),
+                ProfileBackgroundImageUrl = res.RootElement.GetProperty("data").GetProperty("profile_image_url").GetString(), //for now
+                ProfileBannerURL = res.RootElement.GetProperty("data").GetProperty("profile_image_url").GetString(), //for now
+                Protected = res.RootElement.GetProperty("data").GetProperty("protected").GetBoolean(), 
             };
         }
 
         public bool IsUserApiRateLimited()
         {
             // Retrieve limit from tooling
-            _twitterAuthenticationInitializer.EnsureAuthenticationIsInitialized();
-            ExceptionHandler.SwallowWebExceptions = false;
-            RateLimit.RateLimitTrackerMode = RateLimitTrackerMode.TrackOnly;
+            //_twitterAuthenticationInitializer.EnsureAuthenticationIsInitialized();
+            //ExceptionHandler.SwallowWebExceptions = false;
+            //RateLimit.RateLimitTrackerMode = RateLimitTrackerMode.TrackOnly;
 
-            try
-            {
-                var queryRateLimits = RateLimit.GetQueryRateLimit("https://api.twitter.com/1.1/users/show.json?screen_name=mastodon");
+            //try
+            //{
+            //    var queryRateLimits = RateLimit.GetQueryRateLimit("https://api.twitter.com/1.1/users/show.json?screen_name=mastodon");
 
-                if (queryRateLimits != null)
-                {
-                    return queryRateLimits.Remaining <= 0;
-                }
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e, "Error retrieving rate limits");
-            }
+            //    if (queryRateLimits != null)
+            //    {
+            //        return queryRateLimits.Remaining <= 0;
+            //    }
+            //}
+            //catch (Exception e)
+            //{
+            //    _logger.LogError(e, "Error retrieving rate limits");
+            //}
 
-            // Fallback
-            var currentCalls = _statisticsHandler.GetCurrentUserCalls();
-            var maxCalls = _statisticsHandler.GetStatistics().UserCallsMax;
-            return currentCalls >= maxCalls;
+            //// Fallback
+            //var currentCalls = _statisticsHandler.GetCurrentUserCalls();
+            //var maxCalls = _statisticsHandler.GetStatistics().UserCallsMax;
+            //return currentCalls >= maxCalls;
+            return false;
         }
     }
 }
