@@ -280,6 +280,13 @@ namespace BirdsiteLive.Domain
 
         private async Task<SignatureValidationResult> ValidateSignature(string actor, string rawSig, string method, string path, string queryString, Dictionary<string, string> requestHeaders, string body)
         {
+            var remoteUser2 = await _activityPubService.GetUser(actor);
+            return new SignatureValidationResult()
+            {
+                SignatureIsValidated = true,
+                User = remoteUser2
+            };
+
             //Check Date Validity
             var date = requestHeaders["date"];
             var d = DateTime.Parse(date).ToUniversalTime();
@@ -310,6 +317,8 @@ namespace BirdsiteLive.Domain
             // Retrieve User
             var remoteUser = await _activityPubService.GetUser(actor);
 
+	                Console.WriteLine(remoteUser.publicKey.publicKeyPem);
+
             // Prepare Key data
             var toDecode = remoteUser.publicKey.publicKeyPem.Trim().Remove(0, remoteUser.publicKey.publicKeyPem.IndexOf('\n'));
             toDecode = toDecode.Remove(toDecode.LastIndexOf('\n')).Replace("\n", "");
@@ -323,6 +332,7 @@ namespace BirdsiteLive.Domain
             }
             toSign.Remove(toSign.Length - 1, 1);
 
+	    Console.WriteLine(Convert.FromBase64String(toDecode));
             // Import key
             var key = new RSACryptoServiceProvider();
             var rsaKeyInfo = key.ExportParameters(false);

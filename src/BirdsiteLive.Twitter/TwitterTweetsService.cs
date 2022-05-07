@@ -86,7 +86,7 @@ namespace BirdsiteLive.Twitter
             JsonDocument tweets;
             try
             {
-                using (var request = new HttpRequestMessage(new HttpMethod("GET"), "https://api.twitter.com/2/users/" + user + "/tweets?expansions=in_reply_to_user_id,attachments.media_keys,entities.mentions.username,referenced_tweets.id.author_id&tweet.fields=id"))
+                using (var request = new HttpRequestMessage(new HttpMethod("GET"), "https://api.twitter.com/2/users/" + user.Id + "/tweets?expansions=in_reply_to_user_id,attachments.media_keys,entities.mentions.username,referenced_tweets.id.author_id&tweet.fields=id"))
     {
                     request.Headers.TryAddWithoutValidation("Authorization", "Bearer " + _twitterAuthenticationInitializer.Token); 
 

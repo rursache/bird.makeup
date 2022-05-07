@@ -18,7 +18,7 @@ namespace BirdsiteLive.Twitter.Extractors
         {
             var extractedTweet = new ExtractedTweet
             {
-                Id = tweet.GetProperty("id").GetInt64(),
+                Id = Int64.Parse(tweet.GetProperty("id").GetString()),
                 InReplyToStatusId = null, //tweet.GetProperty("in_reply_to_status_id").GetInt64(),
                 InReplyToAccount = null, //tweet.GetProperty("in_reply_to_user_id").GetString(),
                 MessageContent = ExtractMessage(tweet),
