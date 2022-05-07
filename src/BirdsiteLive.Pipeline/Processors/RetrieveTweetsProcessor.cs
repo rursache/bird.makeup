@@ -40,6 +40,7 @@ namespace BirdsiteLive.Pipeline.Processors
             {
                 var user = userWtData.User;
                 var tweets = RetrieveNewTweets(user);
+                _logger.LogInformation("Got " + tweets.Length + " tweets from user " + user.Acct);
                 if (tweets.Length > 0 && user.LastTweetPostedId != -1)
                 {
                     userWtData.Tweets = tweets;
