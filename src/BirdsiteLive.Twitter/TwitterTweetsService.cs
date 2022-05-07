@@ -62,7 +62,7 @@ namespace BirdsiteLive.Twitter
 
                 _statisticsHandler.CalledTweetApi();
                 if (tweet == null) return null; //TODO: test this
-                return _tweetExtractor.Extract(tweet);
+                return _tweetExtractor.Extract(tweet.RootElement);
             }
             catch (Exception e)
             {
@@ -105,9 +105,7 @@ namespace BirdsiteLive.Twitter
                 return null;
             }
 
-
-            return Array.Empty<ExtractedTweet>();
-            //return tweets.RootElement.GetProperty("data").Select(_tweetExtractor.Extract).ToArray();
+            return tweets.RootElement.GetProperty("data").EnumerateArray().Select<JsonElement, ExtractedTweet>(_tweetExtractor.Extract).ToArray();
         }
     }
 }

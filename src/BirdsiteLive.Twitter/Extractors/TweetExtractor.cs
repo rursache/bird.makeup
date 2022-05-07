@@ -9,21 +9,21 @@ namespace BirdsiteLive.Twitter.Extractors
 {
     public interface ITweetExtractor
     {
-        ExtractedTweet Extract(JsonDocument tweet);
+        ExtractedTweet Extract(JsonElement tweet);
     }
 
     public class TweetExtractor : ITweetExtractor
     {
-        public ExtractedTweet Extract(JsonDocument tweet)
+        public ExtractedTweet Extract(JsonElement tweet)
         {
             var extractedTweet = new ExtractedTweet
             {
-                Id = tweet.RootElement.GetProperty("data").GetProperty("id").GetInt64(),
-                InReplyToStatusId = tweet.RootElement.GetProperty("data").GetProperty("in_reply_to_status_id").GetInt64(),
-                InReplyToAccount = tweet.RootElement.GetProperty("data").GetProperty("in_reply_to_status_id").GetString(),
+                Id = tweet.GetProperty("id").GetInt64(),
+                InReplyToStatusId = null, //tweet.GetProperty("in_reply_to_status_id").GetInt64(),
+                InReplyToAccount = null, //tweet.GetProperty("in_reply_to_user_id").GetString(),
                 MessageContent = ExtractMessage(tweet),
                 Media = ExtractMedia(tweet),
-                CreatedAt = tweet.RootElement.GetProperty("data").GetProperty("in_reply_to_status_id").GetDateTime(),
+                CreatedAt = DateTime.Now, // tweet.GetProperty("data").GetProperty("in_reply_to_status_id").GetDateTime(),
                 IsReply = false,
                 IsThread = false,
                 IsRetweet = false,
@@ -33,16 +33,16 @@ namespace BirdsiteLive.Twitter.Extractors
             return extractedTweet;
         }
 
-        private string ExtractRetweetUrl(JsonDocument tweet)
+        private string ExtractRetweetUrl(JsonElement tweet)
         {
             var retweetId = "123";
             return $"https://t.co/{retweetId}";
 
         }
 
-        private string ExtractMessage(JsonDocument tweet)
+        private string ExtractMessage(JsonElement tweet)
         {
-            return "hello world";
+            return tweet.GetProperty("text").GetString();
             //var message = tweet.FullText;
             //var tweetUrls = tweet.Media.Select(x => x.URL).Distinct();
             
@@ -78,7 +78,7 @@ namespace BirdsiteLive.Twitter.Extractors
             //return message;
         }
 
-        private ExtractedMedia[] ExtractMedia(JsonDocument tweet)
+        private ExtractedMedia[] ExtractMedia(JsonElement tweet)
         {
             //var media = tweet.Media;
             //if (tweet.IsRetweet && tweet.RetweetedTweet != null)
