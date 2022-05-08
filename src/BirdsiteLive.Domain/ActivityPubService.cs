@@ -122,6 +122,10 @@ namespace BirdsiteLive.Domain
             var response = await client.SendAsync(httpRequestMessage);
             response.EnsureSuccessStatusCode();
             _logger.LogInformation("Sent tweet to " + targetHost);
+
+            var c = await response.Content.ReadAsStringAsync();
+            _logger.LogInformation("Got res after posting tweet " + c);
+
             return response.StatusCode;
         }
     }

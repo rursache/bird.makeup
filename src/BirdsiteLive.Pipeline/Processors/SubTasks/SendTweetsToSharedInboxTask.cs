@@ -47,6 +47,7 @@ namespace BirdsiteLive.Pipeline.Processors.SubTasks
                 .Where(x => x.Id > fromStatusId)
                 .OrderBy(x => x.Id)
                 .ToList();
+            _logger.LogInformation("After filtering, there were " + tweetsToSend.Count() + " tweets left to send");
 
             var syncStatus = fromStatusId;
             try
