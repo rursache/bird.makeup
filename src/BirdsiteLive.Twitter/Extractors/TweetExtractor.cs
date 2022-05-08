@@ -22,7 +22,7 @@ namespace BirdsiteLive.Twitter.Extractors
             JsonElement replyAccount;
             string? replyAccountString = null;
             JsonElement referenced_tweets;
-            if(tweet.TryGetProperty("referenced_tweets", out replyAccount))
+            if(tweet.TryGetProperty("in_reply_to_user_id", out replyAccount))
             {
                 replyAccountString = replyAccount.GetString();
 
