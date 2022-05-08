@@ -13,7 +13,15 @@ namespace BirdsiteLive.Twitter.Extractors
     }
 
     public class TweetExtractor : ITweetExtractor
-    {
+    {   
+
+        private readonly ITwitterTweetsService _twitterTweetsService;
+
+        public TweetExtractor(ITwitterTweetsService twitterTweetsService)
+        {
+            _twitterTweetsService = twitterTweetsService;
+        }
+
         public ExtractedTweet Extract(JsonElement tweet)
         {
             bool IsRetweet = false;
@@ -33,6 +41,11 @@ namespace BirdsiteLive.Twitter.Extractors
                 if (first.GetProperty("type").GetString() == "retweeted")
                 {
                     IsRetweet = true;
+                    var statusId = Int64.Parse(first.GetProperty("id").GetString());
+                    var extracted = _twitterTweetsService.GetTweet(statusId);
+                    extracted.IsRetweet = true;
+                    return extracted;
+
                 }
                 if (first.GetProperty("type").GetString() == "replied_to")
                 {

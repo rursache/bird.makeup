@@ -60,13 +60,9 @@ namespace BirdsiteLive.Domain
 
             // Replace RT by a link
             var content = extractedTags.content;
-            if (content.Contains("{RT}") && tweet.IsRetweet)
+            if (tweet.IsRetweet)
             {
-                if (!string.IsNullOrWhiteSpace(tweet.RetweetUrl))
-                    content = content.Replace("{RT}",
-                        $@"<a href=""{tweet.RetweetUrl}"" rel=""nofollow noopener noreferrer"" target=""_blank"">RT</a>");
-                else
-                    content = content.Replace("{RT}", "RT");
+                content = "RT: " + content;
             }
 
             string inReplyTo = null;

@@ -50,7 +50,7 @@ namespace BirdsiteLive.Twitter
             {
                 await _twitterAuthenticationInitializer.EnsureAuthenticationIsInitialized();
                 JsonDocument tweet;
-                using (var request = new HttpRequestMessage(new HttpMethod("GET"), "https://api.twitter.com/2/tweets?ids=" + statusId))
+                using (var request = new HttpRequestMessage(new HttpMethod("GET"), "https://api.twitter.com/2/tweets?ids=" + statusId + "&tweet.fields=id,created_at,text,author_id,in_reply_to_user_id,referenced_tweets,attachments,withheld,geo,entities,public_metrics,possibly_sensitive,source,lang,context_annotations,conversation_id,reply_settings&user.fields=name,username"))
     {
                     request.Headers.TryAddWithoutValidation("Authorization", "Bearer " + _twitterAuthenticationInitializer.Token); 
 
