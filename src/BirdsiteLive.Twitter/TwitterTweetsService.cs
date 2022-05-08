@@ -59,7 +59,7 @@ namespace BirdsiteLive.Twitter
 
                 _statisticsHandler.CalledTweetApi();
                 if (tweet == null) return null; //TODO: test this
-                return Extract(tweet.RootElement);
+                return tweet.RootElement.GetProperty("data").EnumerateArray().Select<JsonElement, ExtractedTweet>(Extract).ToArray().First();
             }
             catch (Exception e)
             {
