@@ -6,7 +6,6 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using BirdsiteLive.Common.Settings;
 using BirdsiteLive.Statistics.Domain;
-using BirdsiteLive.Twitter.Extractors;
 using BirdsiteLive.Twitter.Models;
 using BirdsiteLive.Twitter.Tools;
 using Microsoft.Extensions.Logging;
@@ -22,17 +21,15 @@ namespace BirdsiteLive.Twitter
     public class TwitterTweetsService : ITwitterTweetsService
     {
         private readonly ITwitterAuthenticationInitializer _twitterAuthenticationInitializer;
-        private readonly ITweetExtractor _tweetExtractor;
         private readonly ITwitterStatisticsHandler _statisticsHandler;
         private readonly ITwitterUserService _twitterUserService;
         private readonly ILogger<TwitterTweetsService> _logger;
         private HttpClient _httpClient = new HttpClient();
 
         #region Ctor
-        public TwitterTweetsService(ITwitterAuthenticationInitializer twitterAuthenticationInitializer, ITweetExtractor tweetExtractor, ITwitterStatisticsHandler statisticsHandler, ITwitterUserService twitterUserService, ILogger<TwitterTweetsService> logger)
+        public TwitterTweetsService(ITwitterAuthenticationInitializer twitterAuthenticationInitializer, ITwitterStatisticsHandler statisticsHandler, ITwitterUserService twitterUserService, ILogger<TwitterTweetsService> logger)
         {
             _twitterAuthenticationInitializer = twitterAuthenticationInitializer;
-            _tweetExtractor = tweetExtractor;
             _statisticsHandler = statisticsHandler;
             _twitterUserService = twitterUserService;
             _logger = logger;
@@ -62,7 +59,7 @@ namespace BirdsiteLive.Twitter
 
                 _statisticsHandler.CalledTweetApi();
                 if (tweet == null) return null; //TODO: test this
-                return _tweetExtractor.Extract(tweet.RootElement);
+                return Extract(tweet.RootElement);
             }
             catch (Exception e)
             {
@@ -110,7 +107,61 @@ namespace BirdsiteLive.Twitter
                 return null;
             }
 
-            return tweets.RootElement.GetProperty("data").EnumerateArray().Select<JsonElement, ExtractedTweet>(_tweetExtractor.Extract).ToArray();
+            return tweets.RootElement.GetProperty("data").EnumerateArray().Select<JsonElement, ExtractedTweet>(Extract).ToArray();
+        }
+
+        public ExtractedTweet Extract(JsonElement tweet)
+        {
+            bool IsRetweet = false;
+            bool IsReply = false;
+            long? replyId = null;
+            JsonElement replyAccount;
+            string? replyAccountString = null;
+            JsonElement referenced_tweets;
+            if(tweet.TryGetProperty("in_reply_to_user_id", out replyAccount))
+            {
+                replyAccountString = replyAccount.GetString();
+
+            }
+            if(tweet.TryGetProperty("referenced_tweets", out referenced_tweets))
+            {
+                var first = referenced_tweets.EnumerateArray().ToList()[0];
+                if (first.GetProperty("type").GetString() == "retweeted")
+                {
+                    IsRetweet = true;
+                    var statusId = Int64.Parse(first.GetProperty("id").GetString());
+                    var extracted = GetTweet(statusId);
+                    extracted.IsRetweet = true;
+                    return extracted;
+
+                }
+                if (first.GetProperty("type").GetString() == "replied_to")
+                {
+                    IsReply = true;
+                    replyId = Int64.Parse(first.GetProperty("id").GetString());
+                }
+                if (first.GetProperty("type").GetString() == "quoted")
+                {
+                    IsReply = true;
+                    replyId = Int64.Parse(first.GetProperty("id").GetString());
+                }
+            }
+
+            var extractedTweet = new ExtractedTweet
+            {
+                Id = Int64.Parse(tweet.GetProperty("id").GetString()),
+                InReplyToStatusId = replyId,
+                InReplyToAccount = replyAccountString,
+                MessageContent = tweet.GetProperty("text").GetString(),
+                Media = Array.Empty<ExtractedMedia>(),
+                CreatedAt = DateTime.Now, // tweet.GetProperty("data").GetProperty("in_reply_to_status_id").GetDateTime(),
+                IsReply = IsReply,
+                IsThread = false,
+                IsRetweet = IsRetweet,
+                RetweetUrl = "https://t.co/123"
+            };
+
+            return extractedTweet;
         }
     }
 }
