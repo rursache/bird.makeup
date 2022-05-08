@@ -37,7 +37,7 @@ namespace BirdsiteLive.Twitter.Extractors
                 if (first.GetProperty("type").GetString() == "replied_to")
                 {
                     IsReply = true;
-                    replyId = first.GetProperty("id").GetInt64();
+                    replyId = Int64.Parse(first.GetProperty("id").GetString());
                 }
                 if (first.GetProperty("type").GetString() == "quoted")
                 {
