@@ -16,17 +16,47 @@ namespace BirdsiteLive.Twitter.Extractors
     {
         public ExtractedTweet Extract(JsonElement tweet)
         {
+            bool IsRetweet = false;
+            bool IsReply = false;
+            long? replyId = null;
+            JsonElement replyAccount;
+            string? replyAccountString = null;
+            JsonElement referenced_tweets;
+            if(tweet.TryGetProperty("referenced_tweets", out replyAccount))
+            {
+                replyAccountString = replyAccount.GetString();
+
+            }
+            if(tweet.TryGetProperty("referenced_tweets", out referenced_tweets))
+            {
+                var first = referenced_tweets.EnumerateArray().ToList()[0];
+                if (first.GetProperty("type").GetString() == "retweeted")
+                {
+                    IsRetweet = true;
+                }
+                if (first.GetProperty("type").GetString() == "replied_to")
+                {
+                    IsReply = true;
+                    replyId = first.GetProperty("id").GetInt64();
+                }
+                if (first.GetProperty("type").GetString() == "quoted")
+                {
+                    IsReply = true;
+                    replyId = first.GetProperty("id").GetInt64();
+                }
+            }
+
             var extractedTweet = new ExtractedTweet
             {
                 Id = Int64.Parse(tweet.GetProperty("id").GetString()),
-                InReplyToStatusId = null, //tweet.GetProperty("in_reply_to_status_id").GetInt64(),
-                InReplyToAccount = null, //tweet.GetProperty("in_reply_to_user_id").GetString(),
+                InReplyToStatusId = replyId,
+                InReplyToAccount = replyAccountString,
                 MessageContent = ExtractMessage(tweet),
                 Media = ExtractMedia(tweet),
                 CreatedAt = DateTime.Now, // tweet.GetProperty("data").GetProperty("in_reply_to_status_id").GetDateTime(),
-                IsReply = false,
+                IsReply = IsReply,
                 IsThread = false,
-                IsRetweet = false,
+                IsRetweet = IsRetweet,
                 RetweetUrl = ExtractRetweetUrl(tweet)
             };
 
