@@ -68,7 +68,7 @@ namespace BirdsiteLive.Pipeline.Processors
             {
                 try
                 {
-                    _logger.LogInformation("Sending " + tweets.Length + " tweets from user " + user + " to instance " + followersPerInstance.Key);
+                    _logger.LogInformation("Sending " + tweets.Length + " tweets from user " + user.Acct + " to instance " + followersPerInstance.Key);
                     await _sendTweetsToSharedInbox.ExecuteAsync(tweets, user, followersPerInstance.Key, followersPerInstance.ToArray());
 
                     foreach (var f in followersPerInstance)
