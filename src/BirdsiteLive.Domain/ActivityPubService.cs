@@ -18,7 +18,7 @@ namespace BirdsiteLive.Domain
     {
         Task<Actor> GetUser(string objectId);
         Task<HttpStatusCode> PostDataAsync<T>(T data, string targetHost, string actorUrl, string inbox = null);
-        Task PostNewNoteActivity(Note note, string username, string noteId, string targetHost,
+        Task PostNewActivity(Note note, string username, string activityType, string noteId, string targetHost,
             string targetInbox);
     }
 
@@ -57,7 +57,7 @@ namespace BirdsiteLive.Domain
             return actor;
         }
 
-        public async Task PostNewNoteActivity(Note note, string username, string noteId, string targetHost, string targetInbox)
+        public async Task PostNewActivity(Note note, string username, string activityType, string noteId, string targetHost, string targetInbox)
         {
             try
             {
@@ -71,7 +71,7 @@ namespace BirdsiteLive.Domain
                 {
                     context = "https://www.w3.org/ns/activitystreams",
                     id = $"{noteUri}/activity",
-                    type = "Create",
+                    type = activityType,
                     actor = actor,
                     published = nowString,
 
@@ -95,7 +95,7 @@ namespace BirdsiteLive.Domain
             if (!string.IsNullOrWhiteSpace(inbox))
                 usedInbox = inbox;
 
-            var json = JsonConvert.SerializeObject(data);
+            var json = JsonConvert.SerializeObject(data, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore });
 
             var date = DateTime.UtcNow.ToUniversalTime();
             var httpDate = date.ToString("r");

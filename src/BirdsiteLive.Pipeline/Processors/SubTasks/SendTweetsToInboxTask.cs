@@ -60,7 +60,7 @@ namespace BirdsiteLive.Pipeline.Processors.SubTasks
                             _settings.PublishReplies)
                         {
                             var note = _statusService.GetStatus(user.Acct, tweet);
-                            await _activityPubService.PostNewNoteActivity(note, user.Acct, tweet.Id.ToString(), follower.Host, inbox);
+                            await _activityPubService.PostNewActivity(note, user.Acct, "Create", tweet.Id.ToString(), follower.Host, inbox);
                         }
                     }
                     catch (ArgumentException e)

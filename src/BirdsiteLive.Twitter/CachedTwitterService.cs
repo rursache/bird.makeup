@@ -36,6 +36,16 @@ namespace BirdsiteLive.Twitter
         }
         #endregion
 
+        public TwitterUser GetUser(long id)
+        {
+            if (!_userCache.TryGetValue(id, out TwitterUser user))
+            {
+                user = _twitterService.GetUser(id);
+                if(user != null) _userCache.Set(id, user, _cacheEntryOptions);
+            }
+
+            return user;
+        }
         public TwitterUser GetUser(string username)
         {
             if (!_userCache.TryGetValue(username, out TwitterUser user))

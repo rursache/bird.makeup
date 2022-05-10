@@ -14,6 +14,7 @@ namespace BirdsiteLive.Twitter
     public interface ITwitterUserService
     {
         TwitterUser GetUser(string username);
+        TwitterUser GetUser(long id);
         bool IsUserApiRateLimited();
     }
 
@@ -33,6 +34,10 @@ namespace BirdsiteLive.Twitter
         }
         #endregion
 
+        public TwitterUser GetUser(long id)
+        {
+            return GetUserAsync(id).Result;
+        }
         public TwitterUser GetUser(string username)
         {
             return GetUserAsync(username).Result;
@@ -97,6 +102,71 @@ namespace BirdsiteLive.Twitter
             return new TwitterUser
             {
                 Id = long.Parse(res.RootElement.GetProperty("data").GetProperty("id").GetString()),
+                Acct = res.RootElement.GetProperty("data").GetProperty("username").GetString(),
+                Name = res.RootElement.GetProperty("data").GetProperty("name").GetString(),
+                Description = res.RootElement.GetProperty("data").GetProperty("description").GetString(),
+                Url = res.RootElement.GetProperty("data").GetProperty("url").GetString(),
+                ProfileImageUrl = res.RootElement.GetProperty("data").GetProperty("profile_image_url").GetString(),
+                ProfileBackgroundImageUrl = res.RootElement.GetProperty("data").GetProperty("profile_image_url").GetString(), //for now
+                ProfileBannerURL = res.RootElement.GetProperty("data").GetProperty("profile_image_url").GetString(), //for now
+                Protected = res.RootElement.GetProperty("data").GetProperty("protected").GetBoolean(), 
+            };
+        }
+
+        public async Task<TwitterUser> GetUserAsync(long id)
+        {
+            //Check if API is saturated 
+            if (IsUserApiRateLimited()) throw new RateLimitExceededException();
+
+            //Proceed to account retrieval
+            await _twitterAuthenticationInitializer.EnsureAuthenticationIsInitialized();
+
+            JsonDocument res;
+            try
+            {
+                using (var request = new HttpRequestMessage(new HttpMethod("GET"), "https://api.twitter.com/2/users/"+ id + "?user.fields=name,username,protected,profile_image_url,url,description"))
+    {
+                    request.Headers.TryAddWithoutValidation("Authorization", "Bearer " + _twitterAuthenticationInitializer.Token); 
+
+                    var httpResponse = await _httpClient.SendAsync(request);
+                    httpResponse.EnsureSuccessStatusCode();
+
+                    var c = await httpResponse.Content.ReadAsStringAsync();
+                    res = JsonDocument.Parse(c);
+                }
+            }
+            catch (HttpRequestException e)
+            {
+                throw;
+                //if (e.TwitterExceptionInfos.Any(x => x.Message.ToLowerInvariant().Contains("User has been suspended".ToLowerInvariant())))
+                //{
+                //    throw new UserHasBeenSuspendedException();
+                //}
+                //else if (e.TwitterExceptionInfos.Any(x => x.Message.ToLowerInvariant().Contains("User not found".ToLowerInvariant())))
+                //{
+                //    throw new UserNotFoundException();
+                //}
+                //else if (e.TwitterExceptionInfos.Any(x => x.Message.ToLowerInvariant().Contains("Rate limit exceeded".ToLowerInvariant())))
+                //{
+                //    throw new RateLimitExceededException();
+                //}
+                //else
+                //{
+                //    throw;
+                //}
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Error retrieving user id {id}", id);
+                throw;
+            }
+            finally
+            {
+                _statisticsHandler.CalledUserApi();
+            }
+            return new TwitterUser
+            {
+                Id = id,
                 Acct = res.RootElement.GetProperty("data").GetProperty("username").GetString(),
                 Name = res.RootElement.GetProperty("data").GetProperty("name").GetString(),
                 Description = res.RootElement.GetProperty("data").GetProperty("description").GetString(),

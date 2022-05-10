@@ -110,7 +110,7 @@ namespace BirdsiteLive.Twitter
             return tweets.RootElement.GetProperty("data").EnumerateArray().Select<JsonElement, ExtractedTweet>(Extract).ToArray();
         }
 
-        public ExtractedTweet Extract(JsonElement tweet)
+        private ExtractedTweet Extract(JsonElement tweet)
         {
             bool IsRetweet = false;
             bool IsReply = false;
@@ -129,9 +129,11 @@ namespace BirdsiteLive.Twitter
                 if (first.GetProperty("type").GetString() == "retweeted")
                 {
                     IsRetweet = true;
+                    var originalAuthor = _twitterUserService.GetUser(Int64.Parse(tweet.GetProperty("author_id").GetString()));
                     var statusId = Int64.Parse(first.GetProperty("id").GetString());
                     var extracted = GetTweet(statusId);
                     extracted.IsRetweet = true;
+                    extracted.OriginalAuthor = originalAuthor;
                     return extracted;
 
                 }
@@ -158,7 +160,8 @@ namespace BirdsiteLive.Twitter
                 IsReply = IsReply,
                 IsThread = false,
                 IsRetweet = IsRetweet,
-                RetweetUrl = "https://t.co/123"
+                RetweetUrl = "https://t.co/123",
+                OriginalAuthor = null,
             };
 
             return extractedTweet;
