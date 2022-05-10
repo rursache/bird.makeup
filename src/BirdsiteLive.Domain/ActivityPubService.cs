@@ -75,7 +75,7 @@ namespace BirdsiteLive.Domain
                     actor = actor,
                     published = nowString,
 
-                    to = note.to,
+                    to = new[] {$"{actor}/followers"},
                     cc = note.cc,
                     apObject = note
                 };
