@@ -9,6 +9,7 @@ using BirdsiteLive.Statistics.Domain;
 using BirdsiteLive.Twitter.Models;
 using BirdsiteLive.Twitter.Tools;
 using Microsoft.Extensions.Logging;
+using System.Text.RegularExpressions;
 
 namespace BirdsiteLive.Twitter
 {
@@ -129,7 +130,9 @@ namespace BirdsiteLive.Twitter
                 if (first.GetProperty("type").GetString() == "retweeted")
                 {
                     IsRetweet = true;
-                    var originalAuthor = _twitterUserService.GetUser(Int64.Parse(tweet.GetProperty("author_id").GetString()));
+                    var regex = new Regex("RT @([A-Za-z0-9_])+:");
+                    var match = regex.Match(tweet.GetProperty("text").GetString());
+                    var originalAuthor = _twitterUserService.GetUser(match.Groups[1].Value);
                     var statusId = Int64.Parse(first.GetProperty("id").GetString());
                     var extracted = GetTweet(statusId);
                     extracted.IsRetweet = true;
