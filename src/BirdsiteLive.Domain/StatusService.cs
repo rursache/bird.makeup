@@ -71,8 +71,8 @@ namespace BirdsiteLive.Domain
             }
 
             string inReplyTo = null;
-            if (tweet.InReplyToStatusId != default)
-                inReplyTo = $"https://{_instanceSettings.Domain}/users/{tweet.InReplyToAccount.ToLowerInvariant()}/statuses/{tweet.InReplyToStatusId}";
+         //   if (tweet.InReplyToStatusId != default)
+         //       inReplyTo = $"https://{_instanceSettings.Domain}/users/{tweet.InReplyToAccount.ToLowerInvariant()}/statuses/{tweet.InReplyToStatusId}";
 
             var note = new Note
             {
