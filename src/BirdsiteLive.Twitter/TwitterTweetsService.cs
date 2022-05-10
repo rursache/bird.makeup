@@ -130,11 +130,12 @@ namespace BirdsiteLive.Twitter
                 if (first.GetProperty("type").GetString() == "retweeted")
                 {
                     IsRetweet = true;
-                    var regex = new Regex("RT @([A-Za-z0-9_])+:");
+                    var regex = new Regex("RT @([A-Za-z0-9_]+):");
                     var match = regex.Match(tweet.GetProperty("text").GetString());
                     var originalAuthor = _twitterUserService.GetUser(match.Groups[1].Value);
                     var statusId = Int64.Parse(first.GetProperty("id").GetString());
                     var extracted = GetTweet(statusId);
+                    extracted.Id = Int64.Parse(tweet.GetProperty("id").GetString());
                     extracted.IsRetweet = true;
                     extracted.OriginalAuthor = originalAuthor;
                     return extracted;
