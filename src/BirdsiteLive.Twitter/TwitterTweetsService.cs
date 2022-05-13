@@ -67,7 +67,8 @@ namespace BirdsiteLive.Twitter
                 JsonElement mediaExpension;
                 tweet.RootElement.GetProperty("includes").TryGetProperty("media", out mediaExpension);
 
-                return tweet.RootElement.GetProperty("data").EnumerateArray().Select<JsonElement, ExtractedTweet>(x => Extract(x, mediaExpension)).ToArray().First();
+                //return tweet.RootElement.GetProperty("data").EnumerateArray().Select<JsonElement, ExtractedTweet>(x => Extract(x, mediaExpension)).ToArray().First();
+                return Extract( tweet.RootElement.GetProperty("data"), mediaExpension);
             }
             catch (Exception e)
             {
