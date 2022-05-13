@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.IO;
 using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -48,7 +49,7 @@ namespace BirdsiteLive.Twitter
             {
                 await _twitterAuthenticationInitializer.EnsureAuthenticationIsInitialized();
                 JsonDocument tweet;
-                using (var request = new HttpRequestMessage(new HttpMethod("GET"), "https://api.twitter.com/2/tweets?ids=" + statusId + "&tweet.fields=id,created_at,text,author_id,in_reply_to_user_id,referenced_tweets,attachments,withheld,geo,entities,public_metrics,possibly_sensitive,source,lang,context_annotations,conversation_id,reply_settings&user.fields=name,username"))
+                using (var request = new HttpRequestMessage(new HttpMethod("GET"), "https://api.twitter.com/2/tweets?ids=" + statusId + "&tweet.fields=id,created_at,text,author_id,in_reply_to_user_id,referenced_tweets,attachments,withheld,geo,entities,public_metrics,possibly_sensitive,source,lang,context_annotations,conversation_id,reply_settings&user.fields=name,username&media.fields=media_key,duration_ms,height,preview_image_url,type,url,width,public_metrics,alt_text,variants"))
     {
                     request.Headers.TryAddWithoutValidation("Authorization", "Bearer " + _twitterAuthenticationInitializer.Token); 
 
@@ -60,7 +61,11 @@ namespace BirdsiteLive.Twitter
 
                 _statisticsHandler.CalledTweetApi();
                 if (tweet == null) return null; //TODO: test this
-                return tweet.RootElement.GetProperty("data").EnumerateArray().Select<JsonElement, ExtractedTweet>(Extract).ToArray().First();
+
+                JsonElement mediaExpension;
+                tweet.RootElement.TryGetProperty("media", out mediaExpension);
+
+                return tweet.RootElement.GetProperty("data").EnumerateArray().Select<JsonElement, ExtractedTweet>(x => Extract(x, mediaExpension)).ToArray().First();
             }
             catch (Exception e)
             {
@@ -84,6 +89,7 @@ namespace BirdsiteLive.Twitter
             var reqURL = "https://api.twitter.com/2/users/" 
                  + user.Id + 
                  "/tweets?expansions=in_reply_to_user_id,attachments.media_keys,entities.mentions.username,referenced_tweets.id.author_id&tweet.fields=id"
+                 + "&media.fields=media_key,duration_ms,height,preview_image_url,type,url,width,public_metrics,alt_text,variants"
                  + "&max_results=5"
                  + "" ; // ?since_id=2324234234
             JsonDocument tweets;
@@ -108,10 +114,13 @@ namespace BirdsiteLive.Twitter
                 return null;
             }
 
-            return tweets.RootElement.GetProperty("data").EnumerateArray().Select<JsonElement, ExtractedTweet>(Extract).ToArray();
+            JsonElement mediaExpension;
+            tweets.RootElement.TryGetProperty("media", out mediaExpension);
+
+            return tweets.RootElement.GetProperty("data").EnumerateArray().Select<JsonElement, ExtractedTweet>(x => Extract(x, mediaExpension)).ToArray();
         }
 
-        private ExtractedTweet Extract(JsonElement tweet)
+        private ExtractedTweet Extract(JsonElement tweet, JsonElement media)
         {
             bool IsRetweet = false;
             bool IsReply = false;
@@ -153,22 +162,74 @@ namespace BirdsiteLive.Twitter
                 }
             }
 
+            var extractedMedia = Array.Empty<ExtractedMedia>();
+            JsonElement attachments;
+            if (tweet.TryGetProperty("attachments", out attachments))
+            {
+                foreach (JsonElement m in attachments.GetProperty("media_keys").EnumerateArray())
+                {
+                    var mediaInfo = media.EnumerateArray().Where(x => x.GetProperty("media_key").GetString() == m.GetString()).First();
+                    var url = mediaInfo.GetProperty("url").GetString();
+                    var mediaType = mediaInfo.GetProperty("type").GetString();
+                    extractedMedia.Append(
+                        new ExtractedMedia 
+                        {
+                            Url = url,
+                            MediaType = GetMediaType(mediaType, url),
+                        }
+                    );
+
+                }
+            }
+
+
             var extractedTweet = new ExtractedTweet
             {
                 Id = Int64.Parse(tweet.GetProperty("id").GetString()),
                 InReplyToStatusId = replyId,
                 InReplyToAccount = replyAccountString,
                 MessageContent = tweet.GetProperty("text").GetString(),
-                Media = Array.Empty<ExtractedMedia>(),
                 CreatedAt = DateTime.Now, // tweet.GetProperty("data").GetProperty("in_reply_to_status_id").GetDateTime(),
                 IsReply = IsReply,
                 IsThread = false,
                 IsRetweet = IsRetweet,
+                Media = extractedMedia,
                 RetweetUrl = "https://t.co/123",
                 OriginalAuthor = null,
             };
 
             return extractedTweet;
+        }
+        private string GetMediaType(string mediaType, string mediaUrl)
+        {
+            switch (mediaType)
+            {
+                case "photo":
+                    var pExt = Path.GetExtension(mediaUrl);
+                    switch (pExt)
+                    {
+                        case ".jpg":
+                        case ".jpeg":
+                            return "image/jpeg";
+                        case ".png":
+                            return "image/png";
+                    }
+                    return null;
+
+                case "animated_gif":
+                    var vExt = Path.GetExtension(mediaUrl);
+                    switch (vExt)
+                    {
+                        case ".gif":
+                            return "image/gif";
+                        case ".mp4":
+                            return "video/mp4";
+                    }
+                    return "image/gif";
+                case "video":
+                    return "video/mp4";
+            }
+            return null;
         }
     }
 }
