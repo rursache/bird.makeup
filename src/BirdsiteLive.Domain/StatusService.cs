@@ -68,6 +68,7 @@ namespace BirdsiteLive.Domain
             if (tweet.IsRetweet)
             {
                 content = "RT: " + content;
+                cc = new[] {"https://www.w3.org/ns/activitystreams#Public"};
             }
 
             string inReplyTo = null;
