@@ -172,8 +172,12 @@ namespace BirdsiteLive.Twitter
                 foreach (JsonElement m in attachments.GetProperty("media_keys").EnumerateArray())
                 {
                     var mediaInfo = media.EnumerateArray().Where(x => x.GetProperty("media_key").GetString() == m.GetString()).First();
-                    var url = mediaInfo.GetProperty("url").GetString();
                     var mediaType = mediaInfo.GetProperty("type").GetString();
+                    if (mediaType != "photo")
+                    {
+                        continue;
+                    }
+                    var url = mediaInfo.GetProperty("url").GetString();
                     extractedMedia.Append(
                         new ExtractedMedia 
                         {
