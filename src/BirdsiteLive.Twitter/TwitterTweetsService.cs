@@ -49,7 +49,9 @@ namespace BirdsiteLive.Twitter
             {
                 await _twitterAuthenticationInitializer.EnsureAuthenticationIsInitialized();
                 JsonDocument tweet;
-                using (var request = new HttpRequestMessage(new HttpMethod("GET"), "https://api.twitter.com/2/tweets?ids=" + statusId + "&tweet.fields=id,created_at,text,author_id,in_reply_to_user_id,referenced_tweets,attachments,withheld,geo,entities,public_metrics,possibly_sensitive,source,lang,context_annotations,conversation_id,reply_settings&user.fields=name,username&media.fields=media_key,duration_ms,height,preview_image_url,type,url,width,public_metrics,alt_text,variants"))
+                var reqURL = "https://api.twitter.com/2/tweets/"  + statusId
+                     + "?expansions=author_id,referenced_tweets.id,attachments.media_keys,entities.mentions.username,referenced_tweets.id.author_id&tweet.fields=id,created_at,text,author_id,in_reply_to_user_id,referenced_tweets,attachments,withheld,geo,entities,public_metrics,possibly_sensitive,source,lang,context_annotations,conversation_id,reply_settings&user.fields=id,created_at,name,username,protected,verified,withheld,profile_image_url,location,url,description,entities,pinned_tweet_id,public_metrics&media.fields=media_key,duration_ms,height,preview_image_url,type,url,width,public_metrics,alt_text,variants";
+                using (var request = new HttpRequestMessage(new HttpMethod("GET"), reqURL))
     {
                     request.Headers.TryAddWithoutValidation("Authorization", "Bearer " + _twitterAuthenticationInitializer.Token); 
 
@@ -63,7 +65,7 @@ namespace BirdsiteLive.Twitter
                 if (tweet == null) return null; //TODO: test this
 
                 JsonElement mediaExpension;
-                tweet.RootElement.TryGetProperty("media", out mediaExpension);
+                tweet.RootElement.GetProperty("includes").TryGetProperty("media", out mediaExpension);
 
                 return tweet.RootElement.GetProperty("data").EnumerateArray().Select<JsonElement, ExtractedTweet>(x => Extract(x, mediaExpension)).ToArray().First();
             }
