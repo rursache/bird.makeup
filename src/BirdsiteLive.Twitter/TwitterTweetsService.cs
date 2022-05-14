@@ -167,26 +167,35 @@ namespace BirdsiteLive.Twitter
 
             var extractedMedia = Array.Empty<ExtractedMedia>();
             JsonElement attachments;
-            if (tweet.TryGetProperty("attachments", out attachments))
+            try 
             {
-                foreach (JsonElement m in attachments.GetProperty("media_keys").EnumerateArray())
+                if (tweet.TryGetProperty("attachments", out attachments))
                 {
-                    var mediaInfo = media.EnumerateArray().Where(x => x.GetProperty("media_key").GetString() == m.GetString()).First();
-                    var mediaType = mediaInfo.GetProperty("type").GetString();
-                    if (mediaType != "photo")
+                    foreach (JsonElement m in attachments.GetProperty("media_keys").EnumerateArray())
                     {
-                        continue;
-                    }
-                    var url = mediaInfo.GetProperty("url").GetString();
-                    extractedMedia.Append(
-                        new ExtractedMedia 
+                        var mediaInfo = media.EnumerateArray().Where(x => x.GetProperty("media_key").GetString() == m.GetString()).First();
+                        var mediaType = mediaInfo.GetProperty("type").GetString();
+                        if (mediaType != "photo")
                         {
-                            Url = url,
-                            MediaType = GetMediaType(mediaType, url),
+                            continue;
                         }
-                    );
+                        var url = mediaInfo.GetProperty("url").GetString();
+                        extractedMedia.Append(
+                            new ExtractedMedia 
+                            {
+                                Url = url,
+                                MediaType = GetMediaType(mediaType, url),
+                            }
+                        );
 
+                    }
                 }
+
+            }
+            catch (Exception e)
+            {
+                _logger.LogError("Tried getting media from tweet, but got error:", e);
+
             }
 
 
