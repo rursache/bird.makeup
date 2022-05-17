@@ -64,8 +64,13 @@ namespace BirdsiteLive.Twitter
                 _statisticsHandler.CalledTweetApi();
                 if (tweet == null) return null; //TODO: test this
 
-                JsonElement mediaExpension;
-                tweet.RootElement.GetProperty("includes").TryGetProperty("media", out mediaExpension);
+                JsonElement mediaExpension = default;
+                try 
+                {
+                    tweet.RootElement.GetProperty("includes").TryGetProperty("media", out mediaExpension);
+                } 
+                catch (Exception)
+                { }
 
                 //return tweet.RootElement.GetProperty("data").EnumerateArray().Select<JsonElement, ExtractedTweet>(x => Extract(x, mediaExpension)).ToArray().First();
                 return Extract( tweet.RootElement.GetProperty("data"), mediaExpension);
@@ -123,8 +128,14 @@ namespace BirdsiteLive.Twitter
                 return null;
             }
 
-            JsonElement mediaExpension;
-            tweets.RootElement.TryGetProperty("media", out mediaExpension);
+            JsonElement mediaExpension = default;
+            try 
+            {
+                tweets.RootElement.GetProperty("includes").TryGetProperty("media", out mediaExpension);
+            } 
+            catch (Exception)
+            { }
+
 
             return tweets.RootElement.GetProperty("data").EnumerateArray().Select<JsonElement, ExtractedTweet>(x => Extract(x, mediaExpension)).ToArray();
         }
