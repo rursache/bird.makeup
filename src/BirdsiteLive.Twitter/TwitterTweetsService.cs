@@ -131,6 +131,7 @@ namespace BirdsiteLive.Twitter
 
         private ExtractedTweet Extract(JsonElement tweet, JsonElement media)
         {
+            var id = Int64.Parse(tweet.GetProperty("id").GetString());
             bool IsRetweet = false;
             bool IsReply = false;
             long? replyId = null;
@@ -153,7 +154,7 @@ namespace BirdsiteLive.Twitter
                     var originalAuthor = _twitterUserService.GetUser(match.Groups[1].Value);
                     var statusId = Int64.Parse(first.GetProperty("id").GetString());
                     var extracted = GetTweet(statusId);
-                    extracted.RetweetId = Int64.Parse(tweet.GetProperty("id").GetString());
+                    extracted.RetweetId = id;
                     extracted.IsRetweet = true;
                     extracted.OriginalAuthor = originalAuthor;
                     return extracted;
@@ -200,14 +201,14 @@ namespace BirdsiteLive.Twitter
             }
             catch (Exception e)
             {
-                _logger.LogError("Tried getting media from tweet, but got error: \n" + e.StackTrace);
+                _logger.LogError("Tried getting media from tweet " + id + ", but got error: \n" + e.Message + e.StackTrace + e.Source);
 
             }
 
 
             var extractedTweet = new ExtractedTweet
             {
-                Id = Int64.Parse(tweet.GetProperty("id").GetString()),
+                Id = id,
                 InReplyToStatusId = replyId,
                 InReplyToAccount = replyAccountString,
                 MessageContent = tweet.GetProperty("text").GetString(),
