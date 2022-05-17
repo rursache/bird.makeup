@@ -200,7 +200,7 @@ namespace BirdsiteLive.Twitter
             }
             catch (Exception e)
             {
-                _logger.LogError("Tried getting media from tweet, but got error: \n", e.StackTrace);
+                _logger.LogError("Tried getting media from tweet, but got error: \n" + e.StackTrace);
 
             }
 
