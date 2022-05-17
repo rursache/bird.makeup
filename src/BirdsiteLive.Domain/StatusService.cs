@@ -42,10 +42,12 @@ namespace BirdsiteLive.Domain
         {
             var actorUrl = UrlFactory.GetActorUrl(_instanceSettings.Domain, username);
             var noteUrl = UrlFactory.GetNoteUrl(_instanceSettings.Domain, username, tweet.Id.ToString());
+            String announceId = null;
             if (tweet.IsRetweet)
             {
                 actorUrl = UrlFactory.GetActorUrl(_instanceSettings.Domain, tweet.OriginalAuthor.Acct);
                 noteUrl = UrlFactory.GetNoteUrl(_instanceSettings.Domain, tweet.OriginalAuthor.Acct, tweet.Id.ToString());
+                announceId  = UrlFactory.GetNoteUrl(_instanceSettings.Domain, username, tweet.RetweetId.ToString());
             }
 
             var to = $"{actorUrl}/followers";
@@ -79,6 +81,7 @@ namespace BirdsiteLive.Domain
             var note = new Note
             {
                 id = noteUrl,
+                announceId = announceId,
 
                 published = tweet.CreatedAt.ToString("s") + "Z",
                 url = noteUrl,

@@ -10,6 +10,7 @@ namespace BirdsiteLive.ActivityPub.Models
         public string[] context { get; set; } = new[] { "https://www.w3.org/ns/activitystreams" };
 
         public string id { get; set; }
+        public string announceId { get; set; }
         public string type { get; } = "Note";
         public string summary { get; set; }
         public string inReplyTo { get; set; }

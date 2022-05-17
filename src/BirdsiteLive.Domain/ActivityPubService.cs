@@ -62,7 +62,14 @@ namespace BirdsiteLive.Domain
             try
             {
                 var actor = UrlFactory.GetActorUrl(_instanceSettings.Domain, username);
-                var noteUri = UrlFactory.GetNoteUrl(_instanceSettings.Domain, username, noteId);
+                String noteUri;
+                if (activityType == "Create") 
+                {
+                    noteUri = UrlFactory.GetNoteUrl(_instanceSettings.Domain, username, noteId);
+                } else
+                {
+                    noteUri = UrlFactory.GetNoteUrl(_instanceSettings.Domain, username, note.announceId);
+                }
 
                 var now = DateTime.UtcNow;
                 var nowString = now.ToString("s") + "Z";

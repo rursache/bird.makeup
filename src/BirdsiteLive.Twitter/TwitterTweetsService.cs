@@ -83,6 +83,11 @@ namespace BirdsiteLive.Twitter
         }
         public async Task<ExtractedTweet[]> GetTimelineAsync(string username, int nberTweets, long fromTweetId = -1)
         {
+            if (nberTweets < 5)
+                nberTweets = 5;
+
+            if (nberTweets > 100)
+                nberTweets = 100;
 
             await _twitterAuthenticationInitializer.EnsureAuthenticationIsInitialized();
 
@@ -91,9 +96,10 @@ namespace BirdsiteLive.Twitter
 
             var reqURL = "https://api.twitter.com/2/users/" 
                  + user.Id + 
-                 "/tweets?expansions=in_reply_to_user_id,attachments.media_keys,entities.mentions.username,referenced_tweets.id.author_id&tweet.fields=id"
+                 "/tweets?expansions=in_reply_to_user_id,attachments.media_keys,entities.mentions.username,referenced_tweets.id.author_id"
+                 + "&tweet.fields=id,created_at"
                  + "&media.fields=media_key,duration_ms,height,preview_image_url,type,url,width,public_metrics,alt_text,variants"
-                 + "&max_results=5"
+                 + "&max_results=" + nberTweets
                  + "" ; // ?since_id=2324234234
             JsonDocument tweets;
             try
@@ -147,7 +153,7 @@ namespace BirdsiteLive.Twitter
                     var originalAuthor = _twitterUserService.GetUser(match.Groups[1].Value);
                     var statusId = Int64.Parse(first.GetProperty("id").GetString());
                     var extracted = GetTweet(statusId);
-                    extracted.Id = Int64.Parse(tweet.GetProperty("id").GetString());
+                    extracted.RetweetId = Int64.Parse(tweet.GetProperty("id").GetString());
                     extracted.IsRetweet = true;
                     extracted.OriginalAuthor = originalAuthor;
                     return extracted;
@@ -194,7 +200,7 @@ namespace BirdsiteLive.Twitter
             }
             catch (Exception e)
             {
-                _logger.LogError("Tried getting media from tweet, but got error:", e);
+                _logger.LogError("Tried getting media from tweet, but got error: \n", e.StackTrace);
 
             }
 
@@ -205,7 +211,7 @@ namespace BirdsiteLive.Twitter
                 InReplyToStatusId = replyId,
                 InReplyToAccount = replyAccountString,
                 MessageContent = tweet.GetProperty("text").GetString(),
-                CreatedAt = DateTime.Now, // tweet.GetProperty("data").GetProperty("in_reply_to_status_id").GetDateTime(),
+                CreatedAt = tweet.GetProperty("created_at").GetDateTime(),
                 IsReply = IsReply,
                 IsThread = false,
                 IsRetweet = IsRetweet,
