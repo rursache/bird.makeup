@@ -98,7 +98,7 @@ namespace BirdsiteLive.Twitter
             if (user == null || user.Protected) return new ExtractedTweet[0];
 
 
-            var reqURL = "https://twitter.com/i/api/graphql/25oeBocoJ0NLTbSBegxleg/UserTweets?variables=%7B%22userId%22%3A%"
+            var reqURL = "https://twitter.com/i/api/graphql/25oeBocoJ0NLTbSBegxleg/UserTweets?variables=%7B%22userId%22%3A%22"
                  + user.Id + 
                 "%22%2C%22count%22%3A40%2C%22includePromotedContent%22%3Atrue%2C%22withQuickPromoteEligibilityTweetFields%22%3Atrue%2C%22withSuperFollowsUserFields%22%3Atrue%2C%22withDownvotePerspective%22%3Afalse%2C%22withReactionsMetadata%22%3Afalse%2C%22withReactionsPerspective%22%3Afalse%2C%22withSuperFollowsTweetFields%22%3Atrue%2C%22withVoice%22%3Atrue%2C%22withV2Timeline%22%3Atrue%7D&features=%7B%22responsive_web_twitter_blue_verified_badge_is_enabled%22%3Atrue%2C%22verified_phone_label_enabled%22%3Afalse%2C%22responsive_web_graphql_timeline_navigation_enabled%22%3Atrue%2C%22unified_cards_ad_metadata_container_dynamic_card_content_query_enabled%22%3Atrue%2C%22tweetypie_unmention_optimization_enabled%22%3Atrue%2C%22responsive_web_uc_gql_enabled%22%3Atrue%2C%22vibe_api_enabled%22%3Atrue%2C%22responsive_web_edit_tweet_api_enabled%22%3Atrue%2C%22graphql_is_translatable_rweb_tweet_is_translatable_enabled%22%3Afalse%2C%22standardized_nudges_misinfo%22%3Atrue%2C%22tweet_with_visibility_results_prefer_gql_limited_actions_policy_enabled%22%3Afalse%2C%22interactive_text_enabled%22%3Atrue%2C%22responsive_web_text_conversations_enabled%22%3Afalse%2C%22responsive_web_enhance_cards_enabled%22%3Atrue%7D";
             JsonDocument results;
@@ -107,6 +107,7 @@ namespace BirdsiteLive.Twitter
             {
                 using (var request = new HttpRequestMessage(new HttpMethod("GET"), reqURL))
                 {
+
                     var httpResponse = await client.SendAsync(request);
                     httpResponse.EnsureSuccessStatusCode();
                     var c = await httpResponse.Content.ReadAsStringAsync();
