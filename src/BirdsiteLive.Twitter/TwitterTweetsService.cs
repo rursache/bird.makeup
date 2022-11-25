@@ -134,25 +134,34 @@ namespace BirdsiteLive.Twitter
                 
                 foreach (JsonElement tweet in timelineElement.GetProperty("entries").EnumerateArray())
                 {
-                    var extractedTweet = new ExtractedTweet
+                    try 
                     {
-                        Id = Int64.Parse(tweet.GetProperty("sortIndex").GetString()),
-                        InReplyToStatusId = null,
-                        InReplyToAccount = null,
-                        MessageContent = tweet.GetProperty("content").GetProperty("item_contenet")
-                            .GetProperty("tweet_results").GetProperty("result").GetProperty("legacy")
-                            .GetProperty("full_text").GetString(),
-                        CreatedAt = tweet.GetProperty("content").GetProperty("item_contenet")
-                            .GetProperty("tweet_results").GetProperty("result").GetProperty("legacy")
-                            .GetProperty("created_at").GetDateTime(),
-                        IsReply = false,
-                        IsThread = false,
-                        IsRetweet = false,
-                        Media = null,
-                        RetweetUrl = "https://t.co/123",
-                        OriginalAuthor = null,
-                    };
-                    extractedTweets.Append(extractedTweet);
+
+                        var extractedTweet = new ExtractedTweet
+                        {
+                            Id = Int64.Parse(tweet.GetProperty("sortIndex").GetString()),
+                            InReplyToStatusId = null,
+                            InReplyToAccount = null,
+                            MessageContent = tweet.GetProperty("content").GetProperty("item_contenet")
+                                .GetProperty("tweet_results").GetProperty("result").GetProperty("legacy")
+                                .GetProperty("full_text").GetString(),
+                            CreatedAt = tweet.GetProperty("content").GetProperty("item_contenet")
+                                .GetProperty("tweet_results").GetProperty("result").GetProperty("legacy")
+                                .GetProperty("created_at").GetDateTime(),
+                            IsReply = false,
+                            IsThread = false,
+                            IsRetweet = false,
+                            Media = null,
+                            RetweetUrl = "https://t.co/123",
+                            OriginalAuthor = null,
+                        };
+                        extractedTweets.Append(extractedTweet);
+                    }
+                    catch (Exception e)
+                    {
+                        _logger.LogError("Tried getting timeline from user " + username + ", but got error: \n" + e.Message + e.StackTrace + e.Source);
+
+                    }
                 }
             }
 
