@@ -142,10 +142,10 @@ namespace BirdsiteLive.Twitter
                             Id = Int64.Parse(tweet.GetProperty("sortIndex").GetString()),
                             InReplyToStatusId = null,
                             InReplyToAccount = null,
-                            MessageContent = tweet.GetProperty("content").GetProperty("item_contenet")
+                            MessageContent = tweet.GetProperty("content").GetProperty("itemContent")
                                 .GetProperty("tweet_results").GetProperty("result").GetProperty("legacy")
                                 .GetProperty("full_text").GetString(),
-                            CreatedAt = tweet.GetProperty("content").GetProperty("item_contenet")
+                            CreatedAt = tweet.GetProperty("content").GetProperty("itemContent")
                                 .GetProperty("tweet_results").GetProperty("result").GetProperty("legacy")
                                 .GetProperty("created_at").GetDateTime(),
                             IsReply = false,
