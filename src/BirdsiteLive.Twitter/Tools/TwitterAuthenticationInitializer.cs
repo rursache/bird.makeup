@@ -14,6 +14,7 @@ namespace BirdsiteLive.Twitter.Tools
         String BearerToken { get; }
         String GuestToken { get; }
         Task EnsureAuthenticationIsInitialized();
+        Task<HttpClient> MakeHttpClient();
     }
 
     public class TwitterAuthenticationInitializer : ITwitterAuthenticationInitializer
@@ -72,6 +73,18 @@ namespace BirdsiteLive.Twitter.Tools
                     await Task.Delay(3600*1000);
                 }
             }
+        }
+
+        public async Task<HttpClient> MakeHttpClient()
+        {
+            await EnsureAuthenticationIsInitialized();
+
+            HttpClient client = new HttpClient();
+            client.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", $"Bearer " + BearerToken); 
+            client.DefaultRequestHeaders.TryAddWithoutValidation("x-guest-token", GuestToken);
+            client.DefaultRequestHeaders.TryAddWithoutValidation("Referer", "https://twitter.com/");
+            client.DefaultRequestHeaders.TryAddWithoutValidation("x-twitter-active-user", "yes");
+            return client;
         }
     }
 }

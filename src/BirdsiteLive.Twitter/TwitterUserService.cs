@@ -47,13 +47,10 @@ namespace BirdsiteLive.Twitter
             try
             {
 
+                var client = await _twitterAuthenticationInitializer.MakeHttpClient();
                 using (var request = new HttpRequestMessage(new HttpMethod("GET"), endpoint.Replace("elonmusk", username)))
                 {
-                    request.Headers.TryAddWithoutValidation("Authorization", "Bearer " + _twitterAuthenticationInitializer.BearerToken);
-                    request.Headers.TryAddWithoutValidation("x-guest-token", _twitterAuthenticationInitializer.GuestToken);
-                    request.Headers.TryAddWithoutValidation("Referer", "https://twitter.com/");
-                    request.Headers.TryAddWithoutValidation("x-twitter-active-user", "yes");
-                    var httpResponse = await _httpClient.SendAsync(request);
+                    var httpResponse = await client.SendAsync(request);
                     httpResponse.EnsureSuccessStatusCode();
 
                     var c = await httpResponse.Content.ReadAsStringAsync();
