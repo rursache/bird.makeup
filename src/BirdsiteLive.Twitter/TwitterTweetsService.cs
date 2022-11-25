@@ -53,7 +53,7 @@ namespace BirdsiteLive.Twitter
                      + "?expansions=author_id,referenced_tweets.id,attachments.media_keys,entities.mentions.username,referenced_tweets.id.author_id&tweet.fields=id,created_at,text,author_id,in_reply_to_user_id,referenced_tweets,attachments,withheld,geo,entities,public_metrics,possibly_sensitive,source,lang,context_annotations,conversation_id,reply_settings&user.fields=id,created_at,name,username,protected,verified,withheld,profile_image_url,location,url,description,entities,pinned_tweet_id,public_metrics&media.fields=media_key,duration_ms,height,preview_image_url,type,url,width,public_metrics,alt_text,variants";
                 using (var request = new HttpRequestMessage(new HttpMethod("GET"), reqURL))
     {
-                    request.Headers.TryAddWithoutValidation("Authorization", "Bearer " + _twitterAuthenticationInitializer.Token); 
+                    request.Headers.TryAddWithoutValidation("Authorization", "Bearer " + _twitterAuthenticationInitializer.BearerToken); 
 
                     var httpResponse = await _httpClient.SendAsync(request);
                     httpResponse.EnsureSuccessStatusCode();
@@ -111,7 +111,7 @@ namespace BirdsiteLive.Twitter
             {
                 using (var request = new HttpRequestMessage(new HttpMethod("GET"), reqURL))
     {
-                    request.Headers.TryAddWithoutValidation("Authorization", "Bearer " + _twitterAuthenticationInitializer.Token); 
+                    request.Headers.TryAddWithoutValidation("Authorization", "Bearer " + _twitterAuthenticationInitializer.BearerToken); 
 
                     var httpResponse = await _httpClient.SendAsync(request);
                     httpResponse.EnsureSuccessStatusCode();

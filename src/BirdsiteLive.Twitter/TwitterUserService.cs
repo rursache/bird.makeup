@@ -41,6 +41,7 @@ namespace BirdsiteLive.Twitter
         }
         public async Task<TwitterUser> GetUserAsync(string username)
         {
+            await _twitterAuthenticationInitializer.EnsureAuthenticationIsInitialized();
 
             JsonDocument res;
             try
@@ -48,8 +49,8 @@ namespace BirdsiteLive.Twitter
 
                 using (var request = new HttpRequestMessage(new HttpMethod("GET"), endpoint.Replace("elonmusk", username)))
                 {
-                    request.Headers.TryAddWithoutValidation("Authorization", "Bearer AAAAAAAAAAAAAAAAAAAAANRILgAAAAAAnNwIzUejRCOuH5E6I8xnZz4puTs%3D1Zv7ttfk8LF81IUq16cHjhLTvJu4FA33AGWWjCpTnA");
-                    request.Headers.TryAddWithoutValidation("x-guest-token", "1595938298886758401");
+                    request.Headers.TryAddWithoutValidation("Authorization", "Bearer " + _twitterAuthenticationInitializer.BearerToken);
+                    request.Headers.TryAddWithoutValidation("x-guest-token", _twitterAuthenticationInitializer.GuestToken);
                     request.Headers.TryAddWithoutValidation("Referer", "https://twitter.com/");
                     request.Headers.TryAddWithoutValidation("x-twitter-active-user", "yes");
                     var httpResponse = await _httpClient.SendAsync(request);

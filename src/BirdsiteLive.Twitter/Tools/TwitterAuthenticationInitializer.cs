@@ -11,7 +11,8 @@ namespace BirdsiteLive.Twitter.Tools
 {
     public interface ITwitterAuthenticationInitializer
     {
-        String Token { get; }
+        String BearerToken { get; }
+        String GuestToken { get; }
         Task EnsureAuthenticationIsInitialized();
     }
 
@@ -22,7 +23,10 @@ namespace BirdsiteLive.Twitter.Tools
         private static bool _initialized;
         private readonly HttpClient _httpClient = new HttpClient();
         private String _token;
-        public String Token { 
+        public String BearerToken { 
+            get { return "AAAAAAAAAAAAAAAAAAAAAPYXBAAAAAAACLXUNDekMxqa8h%2F40K4moUkGsoc%3DTYfbDKbT3jJPCEVnMYqilB28NHfOPqkca3qaAxGfsyKCs0wRbw"; }
+        }
+        public String GuestToken { 
             get { return _token; }
         }
 
@@ -48,20 +52,16 @@ namespace BirdsiteLive.Twitter.Tools
                 try
                 {
 
-                    using (var request = new HttpRequestMessage(new HttpMethod("POST"), "https://api.twitter.com/oauth2/token"))
+                    using (var request = new HttpRequestMessage(new HttpMethod("POST"), "https://api.twitter.com/1.1/guest/activate.json"))
                     {
-                        var base64authorization = Convert.ToBase64String(System.Text.Encoding.ASCII.GetBytes(_settings.ConsumerKey + ":" + _settings.ConsumerSecret));
-                        request.Headers.TryAddWithoutValidation("Authorization", $"Basic {base64authorization}"); 
-
-                        request.Content = new StringContent("grant_type=client_credentials");
-                        request.Content.Headers.ContentType = MediaTypeHeaderValue.Parse("application/x-www-form-urlencoded"); 
+                        request.Headers.TryAddWithoutValidation("Authorization", $"Bearer " + BearerToken); 
 
                         var httpResponse = await _httpClient.SendAsync(request);
 
                         var c = await httpResponse.Content.ReadAsStringAsync();
                         httpResponse.EnsureSuccessStatusCode();
                         var doc = JsonDocument.Parse(c);
-                        _token = doc.RootElement.GetProperty("access_token").GetString();
+                        _token = doc.RootElement.GetProperty("guest_token").GetString();
                     }
                     _initialized = true;
                     return;
