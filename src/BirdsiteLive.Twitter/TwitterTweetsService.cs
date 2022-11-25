@@ -4,6 +4,7 @@ using System.Linq;
 using System.IO;
 using System.Net.Http;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Threading.Tasks;
 using BirdsiteLive.Common.Settings;
 using BirdsiteLive.Statistics.Domain;
@@ -145,9 +146,9 @@ namespace BirdsiteLive.Twitter
                             MessageContent = tweet.GetProperty("content").GetProperty("itemContent")
                                 .GetProperty("tweet_results").GetProperty("result").GetProperty("legacy")
                                 .GetProperty("full_text").GetString(),
-                            CreatedAt = tweet.GetProperty("content").GetProperty("itemContent")
-                                .GetProperty("tweet_results").GetProperty("result").GetProperty("legacy")
-                                .GetProperty("created_at").GetDateTime(),
+                            CreatedAt = DateTime.Now, //tweet.GetProperty("content").GetProperty("itemContent")
+//                                .GetProperty("tweet_results").GetProperty("result").GetProperty("legacy")
+//                                .GetProperty("created_at").GetDateTime(),
                             IsReply = false,
                             IsThread = false,
                             IsRetweet = false,
@@ -155,11 +156,12 @@ namespace BirdsiteLive.Twitter
                             RetweetUrl = "https://t.co/123",
                             OriginalAuthor = null,
                         };
-                        extractedTweets.Append(extractedTweet);
+                        extractedTweets.Add(extractedTweet);
                     }
                     catch (Exception e)
                     {
-                        _logger.LogError("Tried getting timeline from user " + username + ", but got error: \n" + e.Message + e.StackTrace + e.Source);
+                        _logger.LogError("Tried getting timeline from user " + username + ", but got error: \n" + e.Message + e.StackTrace + e.Source
+                            + JsonObject.Create(tweet).ToJsonString(new JsonSerializerOptions { WriteIndented = true }));
 
                     }
                 }
