@@ -138,6 +138,9 @@ namespace BirdsiteLive.Twitter
                     try 
                     {
 
+                        string creationTime = tweet.GetProperty("content").GetProperty("itemContent")
+                                .GetProperty("tweet_results").GetProperty("result").GetProperty("legacy")
+                                .GetProperty("created_at").GetString();
                         var extractedTweet = new ExtractedTweet
                         {
                             Id = Int64.Parse(tweet.GetProperty("sortIndex").GetString()),
@@ -146,9 +149,7 @@ namespace BirdsiteLive.Twitter
                             MessageContent = tweet.GetProperty("content").GetProperty("itemContent")
                                 .GetProperty("tweet_results").GetProperty("result").GetProperty("legacy")
                                 .GetProperty("full_text").GetString(),
-                            CreatedAt = DateTime.Now, //tweet.GetProperty("content").GetProperty("itemContent")
-//                                .GetProperty("tweet_results").GetProperty("result").GetProperty("legacy")
-//                                .GetProperty("created_at").GetDateTime(),
+                            CreatedAt = DateTime.Parse(creationTime),
                             IsReply = false,
                             IsThread = false,
                             IsRetweet = false,
