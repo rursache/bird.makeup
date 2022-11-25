@@ -23,6 +23,8 @@ namespace BirdsiteLive.Twitter
         private readonly ITwitterStatisticsHandler _statisticsHandler;
         private readonly ILogger<TwitterUserService> _logger;
         private HttpClient _httpClient = new HttpClient();
+        
+        private readonly string endpoint = "https://twitter.com/i/api/graphql/4LB4fkCe3RDLDmOEEYtueg/UserByScreenName?variables=%7B%22screen_name%22%3A%22elonmusk%22%2C%22withSafetyModeUserFields%22%3Atrue%2C%22withSuperFollowsUserFields%22%3Atrue%7D&features=%7B%22responsive_web_twitter_blue_verified_badge_is_enabled%22%3Atrue%2C%22verified_phone_label_enabled%22%3Afalse%2C%22responsive_web_twitter_blue_new_verification_copy_is_enabled%22%3Afalse%2C%22responsive_web_graphql_timeline_navigation_enabled%22%3Atrue%7D";
 
         #region Ctor
         public TwitterUserService(ITwitterAuthenticationInitializer twitterAuthenticationInitializer, ITwitterStatisticsHandler statisticsHandler, ILogger<TwitterUserService> logger)
@@ -39,19 +41,17 @@ namespace BirdsiteLive.Twitter
         }
         public async Task<TwitterUser> GetUserAsync(string username)
         {
-            //Check if API is saturated 
-            if (IsUserApiRateLimited()) throw new RateLimitExceededException();
-
-            //Proceed to account retrieval
-            await _twitterAuthenticationInitializer.EnsureAuthenticationIsInitialized();
 
             JsonDocument res;
             try
             {
-                using (var request = new HttpRequestMessage(new HttpMethod("GET"), "https://api.twitter.com/2/users/by/username/"+ username + "?user.fields=name,username,protected,profile_image_url,url,description"))
-    {
-                    request.Headers.TryAddWithoutValidation("Authorization", "Bearer " + _twitterAuthenticationInitializer.Token); 
 
+                using (var request = new HttpRequestMessage(new HttpMethod("GET"), endpoint.Replace("elonmusk", username)))
+                {
+                    request.Headers.TryAddWithoutValidation("Authorization", "Bearer AAAAAAAAAAAAAAAAAAAAANRILgAAAAAAnNwIzUejRCOuH5E6I8xnZz4puTs%3D1Zv7ttfk8LF81IUq16cHjhLTvJu4FA33AGWWjCpTnA");
+                    request.Headers.TryAddWithoutValidation("x-guest-token", "1595938298886758401");
+                    request.Headers.TryAddWithoutValidation("Referer", "https://twitter.com/");
+                    request.Headers.TryAddWithoutValidation("x-twitter-active-user", "yes");
                     var httpResponse = await _httpClient.SendAsync(request);
                     httpResponse.EnsureSuccessStatusCode();
 
@@ -94,46 +94,24 @@ namespace BirdsiteLive.Twitter
             //foreach (var descriptionUrl in user.Entities?.Description?.Urls?.OrderByDescending(x => x.URL.Length))
             //    description = description.Replace(descriptionUrl.URL, descriptionUrl.ExpandedURL);
 
+            var result = res.RootElement.GetProperty("data").GetProperty("user").GetProperty("result");
             return new TwitterUser
             {
-                Id = long.Parse(res.RootElement.GetProperty("data").GetProperty("id").GetString()),
-                Acct = res.RootElement.GetProperty("data").GetProperty("username").GetString(),
-                Name = res.RootElement.GetProperty("data").GetProperty("name").GetString(),
-                Description = res.RootElement.GetProperty("data").GetProperty("description").GetString(),
-                Url = res.RootElement.GetProperty("data").GetProperty("url").GetString(),
-                ProfileImageUrl = res.RootElement.GetProperty("data").GetProperty("profile_image_url").GetString(),
-                ProfileBackgroundImageUrl = res.RootElement.GetProperty("data").GetProperty("profile_image_url").GetString(), //for now
-                ProfileBannerURL = res.RootElement.GetProperty("data").GetProperty("profile_image_url").GetString(), //for now
-                Protected = res.RootElement.GetProperty("data").GetProperty("protected").GetBoolean(), 
+                Id = long.Parse(result.GetProperty("rest_id").GetString()),
+                Acct = username, 
+                Name =  result.GetProperty("legacy").GetProperty("name").GetString(), //res.RootElement.GetProperty("data").GetProperty("name").GetString(),
+                Description =  "", //res.RootElement.GetProperty("data").GetProperty("description").GetString(),
+                Url =  "", //res.RootElement.GetProperty("data").GetProperty("url").GetString(),
+                ProfileImageUrl =  result.GetProperty("legacy").GetProperty("profile_image_url_https").GetString(), 
+                ProfileBackgroundImageUrl =  result.GetProperty("legacy").GetProperty("profile_banner_url").GetString(), 
+                ProfileBannerURL = result.GetProperty("legacy").GetProperty("profile_banner_url").GetString(), 
+                Protected = false, //res.RootElement.GetProperty("data").GetProperty("protected").GetBoolean(), 
             };
         }
 
 
         public bool IsUserApiRateLimited()
         {
-            // Retrieve limit from tooling
-            //_twitterAuthenticationInitializer.EnsureAuthenticationIsInitialized();
-            //ExceptionHandler.SwallowWebExceptions = false;
-            //RateLimit.RateLimitTrackerMode = RateLimitTrackerMode.TrackOnly;
-
-            //try
-            //{
-            //    var queryRateLimits = RateLimit.GetQueryRateLimit("https://api.twitter.com/1.1/users/show.json?screen_name=mastodon");
-
-            //    if (queryRateLimits != null)
-            //    {
-            //        return queryRateLimits.Remaining <= 0;
-            //    }
-            //}
-            //catch (Exception e)
-            //{
-            //    _logger.LogError(e, "Error retrieving rate limits");
-            //}
-
-            //// Fallback
-            //var currentCalls = _statisticsHandler.GetCurrentUserCalls();
-            //var maxCalls = _statisticsHandler.GetStatistics().UserCallsMax;
-            //return currentCalls >= maxCalls;
             return false;
         }
     }
