@@ -158,8 +158,7 @@ namespace BirdsiteLive.Twitter
                         {
                             MessageContent = tweet.GetProperty("content").GetProperty("itemContent")
                                 .GetProperty("tweet_results").GetProperty("result").GetProperty("legacy")
-                                .GetProperty("retweeted_status_result").GetProperty("result").GetProperty("core")
-                                .GetProperty("user_results").GetProperty("result")
+                                .GetProperty("retweeted_status_result").GetProperty("result")
                                 .GetProperty("legacy").GetProperty("full_text").GetString();
                             string OriginalAuthorUsername = tweet.GetProperty("content").GetProperty("itemContent")
                                 .GetProperty("tweet_results").GetProperty("result").GetProperty("legacy")
