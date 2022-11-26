@@ -144,7 +144,7 @@ namespace BirdsiteLive.Twitter
                                 .GetProperty("tweet_results").GetProperty("result").GetProperty("legacy")
                                 .TryGetProperty("retweeted_status_result", out retweet);
                         string MessageContent;
-                        if (isRetweet)
+                        if (!isRetweet)
                         {
                             MessageContent = tweet.GetProperty("content").GetProperty("itemContent")
                                 .GetProperty("tweet_results").GetProperty("result").GetProperty("legacy")
