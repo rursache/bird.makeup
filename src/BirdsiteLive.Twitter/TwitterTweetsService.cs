@@ -159,6 +159,22 @@ namespace BirdsiteLive.Twitter
 
             JsonElement retweet;
             TwitterUser OriginalAuthor;
+            JsonElement inReplyToPostIdElement;
+            JsonElement inReplyToUserElement;
+            string inReplyToUser = null;
+            long? inReplyToPostId = null;
+
+            bool isReply = tweet.GetProperty("content").GetProperty("itemContent")
+                    .GetProperty("tweet_results").GetProperty("result").GetProperty("legacy")
+                    .TryGetProperty("in_reply_to_status_id_str", out inReplyToPostIdElement);
+            tweet.GetProperty("content").GetProperty("itemContent")
+                    .GetProperty("tweet_results").GetProperty("result").GetProperty("legacy")
+                    .TryGetProperty("in_reply_to_screen_name", out inReplyToUserElement);
+            if (isReply) 
+            {
+                inReplyToPostId = Int64.Parse(inReplyToPostIdElement.GetString());
+                inReplyToUser = inReplyToUserElement.GetString();
+            }
             bool isRetweet = tweet.GetProperty("content").GetProperty("itemContent")
                     .GetProperty("tweet_results").GetProperty("result").GetProperty("legacy")
                     .TryGetProperty("retweeted_status_result", out retweet);
@@ -190,11 +206,11 @@ namespace BirdsiteLive.Twitter
             var extractedTweet = new ExtractedTweet
             {
                 Id = Int64.Parse(tweet.GetProperty("sortIndex").GetString()),
-                InReplyToStatusId = null,
-                InReplyToAccount = null,
+                InReplyToStatusId = inReplyToPostId,
+                InReplyToAccount = inReplyToUser,
                 MessageContent = MessageContent,
                 CreatedAt = DateTime.ParseExact(creationTime, "ddd MMM dd HH:mm:ss yyyy", System.Globalization.CultureInfo.InvariantCulture),
-                IsReply = false,
+                IsReply = isReply,
                 IsThread = false,
                 IsRetweet = isRetweet,
                 Media = null,
