@@ -108,7 +108,7 @@ namespace BirdsiteLive.Twitter
                 Description =  "", //res.RootElement.GetProperty("data").GetProperty("description").GetString(),
                 Url =  "", //res.RootElement.GetProperty("data").GetProperty("url").GetString(),
                 ProfileImageUrl =  result.GetProperty("legacy").GetProperty("profile_image_url_https").GetString().Replace("normal", "400x400"), 
-                ProfileBackgroundImageUrl =  result.GetProperty("legacy").GetProperty("profile_banner_url").GetString(), 
+                ProfileBackgroundImageUrl =  profileBannerURL,
                 ProfileBannerURL = profileBannerURL,
                 Protected = false, //res.RootElement.GetProperty("data").GetProperty("protected").GetBoolean(), 
             };
