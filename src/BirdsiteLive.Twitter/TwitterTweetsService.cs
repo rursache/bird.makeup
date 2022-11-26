@@ -99,7 +99,7 @@ namespace BirdsiteLive.Twitter
             if (user == null || user.Protected) return new ExtractedTweet[0];
 
 
-            var reqURL = "https://twitter.com/i/api/graphql/25oeBocoJ0NLTbSBegxleg/UserTweets?variables=%7B%22userId%22%3A%22"
+            var reqURL = "https://twitter.com/i/api/graphql/s0hG9oAmWEYVBqOLJP-TBQ/UserTweetsAndReplies?variables=%7B%22userId%22%3A%22"
                  + user.Id + 
                 "%22%2C%22count%22%3A40%2C%22includePromotedContent%22%3Atrue%2C%22withQuickPromoteEligibilityTweetFields%22%3Atrue%2C%22withSuperFollowsUserFields%22%3Atrue%2C%22withDownvotePerspective%22%3Afalse%2C%22withReactionsMetadata%22%3Afalse%2C%22withReactionsPerspective%22%3Afalse%2C%22withSuperFollowsTweetFields%22%3Atrue%2C%22withVoice%22%3Atrue%2C%22withV2Timeline%22%3Atrue%7D&features=%7B%22responsive_web_twitter_blue_verified_badge_is_enabled%22%3Atrue%2C%22verified_phone_label_enabled%22%3Afalse%2C%22responsive_web_graphql_timeline_navigation_enabled%22%3Atrue%2C%22unified_cards_ad_metadata_container_dynamic_card_content_query_enabled%22%3Atrue%2C%22tweetypie_unmention_optimization_enabled%22%3Atrue%2C%22responsive_web_uc_gql_enabled%22%3Atrue%2C%22vibe_api_enabled%22%3Atrue%2C%22responsive_web_edit_tweet_api_enabled%22%3Atrue%2C%22graphql_is_translatable_rweb_tweet_is_translatable_enabled%22%3Afalse%2C%22standardized_nudges_misinfo%22%3Atrue%2C%22tweet_with_visibility_results_prefer_gql_limited_actions_policy_enabled%22%3Afalse%2C%22interactive_text_enabled%22%3Atrue%2C%22responsive_web_text_conversations_enabled%22%3Afalse%2C%22responsive_web_enhance_cards_enabled%22%3Atrue%7D";
             JsonDocument results;
@@ -138,6 +138,33 @@ namespace BirdsiteLive.Twitter
                     try 
                     {
 
+                        JsonElement retweet;
+                        TwitterUser OriginalAuthor;
+                        bool isRetweet = tweet.GetProperty("content").GetProperty("itemContent")
+                                .GetProperty("tweet_results").GetProperty("result").GetProperty("legacy")
+                                .TryGetProperty("retweeted_status_result", out retweet);
+                        string MessageContent;
+                        if (isRetweet)
+                        {
+                            MessageContent = tweet.GetProperty("content").GetProperty("itemContent")
+                                .GetProperty("tweet_results").GetProperty("result").GetProperty("legacy")
+                                .GetProperty("full_text").GetString();
+                            OriginalAuthor = null;
+                        }
+                        else 
+                        {
+                            MessageContent = tweet.GetProperty("content").GetProperty("itemContent")
+                                .GetProperty("tweet_results").GetProperty("result").GetProperty("legacy")
+                                .GetProperty("retweeted_status_result").GetProperty("result")
+                                .GetProperty("legacy").GetProperty("full_text").GetString();
+                            string OriginalAuthorUsername = tweet.GetProperty("content").GetProperty("itemContent")
+                                .GetProperty("tweet_results").GetProperty("result").GetProperty("legacy")
+                                .GetProperty("retweeted_status_result").GetProperty("result")
+                                .GetProperty("core").GetProperty("user_results").GetProperty("result")
+                                .GetProperty("legacy").GetProperty("screen_name").GetString();
+                            OriginalAuthor = _twitterUserService.GetUser(OriginalAuthorUsername);
+                        }
+
                         string creationTime = tweet.GetProperty("content").GetProperty("itemContent")
                                 .GetProperty("tweet_results").GetProperty("result").GetProperty("legacy")
                                 .GetProperty("created_at").GetString().Replace(" +0000", "");
@@ -146,16 +173,14 @@ namespace BirdsiteLive.Twitter
                             Id = Int64.Parse(tweet.GetProperty("sortIndex").GetString()),
                             InReplyToStatusId = null,
                             InReplyToAccount = null,
-                            MessageContent = tweet.GetProperty("content").GetProperty("itemContent")
-                                .GetProperty("tweet_results").GetProperty("result").GetProperty("legacy")
-                                .GetProperty("full_text").GetString(),
+                            MessageContent = MessageContent,
                             CreatedAt = DateTime.ParseExact(creationTime, "ddd MMM dd HH:mm:ss yyyy", System.Globalization.CultureInfo.InvariantCulture),
                             IsReply = false,
                             IsThread = false,
-                            IsRetweet = false,
+                            IsRetweet = isRetweet,
                             Media = null,
                             RetweetUrl = "https://t.co/123",
-                            OriginalAuthor = null,
+                            OriginalAuthor = OriginalAuthor,
                         };
                         extractedTweets.Add(extractedTweet);
                     }

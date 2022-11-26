@@ -46,24 +46,31 @@ namespace BirdsiteLive.Twitter.Tools
             await InitTwitterCredentials();
         }
 
+        private async Task<(string, string)> GetCred()
+        {
+            string token;
+            using (var request = new HttpRequestMessage(new HttpMethod("POST"), "https://api.twitter.com/1.1/guest/activate.json"))
+            {
+                request.Headers.TryAddWithoutValidation("Authorization", $"Bearer " + BearerToken); 
+
+                var httpResponse = await _httpClient.SendAsync(request);
+
+                var c = await httpResponse.Content.ReadAsStringAsync();
+                httpResponse.EnsureSuccessStatusCode();
+                var doc = JsonDocument.Parse(c);
+                token = doc.RootElement.GetProperty("guest_token").GetString();
+            }
+
+            return (BearerToken, token);
+
+        }
         private async Task InitTwitterCredentials()
         {
             for (;;)
             {
                 try
                 {
-
-                    using (var request = new HttpRequestMessage(new HttpMethod("POST"), "https://api.twitter.com/1.1/guest/activate.json"))
-                    {
-                        request.Headers.TryAddWithoutValidation("Authorization", $"Bearer " + BearerToken); 
-
-                        var httpResponse = await _httpClient.SendAsync(request);
-
-                        var c = await httpResponse.Content.ReadAsStringAsync();
-                        httpResponse.EnsureSuccessStatusCode();
-                        var doc = JsonDocument.Parse(c);
-                        _token = doc.RootElement.GetProperty("guest_token").GetString();
-                    }
+                    (_, _token) = await GetCred();
                     _initialized = true;
                     return;
                 }
@@ -77,11 +84,11 @@ namespace BirdsiteLive.Twitter.Tools
 
         public async Task<HttpClient> MakeHttpClient()
         {
-            await EnsureAuthenticationIsInitialized();
+            (string bearer, string guest) = await GetCred();
 
             HttpClient client = new HttpClient();
-            client.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", $"Bearer " + BearerToken); 
-            client.DefaultRequestHeaders.TryAddWithoutValidation("x-guest-token", GuestToken);
+            client.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", $"Bearer " + bearer); 
+            client.DefaultRequestHeaders.TryAddWithoutValidation("x-guest-token", guest);
             client.DefaultRequestHeaders.TryAddWithoutValidation("Referer", "https://twitter.com/");
             client.DefaultRequestHeaders.TryAddWithoutValidation("x-twitter-active-user", "yes");
             return client;
