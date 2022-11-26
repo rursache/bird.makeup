@@ -135,6 +135,9 @@ namespace BirdsiteLive.Twitter
                 
                 foreach (JsonElement tweet in timelineElement.GetProperty("entries").EnumerateArray())
                 {
+                    if (tweet.GetProperty("content").GetProperty("entryType").GetString() != "TimelineTimelineItem")
+                        continue;
+                    
                     try 
                     {
 
