@@ -93,6 +93,13 @@ namespace BirdsiteLive.Twitter
             //    description = description.Replace(descriptionUrl.URL, descriptionUrl.ExpandedURL);
 
             var result = res.RootElement.GetProperty("data").GetProperty("user").GetProperty("result");
+            string profileBannerURL = null;
+            JsonElement profileBannerURLObject;
+            if (result.GetProperty("legacy").TryGetProperty("profile_banner_url", out profileBannerURLObject))
+            {
+                profileBannerURL = profileBannerURLObject.GetString();
+            }
+
             return new TwitterUser
             {
                 Id = long.Parse(result.GetProperty("rest_id").GetString()),
@@ -102,7 +109,7 @@ namespace BirdsiteLive.Twitter
                 Url =  "", //res.RootElement.GetProperty("data").GetProperty("url").GetString(),
                 ProfileImageUrl =  result.GetProperty("legacy").GetProperty("profile_image_url_https").GetString().Replace("normal", "400x400"), 
                 ProfileBackgroundImageUrl =  result.GetProperty("legacy").GetProperty("profile_banner_url").GetString(), 
-                ProfileBannerURL = result.GetProperty("legacy").GetProperty("profile_banner_url").GetString(), 
+                ProfileBannerURL = profileBannerURL,
                 Protected = false, //res.RootElement.GetProperty("data").GetProperty("protected").GetBoolean(), 
             };
         }
