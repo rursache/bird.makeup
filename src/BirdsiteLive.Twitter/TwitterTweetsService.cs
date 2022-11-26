@@ -67,10 +67,9 @@ namespace BirdsiteLive.Twitter
 
 
                 var timeline = tweet.RootElement.GetProperty("data").GetProperty("threaded_conversation_with_injections_v2")
-                    .GetProperty("timeline_v2").GetProperty("timeline").GetProperty("instructions").EnumerateArray();
+                    .GetProperty("instructions").GetProperty("entries").EnumerateArray();
 
-                //return tweet.RootElement.GetProperty("data").EnumerateArray().Select<JsonElement, ExtractedTweet>(x => Extract(x, mediaExpension)).ToArray().First();
-                return Extract( tweet.RootElement.GetProperty("data"));
+                return Extract( timeline.First() );
             }
             catch (Exception e)
             {
