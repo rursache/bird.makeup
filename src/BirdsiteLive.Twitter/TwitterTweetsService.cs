@@ -202,6 +202,25 @@ namespace BirdsiteLive.Twitter
             string creationTime = tweet.GetProperty("content").GetProperty("itemContent")
                     .GetProperty("tweet_results").GetProperty("result").GetProperty("legacy")
                     .GetProperty("created_at").GetString().Replace(" +0000", "");
+
+            JsonElement extendedEntities;
+            bool hasMedia = tweet.GetProperty("content").GetProperty("itemContent")
+                    .GetProperty("tweet_results").GetProperty("result").GetProperty("legacy")
+                    .TryGetProperty("extended_entities", out extendedEntities);
+
+            List<ExtractedMedia> Media = new List<ExtractedMedia>();
+            if (hasMedia) 
+            {
+                foreach (JsonElement media in extendedEntities.GetProperty("media").EnumerateArray())
+                {
+                    var m = new ExtractedMedia
+                    {
+                        MediaType = GetMediaType(media.GetProperty("type").GetString(), media.GetProperty("media_url_https").GetString()),
+                        Url = media.GetProperty("media_url_https").GetString(),
+                    };
+                    Media.Add(m);
+                }
+            }
             var extractedTweet = new ExtractedTweet
             {
                 Id = Int64.Parse(tweet.GetProperty("sortIndex").GetString()),
@@ -212,7 +231,7 @@ namespace BirdsiteLive.Twitter
                 IsReply = isReply,
                 IsThread = false,
                 IsRetweet = isRetweet,
-                Media = null,
+                Media = Media.Count() == 0 ? null : Media.ToArray(),
                 RetweetUrl = "https://t.co/123",
                 OriginalAuthor = OriginalAuthor,
             };

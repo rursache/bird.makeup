@@ -56,10 +56,30 @@ namespace BirdsiteLive.Twitter
                     var c = await httpResponse.Content.ReadAsStringAsync();
                     res = JsonDocument.Parse(c);
                 }
+                var result = res.RootElement.GetProperty("data").GetProperty("user").GetProperty("result");
+                string profileBannerURL = null;
+                JsonElement profileBannerURLObject;
+                if (result.GetProperty("legacy").TryGetProperty("profile_banner_url", out profileBannerURLObject))
+                {
+                    profileBannerURL = profileBannerURLObject.GetString();
+                }
+
+                return new TwitterUser
+                {
+                    Id = long.Parse(result.GetProperty("rest_id").GetString()),
+                    Acct = username, 
+                    Name =  result.GetProperty("legacy").GetProperty("name").GetString(), //res.RootElement.GetProperty("data").GetProperty("name").GetString(),
+                    Description =  "", //res.RootElement.GetProperty("data").GetProperty("description").GetString(),
+                    Url =  "", //res.RootElement.GetProperty("data").GetProperty("url").GetString(),
+                    ProfileImageUrl =  result.GetProperty("legacy").GetProperty("profile_image_url_https").GetString().Replace("normal", "400x400"), 
+                    ProfileBackgroundImageUrl =  profileBannerURL,
+                    ProfileBannerURL = profileBannerURL,
+                    Protected = false, //res.RootElement.GetProperty("data").GetProperty("protected").GetBoolean(), 
+                };
             }
-            catch (HttpRequestException e)
+            catch (System.Collections.Generic.KeyNotFoundException)
             {
-                throw;
+                throw new UserNotFoundException();
                 //if (e.TwitterExceptionInfos.Any(x => x.Message.ToLowerInvariant().Contains("User has been suspended".ToLowerInvariant())))
                 //{
                 //    throw new UserHasBeenSuspendedException();
@@ -88,26 +108,6 @@ namespace BirdsiteLive.Twitter
             //foreach (var descriptionUrl in user.Entities?.Description?.Urls?.OrderByDescending(x => x.URL.Length))
             //    description = description.Replace(descriptionUrl.URL, descriptionUrl.ExpandedURL);
 
-            var result = res.RootElement.GetProperty("data").GetProperty("user").GetProperty("result");
-            string profileBannerURL = null;
-            JsonElement profileBannerURLObject;
-            if (result.GetProperty("legacy").TryGetProperty("profile_banner_url", out profileBannerURLObject))
-            {
-                profileBannerURL = profileBannerURLObject.GetString();
-            }
-
-            return new TwitterUser
-            {
-                Id = long.Parse(result.GetProperty("rest_id").GetString()),
-                Acct = username, 
-                Name =  result.GetProperty("legacy").GetProperty("name").GetString(), //res.RootElement.GetProperty("data").GetProperty("name").GetString(),
-                Description =  "", //res.RootElement.GetProperty("data").GetProperty("description").GetString(),
-                Url =  "", //res.RootElement.GetProperty("data").GetProperty("url").GetString(),
-                ProfileImageUrl =  result.GetProperty("legacy").GetProperty("profile_image_url_https").GetString().Replace("normal", "400x400"), 
-                ProfileBackgroundImageUrl =  profileBannerURL,
-                ProfileBannerURL = profileBannerURL,
-                Protected = false, //res.RootElement.GetProperty("data").GetProperty("protected").GetBoolean(), 
-            };
         }
 
 
