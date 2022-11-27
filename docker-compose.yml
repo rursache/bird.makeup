@@ -2,8 +2,24 @@ version: "3"
 
 services:
 
+    server:
+        image: bird:latest
+        restart: always
+        container_name: birdmakeup
+        environment:
+            - Instance:Domain=bird.makeup
+            - Instance:AdminEmail=name@domain.ext
+            - Db:Type=postgres
+            - Db:Host=db
+            - Db:Name=birdsitelive
+            - Db:User=birdsitelive
+            - Db:Password=birdsitelive
+        ports:
+            - "5000:80"
+        depends_on:
+            - db
     db:
-        image: postgres:9.6
+        image: postgres:9
         restart: always
         environment:
             - POSTGRES_USER=birdsitelive
