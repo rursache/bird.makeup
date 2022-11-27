@@ -68,10 +68,6 @@ namespace BirdsiteLive.Twitter
                 //{
                 //    throw new UserNotFoundException();
                 //}
-                //else if (e.TwitterExceptionInfos.Any(x => x.Message.ToLowerInvariant().Contains("Rate limit exceeded".ToLowerInvariant())))
-                //{
-                //    throw new RateLimitExceededException();
-                //}
                 //else
                 //{
                 //    throw;
