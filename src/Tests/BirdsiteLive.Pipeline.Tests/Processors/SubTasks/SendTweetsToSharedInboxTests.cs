@@ -83,9 +83,10 @@ namespace BirdsiteLive.Pipeline.Tests.Processors.SubTasks
             #region Mocks
             var activityPubService = new Mock<IActivityPubService>(MockBehavior.Strict);
             activityPubService
-                .Setup(x => x.PostNewNoteActivity(
+                .Setup(x => x.PostNewActivity(
                     It.Is<Note>(y => y.id == noteId),
                     It.Is<string>(y => y == twitterHandle),
+                    "Create",
                     It.Is<string>(y => y == tweetId.ToString()),
                     It.Is<string>(y => y == host),
                     It.Is<string>(y => y == inbox)))
@@ -276,9 +277,10 @@ namespace BirdsiteLive.Pipeline.Tests.Processors.SubTasks
             #region Mocks
             var activityPubService = new Mock<IActivityPubService>(MockBehavior.Strict);
             activityPubService
-                .Setup(x => x.PostNewNoteActivity(
+                .Setup(x => x.PostNewActivity(
                     It.Is<Note>(y => y.id == noteId),
                     It.Is<string>(y => y == twitterHandle),
+                    "Create",
                     It.Is<string>(y => y == tweetId.ToString()),
                     It.Is<string>(y => y == host),
                     It.Is<string>(y => y == inbox)))
@@ -379,9 +381,10 @@ namespace BirdsiteLive.Pipeline.Tests.Processors.SubTasks
             #region Mocks
             var activityPubService = new Mock<IActivityPubService>(MockBehavior.Strict);
             activityPubService
-                .Setup(x => x.PostNewNoteActivity(
+                .Setup(x => x.PostNewActivity(
                     It.Is<Note>(y => y.id == noteId),
                     It.Is<string>(y => y == twitterHandle),
+                    "Create",
                     It.Is<string>(y => y == tweetId.ToString()),
                     It.Is<string>(y => y == host),
                     It.Is<string>(y => y == inbox)))
@@ -479,9 +482,10 @@ namespace BirdsiteLive.Pipeline.Tests.Processors.SubTasks
             foreach (var tweetId in new[] { tweetId2, tweetId3 })
             {
                 activityPubService
-                    .Setup(x => x.PostNewNoteActivity(
+                    .Setup(x => x.PostNewActivity(
                         It.Is<Note>(y => y.id == tweetId.ToString()),
                         It.Is<string>(y => y == twitterHandle),
+                        "Create",
                         It.Is<string>(y => y == tweetId.ToString()),
                         It.Is<string>(y => y == host),
                         It.Is<string>(y => y == inbox)))
@@ -583,18 +587,20 @@ namespace BirdsiteLive.Pipeline.Tests.Processors.SubTasks
             var activityPubService = new Mock<IActivityPubService>(MockBehavior.Strict);
 
             activityPubService
-                .Setup(x => x.PostNewNoteActivity(
+                .Setup(x => x.PostNewActivity(
                     It.Is<Note>(y => y.id == tweetId2.ToString()),
                     It.Is<string>(y => y == twitterHandle),
+                    "Create",
                     It.Is<string>(y => y == tweetId2.ToString()),
                     It.Is<string>(y => y == host),
                     It.Is<string>(y => y == inbox)))
                 .Returns(Task.CompletedTask);
 
             activityPubService
-                .Setup(x => x.PostNewNoteActivity(
+                .Setup(x => x.PostNewActivity(
                     It.Is<Note>(y => y.id == tweetId3.ToString()),
                     It.Is<string>(y => y == twitterHandle),
+                    "Create",
                     It.Is<string>(y => y == tweetId3.ToString()),
                     It.Is<string>(y => y == host),
                     It.Is<string>(y => y == inbox)))

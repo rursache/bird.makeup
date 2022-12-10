@@ -14,7 +14,7 @@ namespace BirdsiteLive.DAL.Postgres.Tests.DataAccessLayers.Base
         {
             _settings = new PostgresSettings
             {
-                ConnString = "Host=127.0.0.1;Username=postgres;Password=mysecretpassword;Database=mytestdb",
+                ConnString = "Host=127.0.0.1;Username=birdsitelive;Password=birdsitelive;Database=birdsitelive",
                 DbVersionTableName = "DbVersionTableName" + RandomGenerator.GetString(4),
                 CachedTweetsTableName = "CachedTweetsTableName" + RandomGenerator.GetString(4),
                 FollowersTableName = "FollowersTableName" + RandomGenerator.GetString(4),
