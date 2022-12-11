@@ -1,9 +1,0 @@
-image: archlinux
-packages:
-  - dotnet-sdk-6.0
-sources:
-  - https://git.sr.ht/~cloutier/bird.makeup
-tasks:
-  - test: |
-      cd bird.makeup/src
-      dotnet test
