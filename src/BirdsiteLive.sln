@@ -51,6 +51,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BSLManager", "BSLManager\BS
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BSLManager.Tests", "Tests\BSLManager.Tests\BSLManager.Tests.csproj", "{D4457271-620E-465A-B08E-7FC63C99A2F6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BirdsiteLive.Twitter.Tests", "Tests\BirdsiteLive.Twitter.Tests\BirdsiteLive.Twitter.Tests.csproj", "{2DFA0BFD-88F5-4434-A6E3-C93B5750E88C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -137,6 +139,10 @@ Global
 		{D4457271-620E-465A-B08E-7FC63C99A2F6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D4457271-620E-465A-B08E-7FC63C99A2F6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D4457271-620E-465A-B08E-7FC63C99A2F6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2DFA0BFD-88F5-4434-A6E3-C93B5750E88C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2DFA0BFD-88F5-4434-A6E3-C93B5750E88C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2DFA0BFD-88F5-4434-A6E3-C93B5750E88C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2DFA0BFD-88F5-4434-A6E3-C93B5750E88C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -160,6 +166,7 @@ Global
 		{0A311BF3-4FD9-4303-940A-A3778890561C} = {A32D3458-09D0-4E0A-BA4B-8C411B816B94}
 		{C69F7582-6050-44DC-BAAB-7C8F0BDA525C} = {A32D3458-09D0-4E0A-BA4B-8C411B816B94}
 		{D4457271-620E-465A-B08E-7FC63C99A2F6} = {A32D3458-09D0-4E0A-BA4B-8C411B816B94}
+		{2DFA0BFD-88F5-4434-A6E3-C93B5750E88C} = {A32D3458-09D0-4E0A-BA4B-8C411B816B94}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {69E8DCAD-4C37-4010-858F-5F94E6FBABCE}

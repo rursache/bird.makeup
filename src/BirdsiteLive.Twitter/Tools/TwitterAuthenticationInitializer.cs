@@ -19,7 +19,6 @@ namespace BirdsiteLive.Twitter.Tools
 
     public class TwitterAuthenticationInitializer : ITwitterAuthenticationInitializer
     {
-        private readonly TwitterSettings _settings;
         private readonly ILogger<TwitterAuthenticationInitializer> _logger;
         private static bool _initialized;
         private readonly HttpClient _httpClient = new HttpClient();
@@ -32,9 +31,8 @@ namespace BirdsiteLive.Twitter.Tools
         }
 
         #region Ctor
-        public TwitterAuthenticationInitializer(TwitterSettings settings, ILogger<TwitterAuthenticationInitializer> logger)
+        public TwitterAuthenticationInitializer(ILogger<TwitterAuthenticationInitializer> logger)
         {
-            _settings = settings;
             _logger = logger;
         }
         #endregion

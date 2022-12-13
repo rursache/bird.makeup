@@ -17,6 +17,7 @@ namespace BirdsiteLive.Twitter
 {
     public interface ITwitterTweetsService
     {
+        Task<ExtractedTweet> GetTweetAsync(long statusId);
         ExtractedTweet GetTweet(long statusId);
         ExtractedTweet[] GetTimeline(string username, int nberTweets, long fromTweetId = -1);
     }
@@ -219,6 +220,8 @@ namespace BirdsiteLive.Twitter
                         Url = media.GetProperty("media_url_https").GetString(),
                     };
                     Media.Add(m);
+
+                    MessageContent = MessageContent.Replace(media.GetProperty("url").GetString(), "");
                 }
             }
             var extractedTweet = new ExtractedTweet
@@ -226,7 +229,7 @@ namespace BirdsiteLive.Twitter
                 Id = Int64.Parse(tweet.GetProperty("sortIndex").GetString()),
                 InReplyToStatusId = inReplyToPostId,
                 InReplyToAccount = inReplyToUser,
-                MessageContent = MessageContent,
+                MessageContent = MessageContent.Trim(),
                 CreatedAt = DateTime.ParseExact(creationTime, "ddd MMM dd HH:mm:ss yyyy", System.Globalization.CultureInfo.InvariantCulture),
                 IsReply = isReply,
                 IsThread = false,
