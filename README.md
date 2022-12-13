@@ -4,6 +4,12 @@
 
 Bird.makeup is a way to follow twitter user from any ActivityPub service. The aim is to make tweets appear as native a possible to the fediverse, while being as scalable as possible. Unlike BirdsiteLive, bird.makeup doesn't use official twitter api, but the undocumented frontend api, just like nitter.net, which doesn't have rate limiting. 
 
+Most important changes from BirdsiteLive are:
+ - Moved from .net core 3.1 to .net 6 which is still supported
+ - Twitter API calls are not rate limited
+ - There are now integration tests for the non-official api
+ - Activities are now "unlisted" which means that they won't polute the public timeline
+
 ## Official instance 
 
 You can find an official instance here: [bird.makeup](https://bird.makeup). If you are an instance admin that prefers to not have tweets federated to you, please block the entire instance. 
