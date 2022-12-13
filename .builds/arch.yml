@@ -4,9 +4,16 @@ packages:
   - docker
 sources:
   - https://git.sr.ht/~cloutier/bird.makeup
+secrets:
+  -  d9970e85-5aef-4cfd-b6ed-0ccf1be5308b
 tasks:
   - test: |
       sudo systemctl start docker
       sudo docker run -d -p 5432:5432 -e POSTGRES_PASSWORD=birdsitelive -e POSTGRES_USER=birdsitelive -e POSTGRES_DB=birdsitelive postgres:9
       cd bird.makeup/src
       dotnet test
+
+  - publish: |
+      cd bird.makeup
+      docker build . -t cloutier/bird.makeup:latest
+      docker push cloutier/bird.makeup:latest
