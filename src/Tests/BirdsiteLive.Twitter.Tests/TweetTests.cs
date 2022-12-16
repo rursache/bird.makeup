@@ -36,7 +36,16 @@ namespace BirdsiteLive.ActivityPub.Tests
         {
             var tweet = await _tweetService.GetTweetAsync(1593344577385160704);
             Assert.AreEqual(tweet.MessageContent, "Speaker Nancy Pelosi will go down as one of most accomplished legislators in American history—breaking barriers, opening doors for others, and working every day to serve the American people. I couldn’t be more grateful for her friendship and leadership.");
+
+            // TODO validate media type and length
+            // TODO test alt-text of images
         }
 
+        [TestMethod]
+        public async Task SimpleTextAndSingleLinkTweet()
+        {
+            var tweet = await _tweetService.GetTweetAsync(1602618920996945922);
+            Assert.AreEqual(tweet.MessageContent, "#Linux 6.2 Expands Support For More #Qualcomm #Snapdragon SoCs, #Apple M1 Pro/Ultra/Max\n\nhttps://www.phoronix.com/news/Linux-6.2-Arm-SoC-Updates");
+        }
     }
 }

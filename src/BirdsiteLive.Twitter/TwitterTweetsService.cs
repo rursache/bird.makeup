@@ -209,6 +209,16 @@ namespace BirdsiteLive.Twitter
                     .GetProperty("tweet_results").GetProperty("result").GetProperty("legacy")
                     .TryGetProperty("extended_entities", out extendedEntities);
 
+            JsonElement.ArrayEnumerator urls = tweet.GetProperty("content").GetProperty("itemContent")
+                    .GetProperty("tweet_results").GetProperty("result").GetProperty("legacy")
+                    .GetProperty("entities").GetProperty("urls").EnumerateArray();
+            foreach (JsonElement url in urls)
+            {
+                string tco = url.GetProperty("url").GetString();
+                string goodUrl = url.GetProperty("expanded_url").GetString();
+                MessageContent = MessageContent.Replace(tco, goodUrl);
+            }
+            
             List<ExtractedMedia> Media = new List<ExtractedMedia>();
             if (hasMedia) 
             {
