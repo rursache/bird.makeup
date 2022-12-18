@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading;
+using System.Timers;
 using System.Threading.Tasks;
 using BirdsiteLive.Common.Settings;
 using Microsoft.Extensions.Logging;
@@ -21,7 +22,9 @@ namespace BirdsiteLive.Twitter.Tools
     {
         private readonly ILogger<TwitterAuthenticationInitializer> _logger;
         private static bool _initialized;
+        private static System.Timers.Timer aTimer;
         private readonly HttpClient _httpClient = new HttpClient();
+        private HttpClient _twitterClient;
         private String _token;
         public String BearerToken { 
             get { return "AAAAAAAAAAAAAAAAAAAAAPYXBAAAAAAACLXUNDekMxqa8h%2F40K4moUkGsoc%3DTYfbDKbT3jJPCEVnMYqilB28NHfOPqkca3qaAxGfsyKCs0wRbw"; }
@@ -34,6 +37,12 @@ namespace BirdsiteLive.Twitter.Tools
         public TwitterAuthenticationInitializer(ILogger<TwitterAuthenticationInitializer> logger)
         {
             _logger = logger;
+
+            aTimer = new System.Timers.Timer();
+            aTimer.Interval = 900000; // 15 minutes
+            aTimer.Elapsed += async (sender, e) => await RefreshCred();
+            
+            aTimer.Start();
         }
         #endregion
 
@@ -42,6 +51,19 @@ namespace BirdsiteLive.Twitter.Tools
             if (_initialized) return;
            
             await InitTwitterCredentials();
+        }
+
+        private async Task RefreshCred()
+        {
+            (string bearer, string guest) = await GetCred();
+
+            HttpClient client = new HttpClient();
+            client.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", $"Bearer " + bearer); 
+            client.DefaultRequestHeaders.TryAddWithoutValidation("x-guest-token", guest);
+            client.DefaultRequestHeaders.TryAddWithoutValidation("Referer", "https://twitter.com/");
+            client.DefaultRequestHeaders.TryAddWithoutValidation("x-twitter-active-user", "yes");
+
+            _twitterClient = client;
         }
 
         private async Task<(string, string)> GetCred()
@@ -68,7 +90,7 @@ namespace BirdsiteLive.Twitter.Tools
             {
                 try
                 {
-                    (_, _token) = await GetCred();
+                    await RefreshCred();
                     _initialized = true;
                     return;
                 }
@@ -82,14 +104,9 @@ namespace BirdsiteLive.Twitter.Tools
 
         public async Task<HttpClient> MakeHttpClient()
         {
-            (string bearer, string guest) = await GetCred();
-
-            HttpClient client = new HttpClient();
-            client.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", $"Bearer " + bearer); 
-            client.DefaultRequestHeaders.TryAddWithoutValidation("x-guest-token", guest);
-            client.DefaultRequestHeaders.TryAddWithoutValidation("Referer", "https://twitter.com/");
-            client.DefaultRequestHeaders.TryAddWithoutValidation("x-twitter-active-user", "yes");
-            return client;
+            if (_twitterClient == null)
+                await RefreshCred();
+            return _twitterClient;
         }
     }
 }
