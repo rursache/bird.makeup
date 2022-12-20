@@ -17,7 +17,7 @@ namespace BirdsiteLive.ActivityPub.Tests
         {
             var logger1 = new Mock<ILogger<TwitterAuthenticationInitializer>>(MockBehavior.Strict);
             var logger2 = new Mock<ILogger<TwitterUserService>>(MockBehavior.Strict);
-            var logger3 = new Mock<ILogger<TwitterTweetsService>>(MockBehavior.Strict);
+            var logger3 = new Mock<ILogger<TwitterTweetsService>>();
             var stats = new Mock<ITwitterStatisticsHandler>();
             ITwitterAuthenticationInitializer auth = new TwitterAuthenticationInitializer(logger1.Object);
             ITwitterUserService user = new TwitterUserService(auth, stats.Object, logger2.Object);
@@ -37,7 +37,8 @@ namespace BirdsiteLive.ActivityPub.Tests
             var tweet = await _tweetService.GetTweetAsync(1593344577385160704);
             Assert.AreEqual(tweet.MessageContent, "Speaker Nancy Pelosi will go down as one of most accomplished legislators in American history—breaking barriers, opening doors for others, and working every day to serve the American people. I couldn’t be more grateful for her friendship and leadership.");
 
-            // TODO validate media type and length
+            // TODO validate media type
+            Assert.AreEqual(tweet.Media.Length, 1);
             // TODO test alt-text of images
         }
 
@@ -46,6 +47,17 @@ namespace BirdsiteLive.ActivityPub.Tests
         {
             var tweet = await _tweetService.GetTweetAsync(1602618920996945922);
             Assert.AreEqual(tweet.MessageContent, "#Linux 6.2 Expands Support For More #Qualcomm #Snapdragon SoCs, #Apple M1 Pro/Ultra/Max\n\nhttps://www.phoronix.com/news/Linux-6.2-Arm-SoC-Updates");
+        }
+
+        [TestMethod]
+        public async Task SimpleTextAndSingleVideoTweet()
+        {
+            var tweet = await _tweetService.GetTweetAsync(1604231025311129600);
+            Assert.AreEqual(tweet.MessageContent, "Falcon 9’s first stage has landed on the Just Read the Instructions droneship, completing the 15th launch and landing of this booster!");
+
+            Assert.AreEqual(tweet.Media.Length, 1);
+            Assert.AreEqual(tweet.Media[0].MediaType, "video/mp4");
+            Assert.IsTrue(tweet.Media[0].Url.StartsWith("https://video.twimg.com/"));
         }
     }
 }

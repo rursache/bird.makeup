@@ -224,10 +224,31 @@ namespace BirdsiteLive.Twitter
             {
                 foreach (JsonElement media in extendedEntities.GetProperty("media").EnumerateArray())
                 {
+                    var type = media.GetProperty("type").GetString();
+                    string url = "";
+                    if (type == "video")
+                    {
+                        var bitrate = 0;
+                        foreach (JsonElement v in media.GetProperty("video_info").GetProperty("variants").EnumerateArray())
+                        {
+                            if (v.GetProperty("content_type").GetString() !=  "video/mp4")
+                                continue;
+                            int vBitrate = v.GetProperty("bitrate").GetInt32();
+                            if (vBitrate > bitrate)
+                            {
+                                bitrate = vBitrate;
+                                url = v.GetProperty("url").GetString();
+                            }
+                        }
+                    }
+                    else 
+                    {
+                        url = media.GetProperty("media_url_https").GetString();
+                    }
                     var m = new ExtractedMedia
                     {
-                        MediaType = GetMediaType(media.GetProperty("type").GetString(), media.GetProperty("media_url_https").GetString()),
-                        Url = media.GetProperty("media_url_https").GetString(),
+                        MediaType = GetMediaType(type, media.GetProperty("media_url_https").GetString()),
+                        Url = url,
                     };
                     Media.Add(m);
 
