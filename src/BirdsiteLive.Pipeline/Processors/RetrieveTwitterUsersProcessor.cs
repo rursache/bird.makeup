@@ -38,29 +38,18 @@ namespace BirdsiteLive.Pipeline.Processors
 
                 try
                 {
-                    var maxUsersNumber = await _maxUsersNumberProvider.GetMaxUsersNumberAsync();
-                    var users = await _twitterUserDal.GetAllTwitterUsersAsync(maxUsersNumber);
+                    var users = await _twitterUserDal.GetAllTwitterUsersAsync(50);
 
-                    var userCount = users.Any() ? users.Length : 1;
-                    var splitNumber = (int) Math.Ceiling(userCount / 15d);
-                    var splitUsers = users.Split(splitNumber).ToList();
+                    var splitUsers = users.Split(50).ToList();
 
                     foreach (var u in splitUsers)
                     {
                         ct.ThrowIfCancellationRequested();
 
                         await twitterUsersBufferBlock.SendAsync(u.ToArray(), ct);
-
-                        await Task.Delay(WaitFactor, ct);
                     }
 
-                    var splitCount = splitUsers.Count();
-                    if (splitCount < 15) await Task.Delay((15 - splitCount) * WaitFactor, ct); //Always wait 15min
-
-                    //// Extra wait time to fit 100.000/day limit
-                    //var extraWaitTime = (int)Math.Ceiling((60 / ((100000d / 24) / userCount)) - 15);
-                    //if (extraWaitTime < 0) extraWaitTime = 0;
-                    //await Task.Delay(extraWaitTime * 1000, ct);
+                    await Task.Delay(1000, ct);
                 }
                 catch (Exception e)
                 {
