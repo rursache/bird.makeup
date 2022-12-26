@@ -1,5 +1,7 @@
 # bird.makeup
 
+[![builds.sr.ht status](https://builds.sr.ht/~cloutier/bird.makeup/commits/master/arch.yml.svg)](https://builds.sr.ht/~cloutier/bird.makeup/commits/master/arch.yml?)
+
 ## About
 
 Bird.makeup is a way to follow twitter user from any ActivityPub service. The aim is to make tweets appear as native a possible to the fediverse, while being as scalable as possible. Unlike BirdsiteLive, bird.makeup doesn't use official twitter api, but the undocumented frontend api, just like nitter.net, which doesn't have rate limiting. 
