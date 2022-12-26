@@ -44,8 +44,9 @@ namespace BirdsiteLive.Pipeline.Processors
                     var maxUsersNumber = await _maxUsersNumberProvider.GetMaxUsersNumberAsync();
                     var users = await _twitterUserDal.GetAllTwitterUsersAsync(maxUsersNumber);
 
-                    var splitNumber = users.Any() ? users.Length : 25;
-                    var splitUsers = users.Split(splitNumber).ToList();
+                    var userCount = users.Any() ? Math.Min(users.Length, 25) : 1;
+                    //var splitNumber = (int) Math.Ceiling(userCount / 15d);
+                    var splitUsers = users.Split(userCount).ToList();
 
                     foreach (var u in splitUsers)
                     {
@@ -54,7 +55,7 @@ namespace BirdsiteLive.Pipeline.Processors
                         await twitterUsersBufferBlock.SendAsync(u.ToArray(), ct);
                     }
 
-                    //await Task.Delay(1000, ct);
+                    await Task.Delay(1000, ct);
                 }
                 catch (Exception e)
                 {
