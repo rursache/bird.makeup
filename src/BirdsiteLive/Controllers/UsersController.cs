@@ -135,7 +135,7 @@ namespace BirdsiteLive.Controllers
 
         [Route("/@{id}/{statusId}")]
         [Route("/users/{id}/statuses/{statusId}")]
-        public IActionResult Tweet(string id, string statusId)
+        public async Task<IActionResult> Tweet(string id, string statusId)
         {
             var acceptHeaders = Request.Headers["Accept"];
             if (acceptHeaders.Any())
@@ -146,7 +146,7 @@ namespace BirdsiteLive.Controllers
                     if (!long.TryParse(statusId, out var parsedStatusId))
                         return NotFound();
 
-                    var tweet = _twitterTweetService.GetTweet(parsedStatusId);
+                    var tweet = await _twitterTweetService.GetTweetAsync(parsedStatusId);
                     if (tweet == null)
                         return NotFound();
 

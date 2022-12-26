@@ -54,7 +54,7 @@ namespace BirdsiteLive.Pipeline.Processors
                         await twitterUsersBufferBlock.SendAsync(u.ToArray(), ct);
                     }
 
-                    await Task.Delay(1000, ct);
+                    //await Task.Delay(1000, ct);
                 }
                 catch (Exception e)
                 {
