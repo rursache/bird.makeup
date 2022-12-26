@@ -36,11 +36,13 @@ namespace BirdsiteLive.Pipeline.Processors
             var usersWtTweets = new List<UserWithDataToSync>();
 
             //TODO multithread this
+            int index = 0;
             foreach (var userWtData in syncTwitterUsers)
             {
+                index++;
                 var user = userWtData.User;
                 var tweets = await RetrieveNewTweets(user);
-                _logger.LogInformation("Got " + tweets.Length + " tweets from user " + user.Acct);
+                _logger.LogInformation(index + "/" + syncTwitterUsers.Count() + " Got " + tweets.Length + " tweets from user " + user.Acct + " " );
                 if (tweets.Length > 0 && user.LastTweetPostedId != -1)
                 {
                     userWtData.Tweets = tweets;
