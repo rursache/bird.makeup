@@ -18,8 +18,7 @@ namespace BirdsiteLive.Twitter
     public interface ITwitterTweetsService
     {
         Task<ExtractedTweet> GetTweetAsync(long statusId);
-        ExtractedTweet GetTweet(long statusId);
-        ExtractedTweet[] GetTimeline(string username, int nberTweets, long fromTweetId = -1);
+        Task<ExtractedTweet[]> GetTimelineAsync(string username, int nberTweets, long fromTweetId = -1);
     }
 
     public class TwitterTweetsService : ITwitterTweetsService
@@ -41,10 +40,6 @@ namespace BirdsiteLive.Twitter
         #endregion
 
 
-        public ExtractedTweet GetTweet(long statusId)
-        {
-            return GetTweetAsync(statusId).Result;
-        }
         public async Task<ExtractedTweet> GetTweetAsync(long statusId)
         {
 
@@ -79,10 +74,6 @@ namespace BirdsiteLive.Twitter
             }
         }
 
-        public ExtractedTweet[] GetTimeline(string username, int nberTweets, long fromTweetId = -1)
-        {
-            return GetTimelineAsync(username, nberTweets, fromTweetId).Result;
-        }
         public async Task<ExtractedTweet[]> GetTimelineAsync(string username, int nberTweets, long fromTweetId = -1)
         {
             if (nberTweets < 5)

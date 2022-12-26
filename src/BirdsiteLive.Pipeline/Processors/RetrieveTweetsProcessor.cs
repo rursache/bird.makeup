@@ -39,7 +39,7 @@ namespace BirdsiteLive.Pipeline.Processors
             foreach (var userWtData in syncTwitterUsers)
             {
                 var user = userWtData.User;
-                var tweets = RetrieveNewTweets(user);
+                var tweets = await RetrieveNewTweets(user);
                 _logger.LogInformation("Got " + tweets.Length + " tweets from user " + user.Acct);
                 if (tweets.Length > 0 && user.LastTweetPostedId != -1)
                 {
@@ -64,16 +64,16 @@ namespace BirdsiteLive.Pipeline.Processors
             return usersWtTweets.ToArray();
         }
 
-        private ExtractedTweet[] RetrieveNewTweets(SyncTwitterUser user)
+        private async Task<ExtractedTweet[]> RetrieveNewTweets(SyncTwitterUser user)
         {
             var tweets = new ExtractedTweet[0];
             
             try
             {
                 if (user.LastTweetPostedId == -1)
-                    tweets = _twitterTweetsService.GetTimeline(user.Acct, 1);
+                    tweets = await _twitterTweetsService.GetTimelineAsync(user.Acct, 1);
                 else
-                    tweets = _twitterTweetsService.GetTimeline(user.Acct, 200, user.LastTweetSynchronizedForAllFollowersId);
+                    tweets = await _twitterTweetsService.GetTimelineAsync(user.Acct, 200, user.LastTweetSynchronizedForAllFollowersId);
             }
             catch (Exception e)
             {
