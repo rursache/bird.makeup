@@ -3,17 +3,19 @@ version: "3"
 services:
 
     server:
-        image: bird:latest
+        image: cloutier/bird.makeup:latest
         restart: always
         container_name: birdmakeup
         environment:
             - Instance:Domain=bird.makeup
+            - Instance:Name=bird.makeup
             - Instance:AdminEmail=name@domain.ext
             - Db:Type=postgres
             - Db:Host=db
             - Db:Name=birdsitelive
             - Db:User=birdsitelive
             - Db:Password=birdsitelive
+            - Moderation:FollowersBlackListing=bae.st
         ports:
             - "5000:80"
         depends_on:
@@ -26,6 +28,6 @@ services:
             - POSTGRES_PASSWORD=birdsitelive
             - POSTGRES_DB=birdsitelive
         volumes:
-            - ./postgres:/var/lib/postgresql/data
+            - ../postgres:/var/lib/postgresql/data
         ports:
             - "5432:5432"
