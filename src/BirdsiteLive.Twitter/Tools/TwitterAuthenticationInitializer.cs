@@ -39,7 +39,7 @@ namespace BirdsiteLive.Twitter.Tools
             _logger = logger;
 
             aTimer = new System.Timers.Timer();
-            aTimer.Interval = 900000; // 15 minutes
+            aTimer.Interval = 5 * 60 * 1000; 
             aTimer.Elapsed += async (sender, e) => await RefreshCred();
             
             aTimer.Start();

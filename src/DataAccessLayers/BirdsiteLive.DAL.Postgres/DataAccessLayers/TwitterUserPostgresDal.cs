@@ -86,6 +86,19 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
             }
         }
 
+        public async Task<SyncTwitterUser[]> GetAllTwitterUsersWithFollowersAsync(int maxNumber)
+        {
+            var query = "SELECT * FROM (SELECT unnest(followings) as follow FROM followers GROUP BY follow) AS f INNER JOIN twitter_users ON f.follow=twitter_users.id LIMIT @maxNumber";
+
+            using (var dbConnection = Connection)
+            {
+                dbConnection.Open();
+
+                var result = await dbConnection.QueryAsync<SyncTwitterUser>(query, new { maxNumber });
+                return result.ToArray();
+            }
+        }
+
         public async Task<SyncTwitterUser[]> GetAllTwitterUsersAsync(int maxNumber)
         {
             var query = $"SELECT * FROM {_settings.TwitterUserTableName} ORDER BY lastSync ASC NULLS FIRST LIMIT @maxNumber";
