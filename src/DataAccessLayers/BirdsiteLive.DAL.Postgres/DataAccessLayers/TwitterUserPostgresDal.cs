@@ -88,7 +88,7 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
 
         public async Task<SyncTwitterUser[]> GetAllTwitterUsersWithFollowersAsync(int maxNumber)
         {
-            var query = "SELECT * FROM (SELECT unnest(followings) as follow FROM followers GROUP BY follow) AS f INNER JOIN twitter_users ON f.follow=twitter_users.id LIMIT @maxNumber";
+            var query = "SELECT * FROM (SELECT unnest(followings) as follow FROM followers GROUP BY follow) AS f INNER JOIN twitter_users ON f.follow=twitter_users.id  ORDER BY lastSync ASC NULLS FIRST LIMIT @maxNumber";
 
             using (var dbConnection = Connection)
             {
