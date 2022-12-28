@@ -74,6 +74,7 @@ namespace BirdsiteLive.Pipeline.Processors
                     User = user
                 };
                 usersWtData.Add(userWtData);
+                await Task.Delay(5 * 1000);
             }
             return usersWtData.ToArray();
         }
