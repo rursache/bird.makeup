@@ -19,7 +19,7 @@ namespace BirdsiteLive.Twitter
         private readonly MemoryCacheEntryOptions _cacheEntryOptions = new MemoryCacheEntryOptions()
             .SetSize(1)//Size amount
             //Priority on removing when reaching size limit (memory pressure)
-            .SetPriority(CacheItemPriority.High)
+            .SetPriority(CacheItemPriority.Low)
             // Keep in cache for this time, reset time if accessed.
             .SetSlidingExpiration(TimeSpan.FromHours(24))
             // Remove from cache after this time, regardless of sliding expiration
@@ -32,7 +32,7 @@ namespace BirdsiteLive.Twitter
 
             _userCache = new MemoryCache(new MemoryCacheOptions()
             {
-                SizeLimit = settings.UserCacheCapacity
+                SizeLimit = 5000 //TODO make this use number of entries in db
             });
         }
         #endregion
