@@ -76,11 +76,6 @@ namespace BirdsiteLive.Twitter
 
         public async Task<ExtractedTweet[]> GetTimelineAsync(string username, int nberTweets, long fromTweetId = -1)
         {
-            if (nberTweets < 5)
-                nberTweets = 5;
-
-            if (nberTweets > 100)
-                nberTweets = 100;
 
             var client = await _twitterAuthenticationInitializer.MakeHttpClient();
 
@@ -131,6 +126,9 @@ namespace BirdsiteLive.Twitter
                     {   
                         var extractedTweet = await Extract(tweet);
                         extractedTweets.Add(extractedTweet);
+                        
+                        if (extractedTweet.Id == fromTweetId)
+                            break;
 
                     }
                     catch (Exception e)

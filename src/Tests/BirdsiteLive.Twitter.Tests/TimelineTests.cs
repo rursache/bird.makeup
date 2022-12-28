@@ -27,9 +27,11 @@ namespace BirdsiteLive.ActivityPub.Tests
         [TestMethod]
         public async Task TimelineKobe()
         {
-            var tweets = await _tweetService.GetTimelineAsync("kobebryant", 100, 100000);
+            var tweets = await _tweetService.GetTimelineAsync("kobebryant", 100, 1218020971346444288);
             Assert.AreEqual(tweets[0].MessageContent, "Continuing to move the game forward @KingJames. Much respect my brother 💪🏾 #33644");
+            Assert.AreEqual(tweets.Length, 9);
         }
+
 
     }
 }
