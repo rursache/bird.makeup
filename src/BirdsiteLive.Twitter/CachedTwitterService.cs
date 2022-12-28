@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text.Json;
 using System.Threading.Tasks;
 using BirdsiteLive.Common.Settings;
 using BirdsiteLive.Twitter.Models;
@@ -9,6 +10,7 @@ namespace BirdsiteLive.Twitter
     public interface ICachedTwitterUserService : ITwitterUserService
     {
         void PurgeUser(string username);
+        void AddUser(TwitterUser user);
     }
 
     public class CachedTwitterUserService : ICachedTwitterUserService
@@ -53,9 +55,18 @@ namespace BirdsiteLive.Twitter
             return _twitterService.IsUserApiRateLimited();
         }
 
+        public TwitterUser Extract(JsonElement result)
+        {
+            return _twitterService.Extract(result);
+        }
         public void PurgeUser(string username)
         {
             _userCache.Remove(username);
+        }
+        public void AddUser(TwitterUser user)
+        {
+
+            _userCache.Set(user.Acct, user, _cacheEntryOptions);
         }
     }
 }

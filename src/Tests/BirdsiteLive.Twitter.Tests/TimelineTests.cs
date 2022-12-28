@@ -19,9 +19,11 @@ namespace BirdsiteLive.ActivityPub.Tests
             var logger2 = new Mock<ILogger<TwitterUserService>>(MockBehavior.Strict);
             var logger3 = new Mock<ILogger<TwitterTweetsService>>();
             var stats = new Mock<ITwitterStatisticsHandler>();
+            var settings = new Mock<Common.Settings.InstanceSettings>();
             ITwitterAuthenticationInitializer auth = new TwitterAuthenticationInitializer(logger1.Object);
             ITwitterUserService user = new TwitterUserService(auth, stats.Object, logger2.Object);
-            _tweetService = new TwitterTweetsService(auth, stats.Object, user, logger3.Object);
+            ICachedTwitterUserService user2 = new CachedTwitterUserService(user, settings.Object);
+            _tweetService = new TwitterTweetsService(auth, stats.Object, user2, logger3.Object);
         }
 
         [TestMethod]

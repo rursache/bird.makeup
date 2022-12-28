@@ -14,6 +14,7 @@ namespace BirdsiteLive.Twitter
     public interface ITwitterUserService
     {
         Task<TwitterUser> GetUserAsync(string username);
+        TwitterUser Extract (JsonElement result);
         bool IsUserApiRateLimited();
     }
 
@@ -53,25 +54,7 @@ namespace BirdsiteLive.Twitter
                     res = JsonDocument.Parse(c);
                 }
                 var result = res.RootElement.GetProperty("data").GetProperty("user").GetProperty("result");
-                string profileBannerURL = null;
-                JsonElement profileBannerURLObject;
-                if (result.GetProperty("legacy").TryGetProperty("profile_banner_url", out profileBannerURLObject))
-                {
-                    profileBannerURL = profileBannerURLObject.GetString();
-                }
-
-                return new TwitterUser
-                {
-                    Id = long.Parse(result.GetProperty("rest_id").GetString()),
-                    Acct = username, 
-                    Name =  result.GetProperty("legacy").GetProperty("name").GetString(), //res.RootElement.GetProperty("data").GetProperty("name").GetString(),
-                    Description =  "", //res.RootElement.GetProperty("data").GetProperty("description").GetString(),
-                    Url =  "", //res.RootElement.GetProperty("data").GetProperty("url").GetString(),
-                    ProfileImageUrl =  result.GetProperty("legacy").GetProperty("profile_image_url_https").GetString().Replace("normal", "400x400"), 
-                    ProfileBackgroundImageUrl =  profileBannerURL,
-                    ProfileBannerURL = profileBannerURL,
-                    Protected = false, //res.RootElement.GetProperty("data").GetProperty("protected").GetBoolean(), 
-                };
+                return Extract(result);
             }
             catch (System.Collections.Generic.KeyNotFoundException)
             {
@@ -103,6 +86,30 @@ namespace BirdsiteLive.Twitter
             //var description = user.Description;
             //foreach (var descriptionUrl in user.Entities?.Description?.Urls?.OrderByDescending(x => x.URL.Length))
             //    description = description.Replace(descriptionUrl.URL, descriptionUrl.ExpandedURL);
+
+        }
+
+        public TwitterUser Extract(JsonElement result)
+        {
+            string profileBannerURL = null;
+            JsonElement profileBannerURLObject;
+            if (result.GetProperty("legacy").TryGetProperty("profile_banner_url", out profileBannerURLObject))
+            {
+                profileBannerURL = profileBannerURLObject.GetString();
+            }
+
+            return new TwitterUser
+            {
+                Id = long.Parse(result.GetProperty("rest_id").GetString()),
+                Acct = result.GetProperty("legacy").GetProperty("screen_name").GetString(), 
+                Name =  result.GetProperty("legacy").GetProperty("name").GetString(), //res.RootElement.GetProperty("data").GetProperty("name").GetString(),
+                Description =  "", //res.RootElement.GetProperty("data").GetProperty("description").GetString(),
+                Url =  "", //res.RootElement.GetProperty("data").GetProperty("url").GetString(),
+                ProfileImageUrl =  result.GetProperty("legacy").GetProperty("profile_image_url_https").GetString().Replace("normal", "400x400"), 
+                ProfileBackgroundImageUrl =  profileBannerURL,
+                ProfileBannerURL = profileBannerURL,
+                Protected = false, //res.RootElement.GetProperty("data").GetProperty("protected").GetBoolean(), 
+            };
 
         }
 

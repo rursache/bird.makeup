@@ -25,12 +25,12 @@ namespace BirdsiteLive.Twitter
     {
         private readonly ITwitterAuthenticationInitializer _twitterAuthenticationInitializer;
         private readonly ITwitterStatisticsHandler _statisticsHandler;
-        private readonly ITwitterUserService _twitterUserService;
+        private readonly ICachedTwitterUserService _twitterUserService;
         private readonly ILogger<TwitterTweetsService> _logger;
         private HttpClient _httpClient = new HttpClient();
 
         #region Ctor
-        public TwitterTweetsService(ITwitterAuthenticationInitializer twitterAuthenticationInitializer, ITwitterStatisticsHandler statisticsHandler, ITwitterUserService twitterUserService, ILogger<TwitterTweetsService> logger)
+        public TwitterTweetsService(ITwitterAuthenticationInitializer twitterAuthenticationInitializer, ITwitterStatisticsHandler statisticsHandler, ICachedTwitterUserService twitterUserService, ILogger<TwitterTweetsService> logger)
         {
             _twitterAuthenticationInitializer = twitterAuthenticationInitializer;
             _statisticsHandler = statisticsHandler;
@@ -126,7 +126,7 @@ namespace BirdsiteLive.Twitter
                     {   
                         var extractedTweet = await Extract(tweet);
                         extractedTweets.Add(extractedTweet);
-                        
+
                         if (extractedTweet.Id == fromTweetId)
                             break;
 
@@ -137,6 +137,17 @@ namespace BirdsiteLive.Twitter
                             + JsonObject.Create(tweet).ToJsonString(new JsonSerializerOptions { WriteIndented = true }));
 
                     }
+
+                    try 
+                    {
+                        JsonElement userDoc = tweet.GetProperty("content").GetProperty("itemContent")
+                                .GetProperty("tweet_results").GetProperty("core").GetProperty("user_results");
+
+                        TwitterUser tweetUser = _twitterUserService.Extract(userDoc);
+                        _twitterUserService.AddUser(tweetUser);
+                    }
+                    catch (Exception e)
+                    {}
                 }
             }
 
