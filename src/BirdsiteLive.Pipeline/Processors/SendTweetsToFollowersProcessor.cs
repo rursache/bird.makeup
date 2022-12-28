@@ -63,26 +63,32 @@ namespace BirdsiteLive.Pipeline.Processors
         private async Task ProcessFollowersWithSharedInboxAsync(ExtractedTweet[] tweets, List<Follower> followers, SyncTwitterUser user)
         {
             var followersPerInstances = followers.GroupBy(x => x.Host);
+            List<Task> todo = new List<Task>();
 
             foreach (var followersPerInstance in followersPerInstances)
             {
-                try
+                var t = Task.Run( async () => 
                 {
-                    _logger.LogInformation("Sending " + tweets.Length + " tweets from user " + user.Acct + " to instance " + followersPerInstance.Key);
-                    await _sendTweetsToSharedInbox.ExecuteAsync(tweets, user, followersPerInstance.Key, followersPerInstance.ToArray());
+                    try
+                    {
+                        _logger.LogInformation("Sending " + tweets.Length + " tweets from user " + user.Acct + " to instance " + followersPerInstance.Key);
+                        await _sendTweetsToSharedInbox.ExecuteAsync(tweets, user, followersPerInstance.Key, followersPerInstance.ToArray());
 
-                    foreach (var f in followersPerInstance)
-                        await ProcessWorkingUserAsync(f);
-                }
-                catch (Exception e)
-                {
-                    var follower = followersPerInstance.First();
-                    _logger.LogError(e, "Posting to {Host}{Route} failed", follower.Host, follower.SharedInboxRoute);
+                        foreach (var f in followersPerInstance)
+                            await ProcessWorkingUserAsync(f);
+                    }
+                    catch (Exception e)
+                    {
+                        var follower = followersPerInstance.First();
+                        _logger.LogError(e, "Posting to {Host}{Route} failed", follower.Host, follower.SharedInboxRoute);
 
-                    foreach (var f in followersPerInstance)
-                        await ProcessFailingUserAsync(f);
-                }
+                        foreach (var f in followersPerInstance)
+                            await ProcessFailingUserAsync(f);
+                    }
+                });
+                todo.Add(t);
             }
+            await Task.WhenAll(todo);
         }
         
         private async Task ProcessFollowersWithInboxAsync(ExtractedTweet[] tweets, List<Follower> followerWtInbox, SyncTwitterUser user)
