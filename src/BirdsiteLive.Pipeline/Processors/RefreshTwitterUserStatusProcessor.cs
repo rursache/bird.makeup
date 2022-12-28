@@ -40,7 +40,7 @@ namespace BirdsiteLive.Pipeline.Processors
 
                 try
                 {
-                    userView = await _twitterUserService.GetUserAsync(user.Acct);
+                    //userView = await _twitterUserService.GetUserAsync(user.Acct);
                 }
                 catch (UserNotFoundException)
                 {
@@ -64,8 +64,8 @@ namespace BirdsiteLive.Pipeline.Processors
 
                 if (userView == null || userView.Protected)
                 {
-                    await ProcessFailingUserAsync(user);
-                    continue;
+                    //await ProcessFailingUserAsync(user);
+                    //continue;
                 }
 
                 user.FetchingErrorCount = 0;
@@ -74,7 +74,6 @@ namespace BirdsiteLive.Pipeline.Processors
                     User = user
                 };
                 usersWtData.Add(userWtData);
-                await Task.Delay(5 * 1000);
             }
             return usersWtData.ToArray();
         }
