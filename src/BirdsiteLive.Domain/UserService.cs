@@ -162,7 +162,7 @@ namespace BirdsiteLive.Domain
             }
 
             // Validate User Protected
-            var user = _twitterUserService.GetUser(twitterUser);
+            var user = await _twitterUserService.GetUserAsync(twitterUser);
             if (!user.Protected)
             {
                 // Execute

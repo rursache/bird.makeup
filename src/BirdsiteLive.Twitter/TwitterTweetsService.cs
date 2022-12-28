@@ -65,7 +65,7 @@ namespace BirdsiteLive.Twitter
                 var timeline = tweet.RootElement.GetProperty("data").GetProperty("threaded_conversation_with_injections_v2")
                     .GetProperty("instructions").EnumerateArray().First().GetProperty("entries").EnumerateArray();
 
-                return Extract( timeline.First() );
+                return await Extract( timeline.First() );
             }
             catch (Exception e)
             {
@@ -84,7 +84,7 @@ namespace BirdsiteLive.Twitter
 
             var client = await _twitterAuthenticationInitializer.MakeHttpClient();
 
-            var user = _twitterUserService.GetUser(username);
+            var user = await _twitterUserService.GetUserAsync(username);
             if (user == null || user.Protected) return new ExtractedTweet[0];
 
 
@@ -129,7 +129,7 @@ namespace BirdsiteLive.Twitter
                     
                     try 
                     {   
-                        var extractedTweet = Extract(tweet);
+                        var extractedTweet = await Extract(tweet);
                         extractedTweets.Add(extractedTweet);
 
                     }
@@ -145,7 +145,7 @@ namespace BirdsiteLive.Twitter
             return extractedTweets.ToArray();
         }
 
-        private ExtractedTweet Extract(JsonElement tweet)
+        private async Task<ExtractedTweet> Extract(JsonElement tweet)
         {
 
             JsonElement retweet;
@@ -188,7 +188,7 @@ namespace BirdsiteLive.Twitter
                     .GetProperty("retweeted_status_result").GetProperty("result")
                     .GetProperty("core").GetProperty("user_results").GetProperty("result")
                     .GetProperty("legacy").GetProperty("screen_name").GetString();
-                OriginalAuthor = _twitterUserService.GetUser(OriginalAuthorUsername);
+                OriginalAuthor = await _twitterUserService.GetUserAsync(OriginalAuthorUsername);
             }
 
             string creationTime = tweet.GetProperty("content").GetProperty("itemContent")

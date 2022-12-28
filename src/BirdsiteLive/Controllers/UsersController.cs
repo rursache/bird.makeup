@@ -59,7 +59,7 @@ namespace BirdsiteLive.Controllers
         [Route("/@{id}")]
         [Route("/users/{id}")]
         [Route("/users/{id}/remote_follow")]
-        public IActionResult Index(string id)
+        public async Task<IActionResult> Index(string id)
         {
             _logger.LogTrace("User Index: {Id}", id);
 
@@ -75,7 +75,7 @@ namespace BirdsiteLive.Controllers
             {
                 try
                 {
-                    user = _twitterUserService.GetUser(id);
+                    user = await _twitterUserService.GetUserAsync(id);
                 }
                 catch (UserNotFoundException)
                 {

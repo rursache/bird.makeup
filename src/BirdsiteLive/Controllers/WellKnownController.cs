@@ -142,7 +142,7 @@ namespace BirdsiteLive.Controllers
         }
 
         [Route("/.well-known/webfinger")]
-        public IActionResult Webfinger(string resource = null)
+        public async Task<IActionResult> Webfinger(string resource = null)
         {
             if (string.IsNullOrWhiteSpace(resource)) 
                 return BadRequest();
@@ -203,7 +203,7 @@ namespace BirdsiteLive.Controllers
 
             try
             {
-                _twitterUserService.GetUser(name);
+                await _twitterUserService.GetUserAsync(name);
             }
             catch (UserNotFoundException)
             {

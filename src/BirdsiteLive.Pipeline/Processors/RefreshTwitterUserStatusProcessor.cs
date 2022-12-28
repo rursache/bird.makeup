@@ -40,7 +40,7 @@ namespace BirdsiteLive.Pipeline.Processors
 
                 try
                 {
-                    userView = _twitterUserService.GetUser(user.Acct);
+                    userView = await _twitterUserService.GetUserAsync(user.Acct);
                 }
                 catch (UserNotFoundException)
                 {

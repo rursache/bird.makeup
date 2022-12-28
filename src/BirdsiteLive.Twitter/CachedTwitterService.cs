@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using BirdsiteLive.Common.Settings;
 using BirdsiteLive.Twitter.Models;
 using Microsoft.Extensions.Caching.Memory;
@@ -36,11 +37,11 @@ namespace BirdsiteLive.Twitter
         }
         #endregion
 
-        public TwitterUser GetUser(string username)
+        public async Task<TwitterUser> GetUserAsync(string username)
         {
             if (!_userCache.TryGetValue(username, out TwitterUser user))
             {
-                user = _twitterService.GetUser(username);
+                user = await _twitterService.GetUserAsync(username);
                 if(user != null) _userCache.Set(username, user, _cacheEntryOptions);
             }
 

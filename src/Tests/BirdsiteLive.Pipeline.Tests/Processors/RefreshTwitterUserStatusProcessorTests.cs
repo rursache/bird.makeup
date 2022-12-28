@@ -47,8 +47,8 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
             #region Mocks
             var twitterUserServiceMock = new Mock<ICachedTwitterUserService>(MockBehavior.Strict);
             twitterUserServiceMock
-                .Setup(x => x.GetUser(It.IsAny<string>()))
-                .Returns(new TwitterUser
+                .Setup(x => x.GetUserAsync(It.IsAny<string>()))
+                .ReturnsAsync(new TwitterUser
                 {
                     Protected = false
                 });
@@ -95,8 +95,8 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
             #region Mocks
             var twitterUserServiceMock = new Mock<ICachedTwitterUserService>(MockBehavior.Strict);
             twitterUserServiceMock
-                .Setup(x => x.GetUser(It.IsAny<string>()))
-                .Returns(new TwitterUser
+                .Setup(x => x.GetUserAsync(It.IsAny<string>()))
+                .ReturnsAsync(new TwitterUser
                 {
                     Protected = false
                 });
@@ -152,14 +152,14 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
             #region Mocks
             var twitterUserServiceMock = new Mock<ICachedTwitterUserService>(MockBehavior.Strict);
             twitterUserServiceMock
-                .Setup(x => x.GetUser(It.Is<string>(y => y == acct1)))
-                .Returns(new TwitterUser
+                .Setup(x => x.GetUserAsync(It.Is<string>(y => y == acct1)))
+                .ReturnsAsync(new TwitterUser
                 {
                     Protected = false
                 });
 
             twitterUserServiceMock
-                .Setup(x => x.GetUser(It.Is<string>(y => y == acct2)))
+                .Setup(x => x.GetUserAsync(It.Is<string>(y => y == acct2)))
                 .Throws(new UserNotFoundException());
 
             var twitterUserDalMock = new Mock<ITwitterUserDal>(MockBehavior.Strict);
@@ -216,14 +216,14 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
             #region Mocks
             var twitterUserServiceMock = new Mock<ICachedTwitterUserService>(MockBehavior.Strict);
             twitterUserServiceMock
-                .Setup(x => x.GetUser(It.Is<string>(y => y == acct1)))
-                .Returns(new TwitterUser
+                .Setup(x => x.GetUserAsync(It.Is<string>(y => y == acct1)))
+                .ReturnsAsync(new TwitterUser
                 {
                     Protected = false
                 });
 
             twitterUserServiceMock
-                .Setup(x => x.GetUser(It.Is<string>(y => y == acct2)))
+                .Setup(x => x.GetUserAsync(It.Is<string>(y => y == acct2)))
                 .Throws(new UserHasBeenSuspendedException());
 
             var twitterUserDalMock = new Mock<ITwitterUserDal>(MockBehavior.Strict);
@@ -280,14 +280,14 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
             #region Mocks
             var twitterUserServiceMock = new Mock<ICachedTwitterUserService>(MockBehavior.Strict);
             twitterUserServiceMock
-                .Setup(x => x.GetUser(It.Is<string>(y => y == acct1)))
-                .Returns(new TwitterUser
+                .Setup(x => x.GetUserAsync(It.Is<string>(y => y == acct1)))
+                .ReturnsAsync(new TwitterUser
                 {
                     Protected = false
                 });
 
             twitterUserServiceMock
-                .Setup(x => x.GetUser(It.Is<string>(y => y == acct2)))
+                .Setup(x => x.GetUserAsync(It.Is<string>(y => y == acct2)))
                 .Throws(new Exception());
             
             var twitterUserDalMock = new Mock<ITwitterUserDal>(MockBehavior.Strict);
@@ -352,15 +352,15 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
             #region Mocks
             var twitterUserServiceMock = new Mock<ICachedTwitterUserService>(MockBehavior.Strict);
             twitterUserServiceMock
-                .Setup(x => x.GetUser(It.Is<string>(y => y == acct1)))
-                .Returns(new TwitterUser
+                .Setup(x => x.GetUserAsync(It.Is<string>(y => y == acct1)))
+                .ReturnsAsync(new TwitterUser
                 {
                     Protected = false
                 });
 
             twitterUserServiceMock
-                .Setup(x => x.GetUser(It.Is<string>(y => y == acct2)))
-                .Returns((TwitterUser)null);
+                .Setup(x => x.GetUserAsync(It.Is<string>(y => y == acct2)))
+                .ReturnsAsync((TwitterUser)null);
             
             var twitterUserDalMock = new Mock<ITwitterUserDal>(MockBehavior.Strict);
             twitterUserDalMock
@@ -424,15 +424,15 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
             #region Mocks
             var twitterUserServiceMock = new Mock<ICachedTwitterUserService>(MockBehavior.Strict);
             twitterUserServiceMock
-                .Setup(x => x.GetUser(It.Is<string>(y => y == acct1)))
-                .Returns(new TwitterUser
+                .Setup(x => x.GetUserAsync(It.Is<string>(y => y == acct1)))
+                .ReturnsAsync(new TwitterUser
                 {
                     Protected = false
                 });
 
             twitterUserServiceMock
-                .Setup(x => x.GetUser(It.Is<string>(y => y == acct2)))
-                .Returns((TwitterUser)null);
+                .Setup(x => x.GetUserAsync(It.Is<string>(y => y == acct2)))
+                .ReturnsAsync((TwitterUser)null);
             
             var twitterUserDalMock = new Mock<ITwitterUserDal>(MockBehavior.Strict);
             twitterUserDalMock
@@ -495,15 +495,15 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
             #region Mocks
             var twitterUserServiceMock = new Mock<ICachedTwitterUserService>(MockBehavior.Strict);
             twitterUserServiceMock
-                .Setup(x => x.GetUser(It.Is<string>(y => y == acct1)))
-                .Returns(new TwitterUser
+                .Setup(x => x.GetUserAsync(It.Is<string>(y => y == acct1)))
+                .ReturnsAsync(new TwitterUser
                 {
                     Protected = false
                 });
 
             twitterUserServiceMock
-                .Setup(x => x.GetUser(It.Is<string>(y => y == acct2)))
-                .Returns(new TwitterUser
+                .Setup(x => x.GetUserAsync(It.Is<string>(y => y == acct2)))
+                .ReturnsAsync(new TwitterUser
                 {
                     Protected = true
                 });
@@ -570,15 +570,15 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
             #region Mocks
             var twitterUserServiceMock = new Mock<ICachedTwitterUserService>(MockBehavior.Strict);
             twitterUserServiceMock
-                .Setup(x => x.GetUser(It.Is<string>(y => y == acct1)))
-                .Returns(new TwitterUser
+                .Setup(x => x.GetUserAsync(It.Is<string>(y => y == acct1)))
+                .ReturnsAsync(new TwitterUser
                 {
                     Protected = false
                 });
 
             twitterUserServiceMock
-                .Setup(x => x.GetUser(It.Is<string>(y => y == acct2)))
-                .Returns(new TwitterUser
+                .Setup(x => x.GetUserAsync(It.Is<string>(y => y == acct2)))
+                .ReturnsAsync(new TwitterUser
                 {
                     Protected = true
                 });
@@ -639,8 +639,8 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
             #region Mocks
             var twitterUserServiceMock = new Mock<ICachedTwitterUserService>(MockBehavior.Strict);
             twitterUserServiceMock
-                .Setup(x => x.GetUser(It.Is<string>(y => y == acct1)))
-                .Returns((TwitterUser)null);
+                .Setup(x => x.GetUserAsync(It.Is<string>(y => y == acct1)))
+                .ReturnsAsync((TwitterUser)null);
             
             var twitterUserDalMock = new Mock<ITwitterUserDal>(MockBehavior.Strict);
             twitterUserDalMock
@@ -700,14 +700,14 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
             #region Mocks
             var twitterUserServiceMock = new Mock<ICachedTwitterUserService>(MockBehavior.Strict);
             twitterUserServiceMock
-                .Setup(x => x.GetUser(It.Is<string>(y => y == acct1)))
-                .Returns(new TwitterUser
+                .Setup(x => x.GetUserAsync(It.Is<string>(y => y == acct1)))
+                .ReturnsAsync(new TwitterUser
                 {
                     Protected = false,
                 });
 
             twitterUserServiceMock
-                .Setup(x => x.GetUser(It.Is<string>(y => y == acct2)))
+                .Setup(x => x.GetUserAsync(It.Is<string>(y => y == acct2)))
                 .Throws(new RateLimitExceededException());
             
             var twitterUserDalMock = new Mock<ITwitterUserDal>(MockBehavior.Strict);

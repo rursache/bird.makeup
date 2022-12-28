@@ -13,7 +13,7 @@ namespace BirdsiteLive.Twitter
 {
     public interface ITwitterUserService
     {
-        TwitterUser GetUser(string username);
+        Task<TwitterUser> GetUserAsync(string username);
         bool IsUserApiRateLimited();
     }
 
@@ -35,10 +35,6 @@ namespace BirdsiteLive.Twitter
         }
         #endregion
 
-        public TwitterUser GetUser(string username)
-        {
-            return GetUserAsync(username).Result;
-        }
         public async Task<TwitterUser> GetUserAsync(string username)
         {
             await _twitterAuthenticationInitializer.EnsureAuthenticationIsInitialized();
