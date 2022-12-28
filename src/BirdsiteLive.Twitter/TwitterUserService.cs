@@ -106,7 +106,6 @@ namespace BirdsiteLive.Twitter
 
         }
 
-
         public bool IsUserApiRateLimited()
         {
             return false;
