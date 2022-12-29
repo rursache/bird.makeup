@@ -23,9 +23,9 @@ namespace BirdsiteLive.Twitter
             //Priority on removing when reaching size limit (memory pressure)
             .SetPriority(CacheItemPriority.Low)
             // Keep in cache for this time, reset time if accessed.
-            .SetSlidingExpiration(TimeSpan.FromHours(24))
+            .SetSlidingExpiration(TimeSpan.FromMinutes(10))
             // Remove from cache after this time, regardless of sliding expiration
-            .SetAbsoluteExpiration(TimeSpan.FromDays(7));
+            .SetAbsoluteExpiration(TimeSpan.FromDays(1));
 
         #region Ctor
         public CachedTwitterUserService(ITwitterUserService twitterService, InstanceSettings settings)

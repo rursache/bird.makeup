@@ -150,11 +150,11 @@ namespace BirdsiteLive.Twitter
                     try 
                     {   
                         var extractedTweet = await Extract(tweet);
-                        extractedTweets.Add(extractedTweet);
 
                         if (extractedTweet.Id == fromTweetId)
                             break;
 
+                        extractedTweets.Add(extractedTweet);
                     }
                     catch (Exception e)
                     {

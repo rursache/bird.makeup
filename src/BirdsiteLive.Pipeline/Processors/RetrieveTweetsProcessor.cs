@@ -60,7 +60,7 @@ namespace BirdsiteLive.Pipeline.Processors
                     await _twitterUserDal.UpdateTwitterUserAsync(user.Id, user.LastTweetPostedId, user.LastTweetSynchronizedForAllFollowersId, user.FetchingErrorCount, now);
                 }
                 
-                await Task.Delay(1500);
+                await Task.Delay(750);
             }
 
             return usersWtTweets.ToArray();

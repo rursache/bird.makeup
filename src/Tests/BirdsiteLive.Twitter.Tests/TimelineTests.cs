@@ -41,7 +41,7 @@ namespace BirdsiteLive.ActivityPub.Tests
         {
             var tweets = await _tweetService.GetTimelineAsync("kobebryant", 100, 1218020971346444288);
             Assert.AreEqual(tweets[0].MessageContent, "Continuing to move the game forward @KingJames. Much respect my brother 💪🏾 #33644");
-            Assert.AreEqual(tweets.Length, 9);
+            Assert.AreEqual(tweets.Length, 8);
         }
 
 
