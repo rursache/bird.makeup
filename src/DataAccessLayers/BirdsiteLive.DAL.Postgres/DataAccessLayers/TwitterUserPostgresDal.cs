@@ -125,6 +125,20 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
             }
         }
 
+        public async Task UpdateTwitterUserIdAsync(string username, long twitterUserId)
+        {
+            if(username == default) throw new ArgumentException("id");
+            if(twitterUserId == default) throw new ArgumentException("twtterUserId");
+
+            var query = $"UPDATE {_settings.TwitterUserTableName} SET twitterUserId = @twitterUserId WHERE acct = @username";
+
+            using (var dbConnection = Connection)
+            {
+                dbConnection.Open();
+
+                await dbConnection.QueryAsync(query, new { username, twitterUserId });
+            }
+        }
         public async Task UpdateTwitterUserAsync(int id, long lastTweetPostedId, long lastTweetSynchronizedForAllFollowersId, int fetchingErrorCount, DateTime lastSync)
         {
             if(id == default) throw new ArgumentException("id");

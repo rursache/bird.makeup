@@ -17,6 +17,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\BirdsiteLive.Twitter\BirdsiteLive.Twitter.csproj" />
+    <ProjectReference Include="..\..\DataAccessLayers\BirdsiteLive.DAL\BirdsiteLive.DAL.csproj" />
   </ItemGroup>
 
 </Project>

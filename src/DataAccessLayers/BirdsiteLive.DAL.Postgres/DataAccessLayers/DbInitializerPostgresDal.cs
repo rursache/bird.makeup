@@ -23,7 +23,7 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
     public class DbInitializerPostgresDal : PostgresBase, IDbInitializerDal
     {
         private readonly PostgresTools _tools;
-        private readonly Version _currentVersion = new Version(2, 4);
+        private readonly Version _currentVersion = new Version(2, 5);
         private const string DbVersionType = "db-version";
 
         #region Ctor
@@ -135,7 +135,8 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
                 new Tuple<Version, Version>(new Version(2,0), new Version(2,1)),
                 new Tuple<Version, Version>(new Version(2,1), new Version(2,2)),
                 new Tuple<Version, Version>(new Version(2,2), new Version(2,3)),
-                new Tuple<Version, Version>(new Version(2,3), new Version(2,4))
+                new Tuple<Version, Version>(new Version(2,3), new Version(2,4)),
+                new Tuple<Version, Version>(new Version(2,4), new Version(2,5))
             };
         }
 
@@ -171,6 +172,12 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
 
                 var alterPostingError = $@"ALTER TABLE {_settings.FollowersTableName} ALTER COLUMN postingErrorCount TYPE INTEGER";
                 await _tools.ExecuteRequestAsync(alterPostingError);
+            }
+            else if (from == new Version(2, 4) && to == new Version(2, 5))
+            {
+                var alterTwitterUserId = $@"ALTER TABLE {_settings.TwitterUserTableName} ADD twitterUserId BIGINT";
+                await _tools.ExecuteRequestAsync(alterTwitterUserId);
+
             }
             else
             {

@@ -34,7 +34,7 @@ namespace BirdsiteLive.Twitter
 
             _userCache = new MemoryCache(new MemoryCacheOptions()
             {
-                SizeLimit = 5000 //TODO make this use number of entries in db
+                SizeLimit = 3000 //TODO make this use number of entries in db
             });
         }
         #endregion

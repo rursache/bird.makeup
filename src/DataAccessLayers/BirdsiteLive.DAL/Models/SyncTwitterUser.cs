@@ -5,6 +5,7 @@ namespace BirdsiteLive.DAL.Models
     public class SyncTwitterUser
     {
         public int Id { get; set; }
+        public long TwitterUserId { get; set; }
         public string Acct { get; set; }
 
         public long LastTweetPostedId { get; set; }

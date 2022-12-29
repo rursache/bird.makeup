@@ -12,6 +12,8 @@ using BirdsiteLive.Twitter.Models;
 using BirdsiteLive.Twitter.Tools;
 using Microsoft.Extensions.Logging;
 using System.Text.RegularExpressions;
+using BirdsiteLive.DAL.Contracts;
+using BirdsiteLive.DAL.Models;
 
 namespace BirdsiteLive.Twitter
 {
@@ -26,15 +28,17 @@ namespace BirdsiteLive.Twitter
         private readonly ITwitterAuthenticationInitializer _twitterAuthenticationInitializer;
         private readonly ITwitterStatisticsHandler _statisticsHandler;
         private readonly ICachedTwitterUserService _twitterUserService;
+        private readonly ITwitterUserDal _twitterUserDal;
         private readonly ILogger<TwitterTweetsService> _logger;
         private HttpClient _httpClient = new HttpClient();
 
         #region Ctor
-        public TwitterTweetsService(ITwitterAuthenticationInitializer twitterAuthenticationInitializer, ITwitterStatisticsHandler statisticsHandler, ICachedTwitterUserService twitterUserService, ILogger<TwitterTweetsService> logger)
+        public TwitterTweetsService(ITwitterAuthenticationInitializer twitterAuthenticationInitializer, ITwitterStatisticsHandler statisticsHandler, ICachedTwitterUserService twitterUserService, ITwitterUserDal twitterUserDal, ILogger<TwitterTweetsService> logger)
         {
             _twitterAuthenticationInitializer = twitterAuthenticationInitializer;
             _statisticsHandler = statisticsHandler;
             _twitterUserService = twitterUserService;
+            _twitterUserDal = twitterUserDal;
             _logger = logger;
         }
         #endregion
@@ -79,12 +83,22 @@ namespace BirdsiteLive.Twitter
 
             var client = await _twitterAuthenticationInitializer.MakeHttpClient();
 
-            var user = await _twitterUserService.GetUserAsync(username);
-            if (user == null || user.Protected) return new ExtractedTweet[0];
+            long userId;
+            SyncTwitterUser user = await _twitterUserDal.GetTwitterUserAsync(username);
+            if (user.TwitterUserId == default) 
+            {
+                var user2 = await _twitterUserService.GetUserAsync(username);
+                userId = user2.Id;
+                await _twitterUserDal.UpdateTwitterUserIdAsync(username, user2.Id);
+            }
+            else 
+            {
+                userId = user.TwitterUserId;
+            }
 
 
             var reqURL = "https://twitter.com/i/api/graphql/s0hG9oAmWEYVBqOLJP-TBQ/UserTweetsAndReplies?variables=%7B%22userId%22%3A%22"
-                 + user.Id + 
+                 + userId + 
                 "%22%2C%22count%22%3A40%2C%22includePromotedContent%22%3Atrue%2C%22withQuickPromoteEligibilityTweetFields%22%3Atrue%2C%22withSuperFollowsUserFields%22%3Atrue%2C%22withDownvotePerspective%22%3Afalse%2C%22withReactionsMetadata%22%3Afalse%2C%22withReactionsPerspective%22%3Afalse%2C%22withSuperFollowsTweetFields%22%3Atrue%2C%22withVoice%22%3Atrue%2C%22withV2Timeline%22%3Atrue%7D&features=%7B%22responsive_web_twitter_blue_verified_badge_is_enabled%22%3Atrue%2C%22verified_phone_label_enabled%22%3Afalse%2C%22responsive_web_graphql_timeline_navigation_enabled%22%3Atrue%2C%22unified_cards_ad_metadata_container_dynamic_card_content_query_enabled%22%3Atrue%2C%22tweetypie_unmention_optimization_enabled%22%3Atrue%2C%22responsive_web_uc_gql_enabled%22%3Atrue%2C%22vibe_api_enabled%22%3Atrue%2C%22responsive_web_edit_tweet_api_enabled%22%3Atrue%2C%22graphql_is_translatable_rweb_tweet_is_translatable_enabled%22%3Afalse%2C%22standardized_nudges_misinfo%22%3Atrue%2C%22tweet_with_visibility_results_prefer_gql_limited_actions_policy_enabled%22%3Afalse%2C%22interactive_text_enabled%22%3Atrue%2C%22responsive_web_text_conversations_enabled%22%3Afalse%2C%22responsive_web_enhance_cards_enabled%22%3Atrue%7D";
             JsonDocument results;
             List<ExtractedTweet> extractedTweets = new List<ExtractedTweet>();
@@ -123,6 +137,17 @@ namespace BirdsiteLive.Twitter
                         continue;
                     
                     try 
+                    {
+                        JsonElement userDoc = tweet.GetProperty("content").GetProperty("itemContent")
+                                .GetProperty("tweet_results").GetProperty("core").GetProperty("user_results");
+
+                        TwitterUser tweetUser = _twitterUserService.Extract(userDoc);
+                        _twitterUserService.AddUser(tweetUser);
+                    }
+                    catch (Exception _)
+                    {}
+
+                    try 
                     {   
                         var extractedTweet = await Extract(tweet);
                         extractedTweets.Add(extractedTweet);
@@ -138,16 +163,6 @@ namespace BirdsiteLive.Twitter
 
                     }
 
-                    try 
-                    {
-                        JsonElement userDoc = tweet.GetProperty("content").GetProperty("itemContent")
-                                .GetProperty("tweet_results").GetProperty("core").GetProperty("user_results");
-
-                        TwitterUser tweetUser = _twitterUserService.Extract(userDoc);
-                        _twitterUserService.AddUser(tweetUser);
-                    }
-                    catch (Exception e)
-                    {}
                 }
             }
 

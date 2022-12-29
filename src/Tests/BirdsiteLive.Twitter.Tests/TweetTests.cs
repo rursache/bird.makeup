@@ -5,6 +5,8 @@ using BirdsiteLive.Twitter;
 using BirdsiteLive.Twitter.Tools;
 using BirdsiteLive.Statistics.Domain;
 using Moq;
+using BirdsiteLive.DAL.Contracts;
+using BirdsiteLive.DAL.Models;
 
 namespace BirdsiteLive.ActivityPub.Tests
 {
@@ -20,10 +22,11 @@ namespace BirdsiteLive.ActivityPub.Tests
             var logger3 = new Mock<ILogger<TwitterTweetsService>>();
             var settings = new Mock<Common.Settings.InstanceSettings>();
             var stats = new Mock<ITwitterStatisticsHandler>();
+            var twitterDal = new Mock<ITwitterUserDal>();
             ITwitterAuthenticationInitializer auth = new TwitterAuthenticationInitializer(logger1.Object);
             ITwitterUserService user = new TwitterUserService(auth, stats.Object, logger2.Object);
             ICachedTwitterUserService user2 = new CachedTwitterUserService(user, settings.Object);
-            _tweetService = new TwitterTweetsService(auth, stats.Object, user2, logger3.Object);
+            _tweetService = new TwitterTweetsService(auth, stats.Object, user2, twitterDal.Object, logger3.Object);
         }
 
         [TestMethod]
