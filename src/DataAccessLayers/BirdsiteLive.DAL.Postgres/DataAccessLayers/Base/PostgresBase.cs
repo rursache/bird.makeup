@@ -1,4 +1,5 @@
 ﻿using BirdsiteLive.DAL.Postgres.Settings;
+using BirdsiteLive.DAL.Models;
 using Npgsql;
 
 namespace BirdsiteLive.DAL.Postgres.DataAccessLayers.Base
@@ -12,7 +13,8 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers.Base
         protected PostgresBase(PostgresSettings settings)
         {
             _settings = settings;
-            _dataSource = NpgsqlDataSource.Create(settings.ConnString);
+            var dataSourceBuilder = new NpgsqlDataSourceBuilder(settings.ConnString);
+            _dataSource = dataSourceBuilder.Build();
         }
         #endregion
 

@@ -8,6 +8,7 @@ using BirdsiteLive.DAL.Postgres.DataAccessLayers.Base;
 using BirdsiteLive.DAL.Postgres.Settings;
 using Dapper;
 using Newtonsoft.Json;
+using Npgsql;
 
 namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
 {
@@ -78,13 +79,33 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
         {
             if (followedUserId == default) throw new ArgumentException("followedUserId");
 
-            var query = $"SELECT * FROM {_settings.FollowersTableName} WHERE @id=ANY(followings)";
-            
-            using (var dbConnection = Connection)
+            var query = $"SELECT * FROM {_settings.FollowersTableName} WHERE $1=ANY(followings)";
+
+            await using var connection = DataSource.CreateConnection();
+            await connection.OpenAsync();
+            await using var command = new NpgsqlCommand(query, connection) {
+                Parameters = { new() { Value = followedUserId}}
+            };
+            var reader = await command.ExecuteReaderAsync();
+
+            var followers = new List<Follower>();
+            while (await reader.ReadAsync())
             {
-                var result = await dbConnection.QueryAsync<SerializedFollower>(query, new { id = followedUserId});
-                return result.Select(Convert).ToArray();
+                followers.Add(new Follower
+                {
+                    Id = reader["id"] as int? ?? default,
+                    Followings = reader["followings"] as List<int> ?? new List<int>(),
+                    FollowingsSyncStatus = reader["followingsSyncStatus"] as Dictionary<int, long> ?? new Dictionary<int, long>(),
+                    ActorId = reader["actorId"] as string,
+                    Acct = reader["acct"] as string,
+                    Host = reader["host"] as string,
+                    InboxRoute = reader["host"] as string,
+                    SharedInboxRoute = reader["sharedInboxRoute"] as string,
+                    PostingErrorCount = reader["postingErrorCount"] as int? ?? default,
+                });
             }
+            
+            return followers.ToArray();
         }
 
         public async Task<Follower[]> GetAllFollowersAsync()
