@@ -6,6 +6,7 @@ using BirdsiteLive.DAL.Models;
 using BirdsiteLive.DAL.Postgres.DataAccessLayers.Base;
 using BirdsiteLive.DAL.Postgres.Settings;
 using Dapper;
+using Npgsql;
 
 namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
 {
@@ -24,8 +25,6 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
 
             using (var dbConnection = Connection)
             {
-                dbConnection.Open();
-
                 await dbConnection.ExecuteAsync(
                     $"INSERT INTO {_settings.TwitterUserTableName} (acct,lastTweetPostedId,lastTweetSynchronizedForAllFollowersId) VALUES(@acct,@lastTweetPostedId,@lastTweetSynchronizedForAllFollowersId)",
                     new { acct, lastTweetPostedId, lastTweetSynchronizedForAllFollowersId = lastTweetPostedId });
@@ -40,8 +39,6 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
 
             using (var dbConnection = Connection)
             {
-                dbConnection.Open();
-
                 var result = (await dbConnection.QueryAsync<SyncTwitterUser>(query, new { acct })).FirstOrDefault();
                 return result;
             }
@@ -53,8 +50,6 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
             
             using (var dbConnection = Connection)
             {
-                dbConnection.Open();
-
                 var result = (await dbConnection.QueryAsync<SyncTwitterUser>(query, new { id })).FirstOrDefault();
                 return result;
             }
@@ -66,8 +61,6 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
 
             using (var dbConnection = Connection)
             {
-                dbConnection.Open();
-
                 var result = (await dbConnection.QueryAsync<int>(query)).FirstOrDefault();
                 return result;
             }
@@ -79,8 +72,6 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
 
             using (var dbConnection = Connection)
             {
-                dbConnection.Open();
-
                 var result = (await dbConnection.QueryAsync<int>(query)).FirstOrDefault();
                 return result;
             }
@@ -92,8 +83,6 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
 
             using (var dbConnection = Connection)
             {
-                dbConnection.Open();
-
                 var result = await dbConnection.QueryAsync<SyncTwitterUser>(query, new { maxNumber });
                 return result.ToArray();
             }
@@ -105,8 +94,6 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
 
             using (var dbConnection = Connection)
             {
-                dbConnection.Open();
-
                 var result = await dbConnection.QueryAsync<SyncTwitterUser>(query, new { maxNumber });
                 return result.ToArray();
             }
@@ -118,8 +105,6 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
 
             using (var dbConnection = Connection)
             {
-                dbConnection.Open();
-
                 var result = await dbConnection.QueryAsync<SyncTwitterUser>(query);
                 return result.ToArray();
             }
@@ -134,8 +119,6 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
 
             using (var dbConnection = Connection)
             {
-                dbConnection.Open();
-
                 await dbConnection.QueryAsync(query, new { username, twitterUserId });
             }
         }
@@ -150,8 +133,6 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
 
             using (var dbConnection = Connection)
             {
-                dbConnection.Open();
-
                 await dbConnection.QueryAsync(query, new { id, lastTweetPostedId,  lastTweetSynchronizedForAllFollowersId, fetchingErrorCount, lastSync = lastSync.ToUniversalTime() });
             }
         }
@@ -171,8 +152,6 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
 
             using (var dbConnection = Connection)
             {
-                dbConnection.Open();
-
                 await dbConnection.QueryAsync(query, new { acct });
             }
         }
@@ -185,8 +164,6 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
 
             using (var dbConnection = Connection)
             {
-                dbConnection.Open();
-
                 await dbConnection.QueryAsync(query, new { id });
             }
         }

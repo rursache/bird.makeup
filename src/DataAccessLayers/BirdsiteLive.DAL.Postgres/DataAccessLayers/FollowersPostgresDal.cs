@@ -32,8 +32,6 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
 
             using (var dbConnection = Connection)
             {
-                dbConnection.Open();
-
                 await dbConnection.ExecuteAsync(
                     $"INSERT INTO {_settings.FollowersTableName} (acct,host,inboxRoute,sharedInboxRoute,followings,followingsSyncStatus,actorId) VALUES(@acct,@host,@inboxRoute,@sharedInboxRoute,@followings,CAST(@followingsSyncStatus as json),@actorId)",
                     new { acct, host, inboxRoute, sharedInboxRoute, followings, followingsSyncStatus = serializedDic, actorId });
@@ -46,8 +44,6 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
 
             using (var dbConnection = Connection)
             {
-                dbConnection.Open();
-
                 var result = (await dbConnection.QueryAsync<int>(query)).FirstOrDefault();
                 return result;
             }
@@ -59,8 +55,6 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
 
             using (var dbConnection = Connection)
             {
-                dbConnection.Open();
-
                 var result = (await dbConnection.QueryAsync<int>(query)).FirstOrDefault();
                 return result;
             }
@@ -75,8 +69,6 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
 
             using (var dbConnection = Connection)
             {
-                dbConnection.Open();
-
                 var result = (await dbConnection.QueryAsync<SerializedFollower>(query, new { acct, host })).FirstOrDefault();
                 return Convert(result);
             }
@@ -90,8 +82,6 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
             
             using (var dbConnection = Connection)
             {
-                dbConnection.Open();
-
                 var result = await dbConnection.QueryAsync<SerializedFollower>(query, new { id = followedUserId});
                 return result.Select(Convert).ToArray();
             }
@@ -103,8 +93,6 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
 
             using (var dbConnection = Connection)
             {
-                dbConnection.Open();
-
                 var result = await dbConnection.QueryAsync<SerializedFollower>(query);
                 return result.Select(Convert).ToArray();
             }
@@ -120,8 +108,6 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
 
             using (var dbConnection = Connection)
             {
-                dbConnection.Open();
-
                 await dbConnection.QueryAsync(query, new { follower.Id, follower.Followings, followingsSyncStatus = serializedDic, postingErrorCount = follower.PostingErrorCount });
             }
         }
@@ -134,8 +120,6 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
 
             using (var dbConnection = Connection)
             {
-                dbConnection.Open();
-
                 await dbConnection.QueryAsync(query, new { id });
             }
         }
@@ -152,8 +136,6 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
 
             using (var dbConnection = Connection)
             {
-                dbConnection.Open();
-
                 await dbConnection.QueryAsync(query, new { acct, host });
             }
         }
