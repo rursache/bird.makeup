@@ -33,26 +33,55 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
 
         public async Task<SyncTwitterUser> GetTwitterUserAsync(string acct)
         {
-            var query = $"SELECT * FROM {_settings.TwitterUserTableName} WHERE acct = @acct";
+            var query = $"SELECT * FROM {_settings.TwitterUserTableName} WHERE acct = $1";
 
             acct = acct.ToLowerInvariant();
 
-            using (var dbConnection = Connection)
+            await using var connection = DataSource.CreateConnection();
+            await connection.OpenAsync();
+            await using var command = new NpgsqlCommand(query, connection) {
+                Parameters = { new() { Value = acct}}
+            };
+            var reader = await command.ExecuteReaderAsync();
+            if (!await reader.ReadAsync())
+                return null;
+            
+            return new SyncTwitterUser
             {
-                var result = (await dbConnection.QueryAsync<SyncTwitterUser>(query, new { acct })).FirstOrDefault();
-                return result;
-            }
+                Id = reader["id"] as int? ?? default,
+                Acct = reader["acct"] as string,
+                TwitterUserId = reader["twitterUserId"] as long? ?? default,
+                LastTweetPostedId = reader["lastTweetPostedId"] as long? ?? default,
+                LastTweetSynchronizedForAllFollowersId = reader["lastTweetSynchronizedForAllFollowersId"] as long? ?? default,
+                LastSync = reader["lastSync"] as DateTime? ?? default,
+                FetchingErrorCount = reader["fetchingErrorCount"] as int? ?? default,
+            };
+
         }
 
         public async Task<SyncTwitterUser> GetTwitterUserAsync(int id)
         {
-            var query = $"SELECT * FROM {_settings.TwitterUserTableName} WHERE id = @id";
+            var query = $"SELECT * FROM {_settings.TwitterUserTableName} WHERE id = $1";
+
+            await using var connection = DataSource.CreateConnection();
+            await connection.OpenAsync();
+            await using var command = new NpgsqlCommand(query, connection) {
+                Parameters = { new() { Value = id}}
+            };
+            var reader = await command.ExecuteReaderAsync();
+            if (!await reader.ReadAsync())
+                return null;
             
-            using (var dbConnection = Connection)
+            return new SyncTwitterUser
             {
-                var result = (await dbConnection.QueryAsync<SyncTwitterUser>(query, new { id })).FirstOrDefault();
-                return result;
-            }
+                Id = reader["id"] as int? ?? default,
+                Acct = reader["acct"] as string,
+                TwitterUserId = reader["twitterUserId"] as long? ?? default,
+                LastTweetPostedId = reader["lastTweetPostedId"] as long? ?? default,
+                LastTweetSynchronizedForAllFollowersId = reader["lastTweetSynchronizedForAllFollowersId"] as long? ?? default,
+                LastSync = reader["lastSync"] as DateTime? ?? default,
+                FetchingErrorCount = reader["fetchingErrorCount"] as int? ?? default,
+            };
         }
 
         public async Task<int> GetTwitterUsersCountAsync()
