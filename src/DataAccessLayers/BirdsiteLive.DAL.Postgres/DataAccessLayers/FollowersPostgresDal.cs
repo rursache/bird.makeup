@@ -8,6 +8,7 @@ using BirdsiteLive.DAL.Postgres.DataAccessLayers.Base;
 using BirdsiteLive.DAL.Postgres.Settings;
 using Dapper;
 using Newtonsoft.Json;
+using System.Text.Json;
 using Npgsql;
 
 namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
@@ -63,16 +64,36 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
 
         public async Task<Follower> GetFollowerAsync(string acct, string host)
         {
-            var query = $"SELECT * FROM {_settings.FollowersTableName} WHERE acct = @acct AND host = @host";
+            var query = $"SELECT * FROM {_settings.FollowersTableName} WHERE acct = $1 AND host = $2";
 
             acct = acct.ToLowerInvariant();
             host = host.ToLowerInvariant();
 
-            using (var dbConnection = Connection)
+            await using var connection = DataSource.CreateConnection();
+            await connection.OpenAsync();
+            await using var command = new NpgsqlCommand(query, connection) {
+                Parameters = { new() { Value = acct}, new() { Value = host }},
+            };
+            var reader = await command.ExecuteReaderAsync();
+
+            if (!await reader.ReadAsync())
+                return null;
+
+            string syncStatusString = reader["followingsSyncStatus"] as string;
+            var syncStatus = System.Text.Json.JsonSerializer.Deserialize<Dictionary<int, long>>(syncStatusString);
+            return new Follower
             {
-                var result = (await dbConnection.QueryAsync<SerializedFollower>(query, new { acct, host })).FirstOrDefault();
-                return Convert(result);
-            }
+                Id = reader["id"] as int? ?? default,
+                Followings = (reader["followings"] as int[] ?? new int[0]).ToList(),
+                FollowingsSyncStatus = syncStatus,
+                ActorId = reader["actorId"] as string,
+                Acct = reader["acct"] as string,
+                Host = reader["host"] as string,
+                InboxRoute = reader["inboxRoute"] as string,
+                SharedInboxRoute = reader["sharedInboxRoute"] as string,
+                PostingErrorCount = reader["postingErrorCount"] as int? ?? default,
+            };
+            
         }
 
         public async Task<Follower[]> GetFollowersAsync(int followedUserId)
@@ -91,15 +112,17 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
             var followers = new List<Follower>();
             while (await reader.ReadAsync())
             {
+                string syncStatusString = reader["followingsSyncStatus"] as string;
+                var syncStatus = System.Text.Json.JsonSerializer.Deserialize<Dictionary<int, long>>(syncStatusString);
                 followers.Add(new Follower
                 {
                     Id = reader["id"] as int? ?? default,
-                    Followings = reader["followings"] as List<int> ?? new List<int>(),
-                    FollowingsSyncStatus = reader["followingsSyncStatus"] as Dictionary<int, long> ?? new Dictionary<int, long>(),
+                    Followings = (reader["followings"] as int[] ?? new int[0]).ToList(),
+                    FollowingsSyncStatus = syncStatus,
                     ActorId = reader["actorId"] as string,
                     Acct = reader["acct"] as string,
                     Host = reader["host"] as string,
-                    InboxRoute = reader["host"] as string,
+                    InboxRoute = reader["inboxRoute"] as string,
                     SharedInboxRoute = reader["sharedInboxRoute"] as string,
                     PostingErrorCount = reader["postingErrorCount"] as int? ?? default,
                 });
