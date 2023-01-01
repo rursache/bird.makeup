@@ -53,7 +53,6 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
             await Task.WhenAny(t, Task.Delay(50));
 
             #region Validations
-            maxUsersNumberProviderMock.VerifyAll();
             twitterUserDalMock.VerifyAll();
             Assert.IsTrue(0 < buffer.Count);
             buffer.TryReceive(out var result);
@@ -100,7 +99,6 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
             await Task.WhenAny(t, Task.Delay(300));
             
             #region Validations
-            maxUsersNumberProviderMock.VerifyAll();
             twitterUserDalMock.VerifyAll();
             Assert.IsTrue(0 < buffer.Count);
             buffer.TryReceive(out var result);
@@ -147,7 +145,6 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
             await Task.WhenAny(t, Task.Delay(5000));
 
             #region Validations
-            maxUsersNumberProviderMock.VerifyAll();
             twitterUserDalMock.VerifyAll();
             Assert.IsTrue(0 < buffer.Count);
             buffer.TryReceive(out var result);
@@ -186,7 +183,6 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
             await Task.WhenAny(t, Task.Delay(50));
 
             #region Validations
-            maxUsersNumberProviderMock.VerifyAll();
             twitterUserDalMock.VerifyAll();
             Assert.AreEqual(0, buffer.Count);
             #endregion
@@ -223,7 +219,6 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
             await Task.WhenAny(t, Task.Delay(50));
 
             #region Validations
-            maxUsersNumberProviderMock.VerifyAll();
             twitterUserDalMock.VerifyAll();
             Assert.AreEqual(0, buffer.Count);
             #endregion

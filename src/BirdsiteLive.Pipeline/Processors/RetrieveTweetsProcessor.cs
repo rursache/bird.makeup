@@ -35,7 +35,6 @@ namespace BirdsiteLive.Pipeline.Processors
         {
             var usersWtTweets = new List<UserWithDataToSync>();
 
-            //TODO multithread this
             int index = 0;
             foreach (var userWtData in syncTwitterUsers)
             {
@@ -60,7 +59,7 @@ namespace BirdsiteLive.Pipeline.Processors
                     await _twitterUserDal.UpdateTwitterUserAsync(user.Id, user.LastTweetPostedId, user.LastTweetSynchronizedForAllFollowersId, user.FetchingErrorCount, now);
                 }
                 
-                await Task.Delay(150);
+                //await Task.Delay(150);
             }
 
             return usersWtTweets.ToArray();
