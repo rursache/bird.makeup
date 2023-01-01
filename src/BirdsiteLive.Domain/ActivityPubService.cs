@@ -131,9 +131,6 @@ namespace BirdsiteLive.Domain
             _logger.LogInformation("Sent tweet to " + targetHost);
             _logger.LogInformation("Tweet content is " + json);
 
-            var c = await response.Content.ReadAsStringAsync();
-            _logger.LogInformation("Got res after posting tweet " + c);
-
             return response.StatusCode;
         }
     }

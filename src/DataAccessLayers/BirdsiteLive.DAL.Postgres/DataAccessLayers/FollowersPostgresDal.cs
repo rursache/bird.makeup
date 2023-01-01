@@ -127,6 +127,7 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
                     PostingErrorCount = reader["postingErrorCount"] as int? ?? default,
                 });
             }
+            await connection.CloseAsync();
             
             return followers.ToArray();
         }
