@@ -147,13 +147,20 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
             if (follower == default) throw new ArgumentException("follower");
             if (follower.Id == default) throw new ArgumentException("id");
 
-            var serializedDic = JsonConvert.SerializeObject(follower.FollowingsSyncStatus);
-            var query = $"UPDATE {_settings.FollowersTableName} SET followings = @followings, followingsSyncStatus = CAST(@followingsSyncStatus as json), postingErrorCount = @postingErrorCount WHERE id = @id";
+            var serializedDic = System.Text.Json.JsonSerializer.Serialize(follower.FollowingsSyncStatus);
+            var query = $"UPDATE {_settings.FollowersTableName} SET followings = $1, followingsSyncStatus = CAST($2 as json), postingErrorCount = $3 WHERE id = $4";
+            await using var connection = DataSource.CreateConnection();
+            await connection.OpenAsync();
+            await using var command = new NpgsqlCommand(query, connection) {
+                Parameters = { 
+                    new() { Value = follower.Followings}, 
+                    new() { Value = serializedDic}, 
+                    new() { Value = follower.PostingErrorCount}, 
+                    new() { Value = follower.Id}
+                }
+            };
 
-            using (var dbConnection = Connection)
-            {
-                await dbConnection.QueryAsync(query, new { follower.Id, follower.Followings, followingsSyncStatus = serializedDic, postingErrorCount = follower.PostingErrorCount });
-            }
+            await command.ExecuteNonQueryAsync();
         }
 
         public async Task DeleteFollowerAsync(int id)
