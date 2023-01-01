@@ -18,7 +18,6 @@ namespace BirdsiteLive.Pipeline
     public class StatusPublicationPipeline : IStatusPublicationPipeline
     {
         private readonly IRetrieveTwitterUsersProcessor _retrieveTwitterAccountsProcessor;
-        private readonly IRefreshTwitterUserStatusProcessor _refreshTwitterUserStatusProcessor;
         private readonly IRetrieveTweetsProcessor _retrieveTweetsProcessor;
         private readonly IRetrieveFollowersProcessor _retrieveFollowersProcessor;
         private readonly ISendTweetsToFollowersProcessor _sendTweetsToFollowersProcessor;
@@ -26,14 +25,13 @@ namespace BirdsiteLive.Pipeline
         private readonly ILogger<StatusPublicationPipeline> _logger;
 
         #region Ctor
-        public StatusPublicationPipeline(IRetrieveTweetsProcessor retrieveTweetsProcessor, IRetrieveTwitterUsersProcessor retrieveTwitterAccountsProcessor, IRetrieveFollowersProcessor retrieveFollowersProcessor, ISendTweetsToFollowersProcessor sendTweetsToFollowersProcessor, ISaveProgressionProcessor saveProgressionProcessor, IRefreshTwitterUserStatusProcessor refreshTwitterUserStatusProcessor, ILogger<StatusPublicationPipeline> logger)
+        public StatusPublicationPipeline(IRetrieveTweetsProcessor retrieveTweetsProcessor, IRetrieveTwitterUsersProcessor retrieveTwitterAccountsProcessor, IRetrieveFollowersProcessor retrieveFollowersProcessor, ISendTweetsToFollowersProcessor sendTweetsToFollowersProcessor, ISaveProgressionProcessor saveProgressionProcessor, ILogger<StatusPublicationPipeline> logger)
         {
             _retrieveTweetsProcessor = retrieveTweetsProcessor;
-            _retrieveTwitterAccountsProcessor = retrieveTwitterAccountsProcessor;
             _retrieveFollowersProcessor = retrieveFollowersProcessor;
             _sendTweetsToFollowersProcessor = sendTweetsToFollowersProcessor;
             _saveProgressionProcessor = saveProgressionProcessor;
-            _refreshTwitterUserStatusProcessor = refreshTwitterUserStatusProcessor;
+            _retrieveTwitterAccountsProcessor = retrieveTwitterAccountsProcessor;
 
             _logger = logger;
         }
@@ -42,10 +40,8 @@ namespace BirdsiteLive.Pipeline
         public async Task ExecuteAsync(CancellationToken ct)
         {
             // Create blocks 
-            var twitterUserToRefreshBufferBlock = new BufferBlock<SyncTwitterUser[]>(new DataflowBlockOptions
+            var twitterUserToRefreshBufferBlock = new BufferBlock<UserWithDataToSync[]>(new DataflowBlockOptions
                 { BoundedCapacity = 1, CancellationToken = ct });
-            var twitterUserToRefreshBlock = new TransformBlock<SyncTwitterUser[], UserWithDataToSync[]>(async x => await _refreshTwitterUserStatusProcessor.ProcessAsync(x, ct));
-            var twitterUsersBufferBlock = new BufferBlock<UserWithDataToSync[]>(new DataflowBlockOptions { BoundedCapacity = 1, CancellationToken = ct });
             var retrieveTweetsBlock = new TransformBlock<UserWithDataToSync[], UserWithDataToSync[]>(async x => await _retrieveTweetsProcessor.ProcessAsync(x, ct));
             var retrieveTweetsBufferBlock = new BufferBlock<UserWithDataToSync[]>(new DataflowBlockOptions { BoundedCapacity = 2, CancellationToken = ct });
             var retrieveFollowersBlock = new TransformManyBlock<UserWithDataToSync[], UserWithDataToSync>(async x => await _retrieveFollowersProcessor.ProcessAsync(x, ct));
@@ -55,9 +51,7 @@ namespace BirdsiteLive.Pipeline
             var saveProgressionBlock = new ActionBlock<UserWithDataToSync>(async x => await _saveProgressionProcessor.ProcessAsync(x, ct), new ExecutionDataflowBlockOptions { MaxDegreeOfParallelism = 5, CancellationToken = ct });
 
             // Link pipeline
-            twitterUserToRefreshBufferBlock.LinkTo(twitterUserToRefreshBlock, new DataflowLinkOptions { PropagateCompletion = true });
-            twitterUserToRefreshBlock.LinkTo(twitterUsersBufferBlock, new DataflowLinkOptions { PropagateCompletion = true });
-            twitterUsersBufferBlock.LinkTo(retrieveTweetsBlock, new DataflowLinkOptions { PropagateCompletion = true });
+            twitterUserToRefreshBufferBlock.LinkTo(retrieveTweetsBlock, new DataflowLinkOptions { PropagateCompletion = true });
             retrieveTweetsBlock.LinkTo(retrieveTweetsBufferBlock, new DataflowLinkOptions { PropagateCompletion = true });
             retrieveTweetsBufferBlock.LinkTo(retrieveFollowersBlock, new DataflowLinkOptions { PropagateCompletion = true });
             retrieveFollowersBlock.LinkTo(retrieveFollowersBufferBlock, new DataflowLinkOptions { PropagateCompletion = true });

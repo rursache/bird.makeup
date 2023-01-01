@@ -6,7 +6,7 @@ using System.Threading.Tasks.Dataflow;
 using BirdsiteLive.Common.Extensions;
 using BirdsiteLive.Common.Settings;
 using BirdsiteLive.DAL.Contracts;
-using BirdsiteLive.DAL.Models;
+using BirdsiteLive.Pipeline.Models;
 using BirdsiteLive.Pipeline.Contracts;
 using BirdsiteLive.Pipeline.Tools;
 using Microsoft.Extensions.Logging;
@@ -30,7 +30,7 @@ namespace BirdsiteLive.Pipeline.Processors
         }
         #endregion
 
-        public async Task GetTwitterUsersAsync(BufferBlock<SyncTwitterUser[]> twitterUsersBufferBlock, CancellationToken ct)
+        public async Task GetTwitterUsersAsync(BufferBlock<UserWithDataToSync[]> twitterUsersBufferBlock, CancellationToken ct)
         {
             for (; ; )
             {
@@ -51,8 +51,9 @@ namespace BirdsiteLive.Pipeline.Processors
                     foreach (var u in splitUsers)
                     {
                         ct.ThrowIfCancellationRequested();
+                        UserWithDataToSync[] toSync = u.Select(x => new UserWithDataToSync { User = x }).ToArray();
 
-                        await twitterUsersBufferBlock.SendAsync(u.ToArray(), ct);
+                        await twitterUsersBufferBlock.SendAsync(toSync, ct);
                     }
 
                     await Task.Delay(10, ct); // this is somehow necessary

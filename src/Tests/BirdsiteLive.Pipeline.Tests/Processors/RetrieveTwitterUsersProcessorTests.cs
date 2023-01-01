@@ -8,6 +8,7 @@ using BirdsiteLive.DAL.Contracts;
 using BirdsiteLive.DAL.Models;
 using BirdsiteLive.Pipeline.Processors;
 using BirdsiteLive.Pipeline.Tools;
+using BirdsiteLive.Pipeline.Models;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -21,7 +22,7 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
         public async Task GetTwitterUsersAsync_Test()
         {
             #region Stubs
-            var buffer = new BufferBlock<SyncTwitterUser[]>();
+            var buffer = new BufferBlock<UserWithDataToSync[]>();
             var users = new[]
             {
                 new SyncTwitterUser(),
@@ -64,7 +65,7 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
         public async Task GetTwitterUsersAsync_Multi_Test()
         {
             #region Stubs
-            var buffer = new BufferBlock<SyncTwitterUser[]>();
+            var buffer = new BufferBlock<UserWithDataToSync[]>();
             var users = new List<SyncTwitterUser>();
 
             for (var i = 0; i < 30; i++)
@@ -110,7 +111,7 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
         public async Task GetTwitterUsersAsync_Multi2_Test()
         {
             #region Stubs
-            var buffer = new BufferBlock<SyncTwitterUser[]>();
+            var buffer = new BufferBlock<UserWithDataToSync[]>();
             var users = new List<SyncTwitterUser>();
 
             for (var i = 0; i < 31; i++)
@@ -156,7 +157,7 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
         public async Task GetTwitterUsersAsync_NoUsers_Test()
         {
             #region Stubs
-            var buffer = new BufferBlock<SyncTwitterUser[]>();
+            var buffer = new BufferBlock<UserWithDataToSync[]>();
 
             var maxUsers = 1000;
             #endregion
@@ -192,7 +193,7 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
         public async Task GetTwitterUsersAsync_Exception_Test()
         {
             #region Stubs
-            var buffer = new BufferBlock<SyncTwitterUser[]>();
+            var buffer = new BufferBlock<UserWithDataToSync[]>();
 
             var maxUsers = 1000;
             #endregion
@@ -229,7 +230,7 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
         public async Task GetTwitterUsersAsync_Cancellation_Test()
         {
             #region Stubs
-            var buffer = new BufferBlock<SyncTwitterUser[]>();
+            var buffer = new BufferBlock<UserWithDataToSync[]>();
             var canTokenS = new CancellationTokenSource();
             canTokenS.Cancel();
 
