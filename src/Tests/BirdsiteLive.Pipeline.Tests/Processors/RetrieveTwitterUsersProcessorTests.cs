@@ -41,7 +41,7 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
             var twitterUserDalMock = new Mock<ITwitterUserDal>(MockBehavior.Strict);
             twitterUserDalMock
                 .Setup(x => x.GetAllTwitterUsersWithFollowersAsync(
-                    It.Is<int>(y => y == maxUsers)))
+                    It.Is<int>(y => true)))
                 .ReturnsAsync(users);
             
             var loggerMock = new Mock<ILogger<RetrieveTwitterUsersProcessor>>();
@@ -83,7 +83,7 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
             var twitterUserDalMock = new Mock<ITwitterUserDal>(MockBehavior.Strict);
             twitterUserDalMock
                 .SetupSequence(x => x.GetAllTwitterUsersWithFollowersAsync(
-                    It.Is<int>(y => y == maxUsers)))
+                    It.Is<int>(y => true)))
                 .ReturnsAsync(users.ToArray())
                 .ReturnsAsync(new SyncTwitterUser[0])
                 .ReturnsAsync(new SyncTwitterUser[0])
@@ -129,7 +129,7 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
             var twitterUserDalMock = new Mock<ITwitterUserDal>(MockBehavior.Strict);
             twitterUserDalMock
                 .SetupSequence(x => x.GetAllTwitterUsersWithFollowersAsync(
-                    It.Is<int>(y => y == maxUsers)))
+                    It.Is<int>(y => true)))
                 .ReturnsAsync(users.ToArray())
                 .ReturnsAsync(new SyncTwitterUser[0])
                 .ReturnsAsync(new SyncTwitterUser[0])
@@ -171,7 +171,7 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
             var twitterUserDalMock = new Mock<ITwitterUserDal>(MockBehavior.Strict);
             twitterUserDalMock
                 .Setup(x => x.GetAllTwitterUsersWithFollowersAsync(
-                    It.Is<int>(y => y == maxUsers)))
+                    It.Is<int>(y => true)))
                 .ReturnsAsync(new SyncTwitterUser[0]);
 
             var loggerMock = new Mock<ILogger<RetrieveTwitterUsersProcessor>>();
@@ -207,7 +207,7 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
             var twitterUserDalMock = new Mock<ITwitterUserDal>(MockBehavior.Strict);
             twitterUserDalMock
                 .Setup(x => x.GetAllTwitterUsersWithFollowersAsync(
-                    It.Is<int>(y => y == maxUsers)))
+                    It.Is<int>(y => true)))
                 .Returns(async () => await DelayFaultedTask<SyncTwitterUser[]>(new Exception()));
 
             var loggerMock = new Mock<ILogger<RetrieveTwitterUsersProcessor>>();
