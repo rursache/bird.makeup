@@ -38,7 +38,7 @@ namespace BirdsiteLive.Pipeline.Processors
 
                 try
                 {
-                    var users = await _twitterUserDal.GetAllTwitterUsersWithFollowersAsync(5000);
+                    var users = await _twitterUserDal.GetAllTwitterUsersWithFollowersAsync(500);
 
                     var userCount = users.Any() ? Math.Min(users.Length, 25) : 1;
                     var splitUsers = users.Split(userCount).ToList();
