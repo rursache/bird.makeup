@@ -18,6 +18,7 @@ namespace BirdsiteLive.Pipeline.Processors
         private readonly ITwitterUserDal _twitterUserDal;
         private readonly IMaxUsersNumberProvider _maxUsersNumberProvider;
         private readonly ILogger<RetrieveTwitterUsersProcessor> _logger;
+        private static Random rng = new Random();
         
         public int WaitFactor = 1000 * 60; //1 min
 
@@ -41,7 +42,7 @@ namespace BirdsiteLive.Pipeline.Processors
                     var users = await _twitterUserDal.GetAllTwitterUsersWithFollowersAsync(500);
 
                     var userCount = users.Any() ? Math.Min(users.Length, 25) : 1;
-                    var splitUsers = users.Split(userCount).ToList();
+                    var splitUsers = users.OrderBy(a => rng.Next()).ToArray().Split(userCount).ToList();
 
                     foreach (var u in splitUsers)
                     {
