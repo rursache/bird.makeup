@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Threading;
-using System.Timers;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using BirdsiteLive.Common.Settings;
 using Microsoft.Extensions.Logging;
@@ -12,8 +12,6 @@ namespace BirdsiteLive.Twitter.Tools
 {
     public interface ITwitterAuthenticationInitializer
     {
-        String BearerToken { get; }
-        String GuestToken { get; }
         Task EnsureAuthenticationIsInitialized();
         Task<HttpClient> MakeHttpClient();
     }
@@ -24,13 +22,11 @@ namespace BirdsiteLive.Twitter.Tools
         private static bool _initialized;
         private static System.Timers.Timer aTimer;
         private readonly HttpClient _httpClient = new HttpClient();
-        private HttpClient _twitterClient;
-        private String _token;
+        private List<HttpClient> _twitterClients = new List<HttpClient>();
+        private List<String> _tokens = new List<string>();
+        static Random rnd = new Random();
         public String BearerToken { 
             get { return "AAAAAAAAAAAAAAAAAAAAAPYXBAAAAAAACLXUNDekMxqa8h%2F40K4moUkGsoc%3DTYfbDKbT3jJPCEVnMYqilB28NHfOPqkca3qaAxGfsyKCs0wRbw"; }
-        }
-        public String GuestToken { 
-            get { return _token; }
         }
 
         #region Ctor
@@ -63,7 +59,10 @@ namespace BirdsiteLive.Twitter.Tools
             client.DefaultRequestHeaders.TryAddWithoutValidation("Referer", "https://twitter.com/");
             client.DefaultRequestHeaders.TryAddWithoutValidation("x-twitter-active-user", "yes");
 
-            _twitterClient = client;
+            _twitterClients.Add(client);
+
+            if (_twitterClients.Count > 10)
+                _twitterClients.RemoveAt(0);
         }
 
         private async Task<(string, string)> GetCred()
@@ -104,9 +103,10 @@ namespace BirdsiteLive.Twitter.Tools
 
         public async Task<HttpClient> MakeHttpClient()
         {
-            if (_twitterClient == null)
+            if (_twitterClients.Count < 3)
                 await RefreshCred();
-            return _twitterClient;
+            int r = rnd.Next(_twitterClients.Count);
+            return _twitterClients[r];
         }
     }
 }
