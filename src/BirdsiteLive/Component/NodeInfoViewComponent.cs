@@ -37,7 +37,8 @@ namespace BirdsiteLive.Component
                                       twitterAccountPolicy == ModerationTypeEnum.BlackListing,
                 WhitelistingEnabled = followerPolicy == ModerationTypeEnum.WhiteListing ||
                                       twitterAccountPolicy == ModerationTypeEnum.WhiteListing,
-                InstanceSaturation = statistics.Saturation
+                InstanceSaturation = statistics.Saturation,
+                SyncLag = statistics.SyncLag
             };
             
             //viewModel = new NodeInfoViewModel
@@ -55,5 +56,6 @@ namespace BirdsiteLive.Component
         public bool BlacklistingEnabled { get; set; }
         public bool WhitelistingEnabled { get; set; }
         public int InstanceSaturation { get; set; }
+        public TimeSpan SyncLag { get; set; }
     }
 }

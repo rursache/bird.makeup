@@ -18,6 +18,7 @@ namespace BirdsiteLive.DAL.Contracts
         Task DeleteTwitterUserAsync(string acct);
         Task DeleteTwitterUserAsync(int id);
         Task<int> GetTwitterUsersCountAsync();
+        Task<TimeSpan> GetTwitterSyncLag();
         Task<int> GetFailingTwitterUsersCountAsync();
     }
 }

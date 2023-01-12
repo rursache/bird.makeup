@@ -85,6 +85,17 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
             };
         }
 
+        public async Task<TimeSpan> GetTwitterSyncLag()
+        {
+            var query = $"SELECT max(lastsync) - min(lastsync) as diff FROM (SELECT unnest(followings) as follow FROM followers GROUP BY follow) AS f INNER JOIN twitter_users ON f.follow=twitter_users.id;";
+
+            using (var dbConnection = Connection)
+            {
+                var result = (await dbConnection.QueryAsync<TimeSpan>(query)).FirstOrDefault();
+                return result;
+            }
+        }
+
         public async Task<int> GetTwitterUsersCountAsync()
         {
             var query = $"SELECT COUNT(*) FROM {_settings.TwitterUserTableName}";

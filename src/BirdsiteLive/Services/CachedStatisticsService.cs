@@ -32,12 +32,14 @@ namespace BirdsiteLive.Services
             {
                 var twitterUserMax = _instanceSettings.MaxUsersCapacity;
                 var twitterUserCount = await _twitterUserDal.GetTwitterUsersCountAsync();
+                var twitterSyncLag = await _twitterUserDal.GetTwitterSyncLag();
                 var saturation = (int)((double)twitterUserCount / twitterUserMax * 100);
 
                 _cachedStatistics = new CachedStatistics
                 {
                     RefreshedTime = DateTime.UtcNow,
-                    Saturation = saturation
+                    Saturation = saturation,
+                    SyncLag = twitterSyncLag
                 };
             }
 
@@ -48,6 +50,7 @@ namespace BirdsiteLive.Services
     public class CachedStatistics
     {
         public DateTime RefreshedTime { get; set; }
+        public TimeSpan SyncLag { get; set; }
         public int Saturation { get; set; }
     }
 }
