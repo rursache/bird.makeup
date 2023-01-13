@@ -98,7 +98,7 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
 
         public async Task<int> GetTwitterUsersCountAsync()
         {
-            var query = $"SELECT COUNT(*) FROM {_settings.TwitterUserTableName}";
+            var query = $"SELECT COUNT(*) FROM (SELECT unnest(followings) as follow FROM {_settings.FollowersTableName} GROUP BY follow) AS f INNER JOIN {_settings.TwitterUserTableName} ON f.follow={_settings.TwitterUserTableName}.id";
 
             using (var dbConnection = Connection)
             {

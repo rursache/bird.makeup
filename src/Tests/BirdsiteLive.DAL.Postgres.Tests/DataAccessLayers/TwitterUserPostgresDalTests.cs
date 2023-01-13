@@ -365,7 +365,7 @@ namespace BirdsiteLive.DAL.Postgres.Tests.DataAccessLayers
             }
 
             var result = await dal.GetTwitterUsersCountAsync();
-            Assert.AreEqual(10, result);
+            Assert.AreEqual(0, result);
         }
 
         [TestMethod]

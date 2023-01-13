@@ -13,15 +13,17 @@ namespace BirdsiteLive.Services
     public class CachedStatisticsService : ICachedStatisticsService
     {
         private readonly ITwitterUserDal _twitterUserDal;
+        private readonly IFollowersDal _followersDal;
 
         private static CachedStatistics _cachedStatistics;
         private readonly InstanceSettings _instanceSettings;
 
         #region Ctor
-        public CachedStatisticsService(ITwitterUserDal twitterUserDal, InstanceSettings instanceSettings)
+        public CachedStatisticsService(ITwitterUserDal twitterUserDal, IFollowersDal followersDal, InstanceSettings instanceSettings)
         {
             _twitterUserDal = twitterUserDal;
             _instanceSettings = instanceSettings;
+            _followersDal = followersDal;
         }
         #endregion
 
@@ -34,12 +36,15 @@ namespace BirdsiteLive.Services
                 var twitterUserCount = await _twitterUserDal.GetTwitterUsersCountAsync();
                 var twitterSyncLag = await _twitterUserDal.GetTwitterSyncLag();
                 var saturation = (int)((double)twitterUserCount / twitterUserMax * 100);
+                var fediverseUsers = await _followersDal.GetFollowersCountAsync();
 
                 _cachedStatistics = new CachedStatistics
                 {
                     RefreshedTime = DateTime.UtcNow,
                     Saturation = saturation,
-                    SyncLag = twitterSyncLag
+                    SyncLag = twitterSyncLag,
+                    TwitterUsers = twitterUserCount,
+                    FediverseUsers = fediverseUsers
                 };
             }
 
@@ -52,5 +57,7 @@ namespace BirdsiteLive.Services
         public DateTime RefreshedTime { get; set; }
         public TimeSpan SyncLag { get; set; }
         public int Saturation { get; set; }
+        public int TwitterUsers { get; set; }
+        public int FediverseUsers { get; set; }
     }
 }
