@@ -75,5 +75,13 @@ namespace BirdsiteLive.ActivityPub.Tests
             Assert.AreEqual(tweet.Media[0].MediaType, "image/gif");
             Assert.IsTrue(tweet.Media[0].Url.StartsWith("https://video.twimg.com/"));
         }
+
+        [TestMethod]
+        public async Task SimpleQT()
+        {
+            var tweet = await _tweetService.GetTweetAsync(1610807139089383427);
+
+            Assert.AreEqual(tweet.MessageContent, "When you gave them your keys you gave them your coins.\nhttps://twitter.com/kadhim/status/1610706613207285773");
+        }
     }
 }

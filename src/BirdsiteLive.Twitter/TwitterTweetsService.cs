@@ -270,6 +270,19 @@ namespace BirdsiteLive.Twitter
                     MessageContent = MessageContent.Replace(media.GetProperty("url").GetString(), "");
                 }
             }
+
+            bool isQuoteTweet = tweet.GetProperty("content").GetProperty("itemContent")
+                    .GetProperty("tweet_results").GetProperty("result").GetProperty("legacy")
+                    .GetProperty("is_quote_status").GetBoolean();
+
+            if (isQuoteTweet) 
+            {
+
+                string quoteTweetLink = tweet.GetProperty("content").GetProperty("itemContent")
+                        .GetProperty("tweet_results").GetProperty("result").GetProperty("legacy")
+                        .GetProperty("quoted_status_permalink").GetProperty("expanded").GetString();
+                MessageContent = MessageContent + "\n" + quoteTweetLink;
+            }
             var extractedTweet = new ExtractedTweet
             {
                 Id = Int64.Parse(tweet.GetProperty("sortIndex").GetString()),
