@@ -42,7 +42,7 @@ namespace BirdsiteLive.ActivityPub.Tests
             var tweet = await _tweetService.GetTweetAsync(1593344577385160704);
             Assert.AreEqual(tweet.MessageContent, "Speaker Nancy Pelosi will go down as one of most accomplished legislators in American history—breaking barriers, opening doors for others, and working every day to serve the American people. I couldn’t be more grateful for her friendship and leadership.");
 
-            // TODO validate media type
+            Assert.AreEqual(tweet.Media[0].MediaType, "image/jpeg");
             Assert.AreEqual(tweet.Media.Length, 1);
             // TODO test alt-text of images
         }
@@ -62,6 +62,17 @@ namespace BirdsiteLive.ActivityPub.Tests
 
             Assert.AreEqual(tweet.Media.Length, 1);
             Assert.AreEqual(tweet.Media[0].MediaType, "video/mp4");
+            Assert.IsTrue(tweet.Media[0].Url.StartsWith("https://video.twimg.com/"));
+        }
+
+        [TestMethod]
+        public async Task GifAndQT()
+        {
+            var tweet = await _tweetService.GetTweetAsync(1612901861874343936);
+            // TODO test QT
+
+            Assert.AreEqual(tweet.Media.Length, 1);
+            Assert.AreEqual(tweet.Media[0].MediaType, "image/gif");
             Assert.IsTrue(tweet.Media[0].Url.StartsWith("https://video.twimg.com/"));
         }
     }

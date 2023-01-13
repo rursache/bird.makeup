@@ -241,9 +241,9 @@ namespace BirdsiteLive.Twitter
                 {
                     var type = media.GetProperty("type").GetString();
                     string url = "";
-                    if (type == "video")
+                    if (type == "video" || type == "animated_gif")
                     {
-                        var bitrate = 0;
+                        var bitrate = -1;
                         foreach (JsonElement v in media.GetProperty("video_info").GetProperty("variants").EnumerateArray())
                         {
                             if (v.GetProperty("content_type").GetString() !=  "video/mp4")
