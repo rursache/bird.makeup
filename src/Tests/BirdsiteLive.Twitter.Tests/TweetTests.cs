@@ -83,5 +83,15 @@ namespace BirdsiteLive.ActivityPub.Tests
 
             Assert.AreEqual(tweet.MessageContent, "When you gave them your keys you gave them your coins.\nhttps://twitter.com/kadhim/status/1610706613207285773");
         }
+
+        [TestMethod]
+        public async Task SimpleReply()
+        {
+            var tweet = await _tweetService.GetTweetAsync(1445468404815597573);
+
+            Assert.AreEqual(tweet.InReplyToAccount, "punk6529");
+            Assert.AreEqual(tweet.InReplyToStatusId, 1445468401745289235);
+            Assert.IsTrue(tweet.IsReply);
+        }
     }
 }
