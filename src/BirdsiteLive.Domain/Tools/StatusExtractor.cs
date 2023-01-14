@@ -111,7 +111,7 @@ namespace BirdsiteLive.Domain.Tools
                     }
 
                     var url = $"https://{_instanceSettings.Domain}/users/{mention}";
-                    var name = $"@{mention}@{_instanceSettings.Domain}";
+                    var name = $"@{mention}";
 
                     if (tags.All(x => x.href != url))
                     {

@@ -356,7 +356,7 @@ namespace BirdsiteLive.Domain.Tests.Tools
             #region Validations
             logger.VerifyAll();
             Assert.AreEqual(1, result.tags.Length);
-            Assert.AreEqual("@mynickname@domain.name", result.tags.First().name);
+            Assert.AreEqual("@mynickname", result.tags.First().name);
             Assert.AreEqual("Mention", result.tags.First().type);
             Assert.AreEqual("https://domain.name/users/mynickname", result.tags.First().href);
 
@@ -407,7 +407,7 @@ namespace BirdsiteLive.Domain.Tests.Tools
             #region Validations
             logger.VerifyAll();
             Assert.AreEqual(1, result.tags.Length);
-            Assert.AreEqual("@mynickname@domain.name", result.tags.First().name);
+            Assert.AreEqual("@mynickname", result.tags.First().name);
             Assert.AreEqual("Mention", result.tags.First().type);
             Assert.AreEqual("https://domain.name/users/mynickname", result.tags.First().href);
 
@@ -433,7 +433,7 @@ namespace BirdsiteLive.Domain.Tests.Tools
             #region Validations
             logger.VerifyAll();
             Assert.AreEqual(1, result.tags.Length);
-            Assert.AreEqual("@mynickname@domain.name", result.tags.First().name);
+            Assert.AreEqual("@mynickname", result.tags.First().name);
             Assert.AreEqual("Mention", result.tags.First().type);
             Assert.AreEqual("https://domain.name/users/mynickname", result.tags.First().href);
 
@@ -460,7 +460,33 @@ namespace BirdsiteLive.Domain.Tests.Tools
             #region Validations
             logger.VerifyAll();
             Assert.AreEqual(1, result.tags.Length);
-            Assert.AreEqual("@my___nickname@domain.name", result.tags.First().name);
+            Assert.AreEqual("@my___nickname", result.tags.First().name);
+            Assert.AreEqual("Mention", result.tags.First().type);
+            Assert.AreEqual("https://domain.name/users/my___nickname", result.tags.First().href);
+
+            Assert.IsTrue(result.content.Contains("Bla!"));
+            Assert.IsTrue(result.content.Contains(@"<span class=""h-card""><a href=""https://domain.name/@my___nickname"" class=""u-url mention"">@<span>my___nickname</span></a></span>"));
+            #endregion
+        }
+
+        [TestMethod]
+        public void Extract_SingleMentionTag_SpecialChar_Test2()
+        {
+            #region Stubs
+            var message = $"Bla! @my___nickname's thing";
+            #endregion
+
+            #region Mocks
+            var logger = new Mock<ILogger<StatusExtractor>>();
+            #endregion
+
+            var service = new StatusExtractor(_settings, logger.Object);
+            var result = service.Extract(message);
+
+            #region Validations
+            logger.VerifyAll();
+            Assert.AreEqual(1, result.tags.Length);
+            Assert.AreEqual("@my___nickname", result.tags.First().name);
             Assert.AreEqual("Mention", result.tags.First().type);
             Assert.AreEqual("https://domain.name/users/my___nickname", result.tags.First().href);
 
@@ -486,7 +512,7 @@ namespace BirdsiteLive.Domain.Tests.Tools
             #region Validations
             logger.VerifyAll();
             Assert.AreEqual(1, result.tags.Length);
-            Assert.AreEqual("@mynickname@domain.name", result.tags.First().name);
+            Assert.AreEqual("@mynickname", result.tags.First().name);
             Assert.AreEqual("Mention", result.tags.First().type);
             Assert.AreEqual("https://domain.name/users/mynickname", result.tags.First().href);
 
