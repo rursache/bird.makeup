@@ -64,10 +64,9 @@ namespace BirdsiteLive.Pipeline.Processors
                     }
                 });
                 todo.Add(t);
-                if (todo.Count > 3)
+                if (todo.Count > 5)
                 {
                     await Task.WhenAll(todo);
-                    _logger.LogInformation(index + "/" + syncTwitterUsers.Count() );
                     todo.Clear();
                     //await Task.Delay(250);
                 }
