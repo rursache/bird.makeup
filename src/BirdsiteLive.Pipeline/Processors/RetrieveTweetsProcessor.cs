@@ -64,7 +64,7 @@ namespace BirdsiteLive.Pipeline.Processors
                     }
                 });
                 todo.Add(t);
-                if (todo.Count > 5)
+                if (todo.Count > 10)
                 {
                     await Task.WhenAll(todo);
                     todo.Clear();
