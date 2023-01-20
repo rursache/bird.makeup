@@ -85,13 +85,25 @@ namespace BirdsiteLive.ActivityPub.Tests
         }
 
         [TestMethod]
-        public async Task SimpleReply()
+        public async Task SimpleThread()
         {
             var tweet = await _tweetService.GetTweetAsync(1445468404815597573);
 
             Assert.AreEqual(tweet.InReplyToAccount, "punk6529");
             Assert.AreEqual(tweet.InReplyToStatusId, 1445468401745289235);
             Assert.IsTrue(tweet.IsReply);
+            Assert.IsTrue(tweet.IsThread);
+        }
+
+        [TestMethod]
+        public async Task SimpleReply()
+        {
+            var tweet = await _tweetService.GetTweetAsync(1612622335546363904);
+
+            Assert.AreEqual(tweet.InReplyToAccount, "DriveTeslaca");
+            Assert.AreEqual(tweet.InReplyToStatusId, 1612610060194312193);
+            Assert.IsTrue(tweet.IsReply);
+            Assert.IsFalse(tweet.IsThread);
         }
     }
 }

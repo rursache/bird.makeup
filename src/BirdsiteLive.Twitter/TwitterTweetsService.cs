@@ -179,6 +179,10 @@ namespace BirdsiteLive.Twitter
             string inReplyToUser = null;
             long? inReplyToPostId = null;
 
+            string userName = tweet.GetProperty("content").GetProperty("itemContent")
+                    .GetProperty("tweet_results").GetProperty("result").GetProperty("core").GetProperty("user_results")
+                    .GetProperty("result").GetProperty("legacy").GetProperty("screen_name").GetString();
+
             bool isReply = tweet.GetProperty("content").GetProperty("itemContent")
                     .GetProperty("tweet_results").GetProperty("result").GetProperty("legacy")
                     .TryGetProperty("in_reply_to_status_id_str", out inReplyToPostIdElement);
@@ -291,7 +295,7 @@ namespace BirdsiteLive.Twitter
                 MessageContent = MessageContent.Trim(),
                 CreatedAt = DateTime.ParseExact(creationTime, "ddd MMM dd HH:mm:ss yyyy", System.Globalization.CultureInfo.InvariantCulture),
                 IsReply = isReply,
-                IsThread = false,
+                IsThread = userName == inReplyToUser,
                 IsRetweet = isRetweet,
                 Media = Media.Count() == 0 ? null : Media.ToArray(),
                 RetweetUrl = "https://t.co/123",
