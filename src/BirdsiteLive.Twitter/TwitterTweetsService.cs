@@ -20,7 +20,7 @@ namespace BirdsiteLive.Twitter
     public interface ITwitterTweetsService
     {
         Task<ExtractedTweet> GetTweetAsync(long statusId);
-        Task<ExtractedTweet[]> GetTimelineAsync(string username, int nberTweets, long fromTweetId = -1);
+        Task<ExtractedTweet[]> GetTimelineAsync(string username, long fromTweetId = -1);
     }
 
     public class TwitterTweetsService : ITwitterTweetsService
@@ -78,7 +78,7 @@ namespace BirdsiteLive.Twitter
             }
         }
 
-        public async Task<ExtractedTweet[]> GetTimelineAsync(string username, int nberTweets, long fromTweetId = -1)
+        public async Task<ExtractedTweet[]> GetTimelineAsync(string username, long fromTweetId = -1)
         {
 
             var client = await _twitterAuthenticationInitializer.MakeHttpClient();

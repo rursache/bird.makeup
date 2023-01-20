@@ -84,9 +84,9 @@ namespace BirdsiteLive.Pipeline.Processors
             try
             {
                 if (user.LastTweetPostedId == -1)
-                    tweets = await _twitterTweetsService.GetTimelineAsync(user.Acct, 1);
+                    tweets = await _twitterTweetsService.GetTimelineAsync(user.Acct);
                 else
-                    tweets = await _twitterTweetsService.GetTimelineAsync(user.Acct, 200, user.LastTweetSynchronizedForAllFollowersId);
+                    tweets = await _twitterTweetsService.GetTimelineAsync(user.Acct, user.LastTweetSynchronizedForAllFollowersId);
             }
             catch (Exception e)
             {
