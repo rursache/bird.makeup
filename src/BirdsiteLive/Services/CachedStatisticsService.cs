@@ -32,16 +32,13 @@ namespace BirdsiteLive.Services
             if (_cachedStatistics == null ||
                 (DateTime.UtcNow - _cachedStatistics.RefreshedTime).TotalMinutes > 15)
             {
-                var twitterUserMax = _instanceSettings.MaxUsersCapacity;
                 var twitterUserCount = await _twitterUserDal.GetTwitterUsersCountAsync();
                 var twitterSyncLag = await _twitterUserDal.GetTwitterSyncLag();
-                var saturation = (int)((double)twitterUserCount / twitterUserMax * 100);
                 var fediverseUsers = await _followersDal.GetFollowersCountAsync();
 
                 _cachedStatistics = new CachedStatistics
                 {
                     RefreshedTime = DateTime.UtcNow,
-                    Saturation = saturation,
                     SyncLag = twitterSyncLag,
                     TwitterUsers = twitterUserCount,
                     FediverseUsers = fediverseUsers
@@ -56,7 +53,6 @@ namespace BirdsiteLive.Services
     {
         public DateTime RefreshedTime { get; set; }
         public TimeSpan SyncLag { get; set; }
-        public int Saturation { get; set; }
         public int TwitterUsers { get; set; }
         public int FediverseUsers { get; set; }
     }

@@ -37,7 +37,6 @@ namespace BirdsiteLive.Component
                                       twitterAccountPolicy == ModerationTypeEnum.BlackListing,
                 WhitelistingEnabled = followerPolicy == ModerationTypeEnum.WhiteListing ||
                                       twitterAccountPolicy == ModerationTypeEnum.WhiteListing,
-                InstanceSaturation = statistics.Saturation,
                 SyncLag = statistics.SyncLag
             };
             
