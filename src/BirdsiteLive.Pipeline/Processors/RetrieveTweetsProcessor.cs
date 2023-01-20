@@ -52,24 +52,33 @@ namespace BirdsiteLive.Pipeline.Processors
                 index++;
 
                 var t = Task.Run(async () => {
-                    var user = userWtData.User;
-                    var tweets = await RetrieveNewTweets(user);
-                    _logger.LogInformation(index + "/" + syncTwitterUsers.Count() + " Got " + tweets.Length + " tweets from user " + user.Acct + " " );
-                    if (tweets.Length > 0 && user.LastTweetPostedId != -1)
+                    try 
                     {
-                        userWtData.Tweets = tweets;
-                        usersWtTweets.Add(userWtData);
-                    }
-                    else if (tweets.Length > 0 && user.LastTweetPostedId == -1)
+                        var user = userWtData.User;
+                        var tweets = await RetrieveNewTweets(user);
+                        _logger.LogInformation(index + "/" + syncTwitterUsers.Count() + " Got " + tweets.Length + " tweets from user " + user.Acct + " " );
+                        if (tweets.Length > 0 && user.LastTweetPostedId != -1)
+                        {
+                            userWtData.Tweets = tweets;
+                            usersWtTweets.Add(userWtData);
+                        }
+                        else if (tweets.Length > 0 && user.LastTweetPostedId == -1)
+                        {
+                            var tweetId = tweets.Last().Id;
+                            var now = DateTime.UtcNow;
+                            await _twitterUserDal.UpdateTwitterUserAsync(user.Id, tweetId, tweetId, user.FetchingErrorCount, now);
+                        }
+                        else
+                        {
+                            var now = DateTime.UtcNow;
+                            await _twitterUserDal.UpdateTwitterUserAsync(user.Id, user.LastTweetPostedId, user.LastTweetSynchronizedForAllFollowersId, user.FetchingErrorCount, now);
+                        }
+
+                    } 
+                    catch(Exception e)
                     {
-                        var tweetId = tweets.Last().Id;
-                        var now = DateTime.UtcNow;
-                        await _twitterUserDal.UpdateTwitterUserAsync(user.Id, tweetId, tweetId, user.FetchingErrorCount, now);
-                    }
-                    else
-                    {
-                        var now = DateTime.UtcNow;
-                        await _twitterUserDal.UpdateTwitterUserAsync(user.Id, user.LastTweetPostedId, user.LastTweetSynchronizedForAllFollowersId, user.FetchingErrorCount, now);
+                        _logger.LogError(e.Message);
+
                     }
                 });
                 todo.Add(t);
