@@ -15,5 +15,6 @@
         public int FailingFollowerCleanUpThreshold { get; set; } = -1;
 
         public int UserCacheCapacity { get; set; }
+        public int ParallelTwitterRequests { get; set; } = 10;
     }
 }

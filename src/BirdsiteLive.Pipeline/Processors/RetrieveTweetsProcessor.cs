@@ -10,6 +10,7 @@ using BirdsiteLive.Pipeline.Contracts;
 using BirdsiteLive.Pipeline.Models;
 using BirdsiteLive.Twitter;
 using BirdsiteLive.Twitter.Models;
+using BirdsiteLive.Common.Settings;
 using Microsoft.Extensions.Logging;
 using Tweetinvi.Models;
 
@@ -21,21 +22,29 @@ namespace BirdsiteLive.Pipeline.Processors
         private readonly ICachedTwitterUserService _twitterUserService;
         private readonly ITwitterUserDal _twitterUserDal;
         private readonly ILogger<RetrieveTweetsProcessor> _logger;
+        private readonly InstanceSettings _settings;
 
         #region Ctor
-        public RetrieveTweetsProcessor(ITwitterTweetsService twitterTweetsService, ITwitterUserDal twitterUserDal, ICachedTwitterUserService twitterUserService, ILogger<RetrieveTweetsProcessor> logger)
+        public RetrieveTweetsProcessor(ITwitterTweetsService twitterTweetsService, ITwitterUserDal twitterUserDal, ICachedTwitterUserService twitterUserService, InstanceSettings settings, ILogger<RetrieveTweetsProcessor> logger)
         {
             _twitterTweetsService = twitterTweetsService;
             _twitterUserDal = twitterUserDal;
             _twitterUserService = twitterUserService;
             _logger = logger;
+            _settings = settings;
         }
         #endregion
 
         public async Task<UserWithDataToSync[]> ProcessAsync(UserWithDataToSync[] syncTwitterUsers, CancellationToken ct)
         {
-            var usersWtTweets = new ConcurrentBag<UserWithDataToSync>();
 
+            if (_settings.ParallelTwitterRequests == 0)
+            {
+                while(true)
+                    await Task.Delay(1000);
+            }
+
+            var usersWtTweets = new ConcurrentBag<UserWithDataToSync>();
             List<Task> todo = new List<Task>();
             int index = 0;
             foreach (var userWtData in syncTwitterUsers)
@@ -64,11 +73,10 @@ namespace BirdsiteLive.Pipeline.Processors
                     }
                 });
                 todo.Add(t);
-                if (todo.Count > 10)
+                if (todo.Count > _settings.ParallelTwitterRequests)
                 {
                     await Task.WhenAll(todo);
                     todo.Clear();
-                    //await Task.Delay(250);
                 }
                 
             }
