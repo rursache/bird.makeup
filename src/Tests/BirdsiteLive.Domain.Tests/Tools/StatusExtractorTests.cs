@@ -111,6 +111,27 @@ namespace BirdsiteLive.Domain.Tests.Tools
             Assert.IsTrue(result.content.Contains(@"<a href=""https://www.eff.org/deeplinks/2020/07/pact-act-not-solution-problem-harmful-online-content"" rel=""nofollow noopener noreferrer"" target=""_blank""><span class=""invisible"">https://www.</span><span class=""ellipsis"">eff.org/deeplinks/2020/07/pact</span><span class=""invisible"">-act-not-solution-problem-harmful-online-content</span></a>"));
             #endregion
         }
+        [TestMethod]
+        public void Extract_FormatUrl_Long2_Test()
+        {
+            #region Stubs
+            var message = $"https://twitterisgoinggreat.com/#twitters-first-dollar15bn-interest-payment-could-be-due-in-two-weeks";
+            #endregion
+
+            #region Mocks
+            var logger = new Mock<ILogger<StatusExtractor>>();
+            #endregion
+
+            var service = new StatusExtractor(_settings, logger.Object);
+            var result = service.Extract(message);
+
+            #region Validations
+            logger.VerifyAll();
+            Assert.AreEqual(result.content, @"<a href=""https://twitterisgoinggreat.com/#twitters-first-dollar15bn-interest-payment-could-be-due-in-two-weeks"" rel=""nofollow noopener noreferrer"" target=""_blank""><span class=""invisible"">https://www.</span><span class=""ellipsis"">eff.org/deeplinks/2020/07/pact</span><span class=""invisible"">-act-not-solution-problem-harmful-online-content</span></a>");
+            Assert.AreEqual(0, result.tags.Length);
+
+            #endregion
+        }
 
         [TestMethod]
         public void Extract_FormatUrl_Exact_Test()
@@ -361,7 +382,37 @@ namespace BirdsiteLive.Domain.Tests.Tools
             Assert.AreEqual("https://domain.name/users/mynickname", result.tags.First().href);
 
             Assert.IsTrue(result.content.Contains("Bla!"));
-            Assert.IsTrue(result.content.Contains(@"<span class=""h-card""><a href=""https://domain.name/@mynickname"" class=""u-url mention"">@<span>mynickname</span></a></span>"));
+            Assert.IsTrue(result.content.Contains(@"<span class=""h-card""><a href=""https://domain.name/users/mynickname"" class=""u-url mention"">@<span>mynickname</span></a></span>"));
+            #endregion
+        }
+        [TestMethod]
+        public void Extract_TagsWithPunctuations_Test()
+        {
+            #region Stubs
+            var message = $"this: @amberfloio. @StellantisNA’s";
+            #endregion
+
+            #region Mocks
+            var logger = new Mock<ILogger<StatusExtractor>>();
+            #endregion
+
+            var service = new StatusExtractor(_settings, logger.Object);
+            var result = service.Extract(message);
+
+            #region Validations
+            logger.VerifyAll();
+            Assert.AreEqual(2, result.tags.Length);
+
+            Assert.AreEqual("@amberfloio", result.tags.First().name);
+            Assert.AreEqual("Mention", result.tags.First().type);
+            Assert.AreEqual("https://domain.name/users/amberfloio", result.tags.First().href);
+
+            Assert.AreEqual("@StellantisNA", result.tags.Last().name);
+            Assert.AreEqual("Mention", result.tags.Last().type);
+            Assert.AreEqual("https://domain.name/users/stellantisna", result.tags.Last().href);
+
+            Assert.IsTrue(result.content.Contains("this:"));
+            Assert.IsTrue(result.content.Contains(@"<span class=""h-card""><a href=""https://domain.name/users/amberfloio"" class=""u-url mention"">@<span>amberfloio</span></a></span>"));
             #endregion
         }
 
@@ -384,9 +435,9 @@ namespace BirdsiteLive.Domain.Tests.Tools
             Assert.AreEqual(4, result.tags.Length);
             Assert.AreEqual("Mention", result.tags.First().type);
 
-            Assert.IsTrue(result.content.Contains(@"<span class=""h-card""><a href=""https://domain.name/@photos_floues"" class=""u-url mention"">@<span>photos_floues</span></a></span>"));
-            Assert.IsTrue(result.content.Contains(@"<span class=""h-card""><a href=""https://domain.name/@KiwixOffline"" class=""u-url mention"">@<span>KiwixOffline</span></a></span> <span class=""h-card""><a href=""https://domain.name/@photos_floues"" class=""u-url mention"">@<span>photos_floues</span></a></span>"));
-            Assert.IsTrue(result.content.Contains(@"Cc <span class=""h-card""><a href=""https://domain.name/@Pyb75"" class=""u-url mention"">@<span>Pyb75</span></a></span> <span class=""h-card""><a href=""https://domain.name/@photos_floues"" class=""u-url mention"">@<span>photos_floues</span></a></span> <span class=""h-card""><a href=""https://domain.name/@KiwixOffline"" class=""u-url mention"">@<span>KiwixOffline</span></a></span>"));
+            Assert.IsTrue(result.content.Contains(@"<span class=""h-card""><a href=""https://domain.name/users/photos_floues"" class=""u-url mention"">@<span>photos_floues</span></a></span>"));
+            Assert.IsTrue(result.content.Contains(@"<span class=""h-card""><a href=""https://domain.name/users/kiwixoffline"" class=""u-url mention"">@<span>KiwixOffline</span></a></span> <span class=""h-card""><a href=""https://domain.name/users/photos_floues"" class=""u-url mention"">@<span>photos_floues</span></a></span>"));
+            Assert.IsTrue(result.content.Contains(@"Cc <span class=""h-card""><a href=""https://domain.name/users/pyb75"" class=""u-url mention"">@<span>Pyb75</span></a></span> <span class=""h-card""><a href=""https://domain.name/users/photos_floues"" class=""u-url mention"">@<span>photos_floues</span></a></span> <span class=""h-card""><a href=""https://domain.name/users/kiwixoffline"" class=""u-url mention"">@<span>KiwixOffline</span></a></span>"));
             #endregion
         }
 
@@ -412,7 +463,7 @@ namespace BirdsiteLive.Domain.Tests.Tools
             Assert.AreEqual("https://domain.name/users/mynickname", result.tags.First().href);
 
             Assert.IsTrue(result.content.Contains("Bla!"));
-            Assert.IsTrue(result.content.Contains(@"<span class=""h-card""><a href=""https://domain.name/@mynickname"" class=""u-url mention"">@<span>mynickname</span></a></span>"));
+            Assert.IsTrue(result.content.Contains(@"<span class=""h-card""><a href=""https://domain.name/users/mynickname"" class=""u-url mention"">@<span>mynickname</span></a></span>"));
             #endregion
         }
 
@@ -439,7 +490,7 @@ namespace BirdsiteLive.Domain.Tests.Tools
 
             Assert.IsTrue(result.content.Contains("Bla!"));
             Assert.IsTrue(result.content.Contains("Blo"));
-            Assert.IsTrue(result.content.Contains(@"<span class=""h-card""><a href=""https://domain.name/@mynickname"" class=""u-url mention"">@<span>mynickname</span></a></span>"));
+            Assert.IsTrue(result.content.Contains(@"<span class=""h-card""><a href=""https://domain.name/users/mynickname"" class=""u-url mention"">@<span>mynickname</span></a></span>"));
             #endregion
         }
 
@@ -465,7 +516,7 @@ namespace BirdsiteLive.Domain.Tests.Tools
             Assert.AreEqual("https://domain.name/users/my___nickname", result.tags.First().href);
 
             Assert.IsTrue(result.content.Contains("Bla!"));
-            Assert.IsTrue(result.content.Contains(@"<span class=""h-card""><a href=""https://domain.name/@my___nickname"" class=""u-url mention"">@<span>my___nickname</span></a></span>"));
+            Assert.IsTrue(result.content.Contains(@"<span class=""h-card""><a href=""https://domain.name/users/my___nickname"" class=""u-url mention"">@<span>my___nickname</span></a></span>"));
             #endregion
         }
 
@@ -491,7 +542,7 @@ namespace BirdsiteLive.Domain.Tests.Tools
             Assert.AreEqual("https://domain.name/users/my___nickname", result.tags.First().href);
 
             Assert.IsTrue(result.content.Contains("Bla!"));
-            Assert.IsTrue(result.content.Contains(@"<span class=""h-card""><a href=""https://domain.name/@my___nickname"" class=""u-url mention"">@<span>my___nickname</span></a></span>"));
+            Assert.IsTrue(result.content.Contains(@"<span class=""h-card""><a href=""https://domain.name/users/my___nickname"" class=""u-url mention"">@<span>my___nickname</span></a></span>"));
             #endregion
         }
 
@@ -499,7 +550,7 @@ namespace BirdsiteLive.Domain.Tests.Tools
         public void Extract_SingleMentionTag_AtStart_Test()
         {
             #region Stubs
-            var message = $"@mynickname Bla!";
+            var message = $"@myNickName Bla!";
             #endregion
 
             #region Mocks
@@ -512,12 +563,12 @@ namespace BirdsiteLive.Domain.Tests.Tools
             #region Validations
             logger.VerifyAll();
             Assert.AreEqual(1, result.tags.Length);
-            Assert.AreEqual("@mynickname", result.tags.First().name);
+            Assert.AreEqual("@myNickName", result.tags.First().name);
             Assert.AreEqual("Mention", result.tags.First().type);
             Assert.AreEqual("https://domain.name/users/mynickname", result.tags.First().href);
 
             Assert.IsTrue(result.content.Contains("Bla!"));
-            Assert.IsTrue(result.content.Contains(@"<span class=""h-card""><a href=""https://domain.name/@mynickname"" class=""u-url mention"">@<span>mynickname</span></a></span>"));
+            Assert.IsTrue(result.content.Contains(@"<span class=""h-card""><a href=""https://domain.name/users/mynickname"" class=""u-url mention"">@<span>myNickName</span></a></span>"));
             #endregion
         }
         
@@ -539,10 +590,10 @@ namespace BirdsiteLive.Domain.Tests.Tools
             logger.VerifyAll();
             Assert.AreEqual(4, result.tags.Length);
             Assert.IsTrue(result.content.Contains("Bla!"));
-            Assert.IsTrue(result.content.Contains(@"<span class=""h-card""><a href=""https://domain.name/@mynickname"" class=""u-url mention"">@<span>mynickname</span></a></span>"));
-            Assert.IsTrue(result.content.Contains(@"<span class=""h-card""><a href=""https://domain.name/@mynickname2"" class=""u-url mention"">@<span>mynickname2</span></a></span>"));
-            Assert.IsTrue(result.content.Contains(@"<span class=""h-card""><a href=""https://domain.name/@mynickname3"" class=""u-url mention"">@<span>mynickname3</span></a></span>"));
-            Assert.IsTrue(result.content.Contains(@"<span class=""h-card""><a href=""https://domain.name/@dada"" class=""u-url mention"">@<span>dada</span></a></span>"));
+            Assert.IsTrue(result.content.Contains(@"<span class=""h-card""><a href=""https://domain.name/users/mynickname"" class=""u-url mention"">@<span>mynickname</span></a></span>"));
+            Assert.IsTrue(result.content.Contains(@"<span class=""h-card""><a href=""https://domain.name/users/mynickname2"" class=""u-url mention"">@<span>mynickname2</span></a></span>"));
+            Assert.IsTrue(result.content.Contains(@"<span class=""h-card""><a href=""https://domain.name/users/mynickname3"" class=""u-url mention"">@<span>mynickname3</span></a></span>"));
+            Assert.IsTrue(result.content.Contains(@"<span class=""h-card""><a href=""https://domain.name/users/dada"" class=""u-url mention"">@<span>dada</span></a></span>"));
             #endregion
         }
 
@@ -564,10 +615,10 @@ namespace BirdsiteLive.Domain.Tests.Tools
             logger.VerifyAll();
             Assert.AreEqual(5, result.tags.Length);
             Assert.IsTrue(result.content.Contains("Bla!"));
-            Assert.IsTrue(result.content.Contains(@"<span class=""h-card""><a href=""https://domain.name/@mynickname"" class=""u-url mention"">@<span>mynickname</span></a></span>"));
+            Assert.IsTrue(result.content.Contains(@"<span class=""h-card""><a href=""https://domain.name/users/mynickname"" class=""u-url mention"">@<span>mynickname</span></a></span>"));
             Assert.IsTrue(result.content.Contains(@"<a href=""https://domain.name/tags/mytag2"" class=""mention hashtag"" rel=""tag"">#<span>mytag2</span></a>"));
-            Assert.IsTrue(result.content.Contains(@"<span class=""h-card""><a href=""https://domain.name/@mynickname3"" class=""u-url mention"">@<span>mynickname3</span></a></span>"));
-            Assert.IsTrue(result.content.Contains(@"<span class=""h-card""><a href=""https://domain.name/@dada"" class=""u-url mention"">@<span>dada</span></a></span>"));
+            Assert.IsTrue(result.content.Contains(@"<span class=""h-card""><a href=""https://domain.name/users/mynickname3"" class=""u-url mention"">@<span>mynickname3</span></a></span>"));
+            Assert.IsTrue(result.content.Contains(@"<span class=""h-card""><a href=""https://domain.name/users/dada"" class=""u-url mention"">@<span>dada</span></a></span>"));
             Assert.IsTrue(result.content.Contains(@"<a href=""https://domain.name/tags/dada"" class=""mention hashtag"" rel=""tag"">#<span>dada</span></a>"));
             #endregion
         }
@@ -591,7 +642,7 @@ namespace BirdsiteLive.Domain.Tests.Tools
             logger.VerifyAll();
             Assert.AreEqual(1, result.tags.Length);
             Assert.IsTrue(result.content.Contains(
-                @"😤<span class=""h-card""><a href=""https://domain.name/@mynickname"" class=""u-url mention"">@<span>mynickname</span></a></span>"));
+                @"😤<span class=""h-card""><a href=""https://domain.name/users/mynickname"" class=""u-url mention"">@<span>mynickname</span></a></span>"));
 
             Assert.IsTrue(result.content.Contains(@"😎😍🤗🤩😘"));
             #endregion
@@ -615,7 +666,7 @@ namespace BirdsiteLive.Domain.Tests.Tools
             #region Validations
             logger.VerifyAll();
             Assert.AreEqual(1, result.tags.Length);
-            Assert.IsTrue(result.content.Equals(@"bla (<span class=""h-card""><a href=""https://domain.name/@mynickname"" class=""u-url mention"">@<span>mynickname</span></a></span> test)"));
+            Assert.IsTrue(result.content.Equals(@"bla (<span class=""h-card""><a href=""https://domain.name/users/mynickname"" class=""u-url mention"">@<span>mynickname</span></a></span> test)"));
             #endregion
         }
     }

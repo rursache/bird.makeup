@@ -6,6 +6,7 @@ using BirdsiteLive.Common.Regexes;
 using BirdsiteLive.Common.Settings;
 using BirdsiteLive.Twitter;
 using Microsoft.Extensions.Logging;
+using System;
 
 namespace BirdsiteLive.Domain.Tools
 {
@@ -35,10 +36,6 @@ namespace BirdsiteLive.Domain.Tools
             messageContent = Regex.Replace(messageContent, @"\r\n\r\n?|\n\n", "</p><p>");
             messageContent = Regex.Replace(messageContent, @"\r\n?|\n", "<br/>");
 
-            //// Secure emojis
-            //var emojiMatch = EmojiRegexes.Emoji.Matches(messageContent);
-            //foreach (Match m in emojiMatch)
-            //    messageContent = Regex.Replace(messageContent, m.ToString(), $" {m} ");
 
             // Extract Urls
             var urlMatch = UrlRegexes.Url.Matches(messageContent);
@@ -110,7 +107,7 @@ namespace BirdsiteLive.Domain.Tools
                         continue;
                     }
 
-                    var url = $"https://{_instanceSettings.Domain}/users/{mention}";
+                    var url = $"https://{_instanceSettings.Domain}/users/{mention.ToLower()}";
                     var name = $"@{mention}";
 
                     if (tags.All(x => x.href != url))
@@ -124,7 +121,7 @@ namespace BirdsiteLive.Domain.Tools
                     }
 
                     messageContent = Regex.Replace(messageContent, Regex.Escape(m.Groups[0].ToString()),
-                        $@"{m.Groups[1]}<span class=""h-card""><a href=""https://{_instanceSettings.Domain}/@{mention}"" class=""u-url mention"">@<span>{mention}</span></a></span>{m.Groups[3]}");
+                        $@"{m.Groups[1]}<span class=""h-card""><a href=""{url}"" class=""u-url mention"">@<span>{mention}</span></a></span>{m.Groups[3]}");
                 }
             }
 
