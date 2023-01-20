@@ -112,7 +112,7 @@ namespace BirdsiteLive.Domain
             var signature = _cryptoService.SignAndGetSignatureHeader(date, actorUrl, targetHost, digest, usedInbox);
 
             var client = _httpClientFactory.CreateClient();
-            client.Timeout = TimeSpan.FromSeconds(10);
+            client.Timeout = TimeSpan.FromSeconds(5);
             var httpRequestMessage = new HttpRequestMessage
             {
                 Method = HttpMethod.Post,
