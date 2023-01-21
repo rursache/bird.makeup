@@ -108,7 +108,7 @@ namespace BirdsiteLive.Domain.Tools
                     }
 
                     var url = $"https://{_instanceSettings.Domain}/users/{mention.ToLower()}";
-                    var name = $"@{mention}";
+                    var name = $"@{mention.ToLower()}";
 
                     if (tags.All(x => x.href != url))
                     {
@@ -121,7 +121,7 @@ namespace BirdsiteLive.Domain.Tools
                     }
 
                     messageContent = Regex.Replace(messageContent, Regex.Escape(m.Groups[0].ToString()),
-                        $@"{m.Groups[1]}<span class=""h-card""><a href=""{url}"" class=""u-url mention"">@<span>{mention}</span></a></span>{m.Groups[3]}");
+                        $@"{m.Groups[1]}<span class=""h-card""><a href=""{url}"" class=""u-url mention"">@<span>{mention.ToLower()}</span></a></span>{m.Groups[3]}");
                 }
             }
 

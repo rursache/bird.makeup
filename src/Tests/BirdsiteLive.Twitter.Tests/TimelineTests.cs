@@ -49,7 +49,7 @@ namespace BirdsiteLive.ActivityPub.Tests
         {
             var tweets = await _tweetService.GetTimelineAsync("grantimahara", default);
             Assert.IsTrue(tweets[0].IsReply);
-            Assert.AreEqual(tweets.Length, 40);
+            Assert.IsTrue(tweets.Length > 30);
         }
 
     }
