@@ -6,7 +6,7 @@ using BirdsiteLive.Twitter.Tools;
 using BirdsiteLive.Statistics.Domain;
 using Moq;
 using BirdsiteLive.DAL.Contracts;
-using BirdsiteLive.DAL.Models;
+using BirdsiteLive.Common.Settings;
 
 namespace BirdsiteLive.ActivityPub.Tests
 {
@@ -20,13 +20,16 @@ namespace BirdsiteLive.ActivityPub.Tests
             var logger1 = new Mock<ILogger<TwitterAuthenticationInitializer>>(MockBehavior.Strict);
             var logger2 = new Mock<ILogger<TwitterUserService>>(MockBehavior.Strict);
             var logger3 = new Mock<ILogger<TwitterTweetsService>>();
-            var settings = new Mock<Common.Settings.InstanceSettings>();
             var stats = new Mock<ITwitterStatisticsHandler>();
             var twitterDal = new Mock<ITwitterUserDal>();
+            var settings = new InstanceSettings
+            {
+                Domain = "domain.name"
+            };
             ITwitterAuthenticationInitializer auth = new TwitterAuthenticationInitializer(logger1.Object);
             ITwitterUserService user = new TwitterUserService(auth, stats.Object, logger2.Object);
-            ICachedTwitterUserService user2 = new CachedTwitterUserService(user, settings.Object);
-            _tweetService = new TwitterTweetsService(auth, stats.Object, user2, twitterDal.Object, logger3.Object);
+            ICachedTwitterUserService user2 = new CachedTwitterUserService(user, settings);
+            _tweetService = new TwitterTweetsService(auth, stats.Object, user2, twitterDal.Object, settings, logger3.Object);
         }
 
         [TestMethod]
@@ -81,7 +84,7 @@ namespace BirdsiteLive.ActivityPub.Tests
         {
             var tweet = await _tweetService.GetTweetAsync(1610807139089383427);
 
-            Assert.AreEqual(tweet.MessageContent, "When you gave them your keys you gave them your coins.\nhttps://twitter.com/kadhim/status/1610706613207285773");
+            Assert.AreEqual(tweet.MessageContent, "When you gave them your keys you gave them your coins.\n\nhttps://domain.name/users/kadhim/statuses/1610706613207285773");
         }
 
         [TestMethod]

@@ -30,15 +30,17 @@ namespace BirdsiteLive.Twitter
         private readonly ICachedTwitterUserService _twitterUserService;
         private readonly ITwitterUserDal _twitterUserDal;
         private readonly ILogger<TwitterTweetsService> _logger;
+        private readonly InstanceSettings _instanceSettings;
         private HttpClient _httpClient = new HttpClient();
 
         #region Ctor
-        public TwitterTweetsService(ITwitterAuthenticationInitializer twitterAuthenticationInitializer, ITwitterStatisticsHandler statisticsHandler, ICachedTwitterUserService twitterUserService, ITwitterUserDal twitterUserDal, ILogger<TwitterTweetsService> logger)
+        public TwitterTweetsService(ITwitterAuthenticationInitializer twitterAuthenticationInitializer, ITwitterStatisticsHandler statisticsHandler, ICachedTwitterUserService twitterUserService, ITwitterUserDal twitterUserDal, InstanceSettings instanceSettings, ILogger<TwitterTweetsService> logger)
         {
             _twitterAuthenticationInitializer = twitterAuthenticationInitializer;
             _statisticsHandler = statisticsHandler;
             _twitterUserService = twitterUserService;
             _twitterUserDal = twitterUserDal;
+            _instanceSettings = instanceSettings;
             _logger = logger;
         }
         #endregion
@@ -285,7 +287,9 @@ namespace BirdsiteLive.Twitter
                 string quoteTweetLink = tweet.GetProperty("content").GetProperty("itemContent")
                         .GetProperty("tweet_results").GetProperty("result").GetProperty("legacy")
                         .GetProperty("quoted_status_permalink").GetProperty("expanded").GetString();
-                MessageContent = MessageContent + "\n" + quoteTweetLink;
+                quoteTweetLink = quoteTweetLink.Replace("https://twitter.com/", $"https://{_instanceSettings.Domain}/users/");
+                quoteTweetLink = quoteTweetLink.Replace("/status/", "/statuses/");
+                MessageContent = MessageContent + "\n\n" + quoteTweetLink;
             }
             var extractedTweet = new ExtractedTweet
             {
