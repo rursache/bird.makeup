@@ -26,14 +26,14 @@ namespace BirdsiteLive.Controllers
     public class UsersController : Controller
     {
         private readonly ITwitterUserService _twitterUserService;
-        private readonly ITwitterTweetsService _twitterTweetService;
+        private readonly ICachedTwitterTweetsService _twitterTweetService;
         private readonly IUserService _userService;
         private readonly IStatusService _statusService;
         private readonly InstanceSettings _instanceSettings;
         private readonly ILogger<UsersController> _logger;
 
         #region Ctor
-        public UsersController(ITwitterUserService twitterUserService, IUserService userService, IStatusService statusService, InstanceSettings instanceSettings, ITwitterTweetsService twitterTweetService, ILogger<UsersController> logger)
+        public UsersController(ITwitterUserService twitterUserService, IUserService userService, IStatusService statusService, InstanceSettings instanceSettings, ICachedTwitterTweetsService twitterTweetService, ILogger<UsersController> logger)
         {
             _twitterUserService = twitterUserService;
             _userService = userService;
