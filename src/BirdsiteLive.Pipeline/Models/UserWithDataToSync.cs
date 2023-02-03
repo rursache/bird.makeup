@@ -1,6 +1,5 @@
 ﻿using BirdsiteLive.DAL.Models;
 using BirdsiteLive.Twitter.Models;
-using Tweetinvi.Models;
 
 namespace BirdsiteLive.Pipeline.Models
 {

@@ -12,7 +12,6 @@ using BirdsiteLive.Twitter;
 using BirdsiteLive.Twitter.Models;
 using BirdsiteLive.Common.Settings;
 using Microsoft.Extensions.Logging;
-using Tweetinvi.Models;
 
 namespace BirdsiteLive.Pipeline.Processors
 {

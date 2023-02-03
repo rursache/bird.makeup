@@ -3,7 +3,6 @@ using System.IO;
 using System.Runtime.CompilerServices;
 using BirdsiteLive.Common.Settings;
 using Newtonsoft.Json;
-using Org.BouncyCastle.Asn1.IsisMtt.X509;
 
 namespace BSLManager.Tools
 {

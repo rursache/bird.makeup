@@ -1,28 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Security.Cryptography;
 using System.Text;
-using Newtonsoft.Json;
+using System.Text.Json;
 
 namespace BirdsiteLive.Cryptography
 {
     public class MagicKey
     {
-        //public class WebfingerLink
-        //{
-        //    public string rel { get; set; }
-        //    public string type { get; set; }
-        //    public string href { get; set; }
-        //    public string template { get; set; }
-        //}
-
-        //public class WebfingerResult
-        //{
-        //    public string subject { get; set; }
-        //    public List<string> aliases { get; set; }
-        //    public List<WebfingerLink> links { get; set; }
-        //}
-
         private string[] _parts;
         private RSA _rsa;
 
@@ -38,14 +22,14 @@ namespace BirdsiteLive.Cryptography
 
         private class RSAKeyParms
         {
-            public byte[] D;
-            public byte[] DP;
-            public byte[] DQ;
-            public byte[] Exponent;
-            public byte[] InverseQ;
-            public byte[] Modulus;
-            public byte[] P;
-            public byte[] Q;
+            public byte[] D { get; set; }
+            public byte[] DP {get; set; }
+            public byte[] DQ {get; set; }
+            public byte[] Exponent {get; set; }
+            public byte[] InverseQ {get; set; }
+            public byte[] Modulus {get; set; }
+            public byte[] P {get; set; }
+            public byte[] Q {get; set; }
 
             public static RSAKeyParms From(RSAParameters parms)
             {
@@ -81,7 +65,9 @@ namespace BirdsiteLive.Cryptography
             if (key[0] == '{')
             {
                 _rsa = RSA.Create();
-                _rsa.ImportParameters(JsonConvert.DeserializeObject<RSAKeyParms>(key).Make());
+                Console.WriteLine(key);
+                Console.WriteLine(JsonSerializer.Deserialize<RSAKeyParms>(key).Make());
+                _rsa.ImportParameters(JsonSerializer.Deserialize<RSAKeyParms>(key).Make());
             }
             else
             {
@@ -102,7 +88,7 @@ namespace BirdsiteLive.Cryptography
             var rsa = RSA.Create();
             rsa.KeySize = 2048;
 
-            return new MagicKey(JsonConvert.SerializeObject(RSAKeyParms.From(rsa.ExportParameters(true))));
+            return new MagicKey(JsonSerializer.Serialize<RSAKeyParms>(RSAKeyParms.From(rsa.ExportParameters(true))));
         }
 
         public byte[] BuildSignedData(string data, string dataType, string encoding, string algorithm)
@@ -140,7 +126,7 @@ namespace BirdsiteLive.Cryptography
 
         public string PrivateKey
         {
-            get { return JsonConvert.SerializeObject(RSAKeyParms.From(_rsa.ExportParameters(true))); }
+            get { return JsonSerializer.Serialize(RSAKeyParms.From(_rsa.ExportParameters(true))); }
         }
 
         public string PublicKey

@@ -16,7 +16,6 @@ using BirdsiteLive.Pipeline.Processors.SubTasks;
 using BirdsiteLive.Twitter;
 using BirdsiteLive.Twitter.Models;
 using Microsoft.Extensions.Logging;
-using Tweetinvi.Models;
 
 namespace BirdsiteLive.Pipeline.Processors
 {

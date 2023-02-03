@@ -11,8 +11,6 @@ using BirdsiteLive.Domain.Repository;
 using BirdsiteLive.Domain.Statistics;
 using BirdsiteLive.Domain.Tools;
 using BirdsiteLive.Twitter.Models;
-using Tweetinvi.Models;
-using Tweetinvi.Models.Entities;
 
 namespace BirdsiteLive.Domain
 {

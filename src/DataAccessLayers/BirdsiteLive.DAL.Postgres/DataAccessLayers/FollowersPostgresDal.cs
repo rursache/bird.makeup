@@ -7,7 +7,6 @@ using BirdsiteLive.DAL.Models;
 using BirdsiteLive.DAL.Postgres.DataAccessLayers.Base;
 using BirdsiteLive.DAL.Postgres.Settings;
 using Dapper;
-using Newtonsoft.Json;
 using System.Text.Json;
 using Npgsql;
 
@@ -27,7 +26,7 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
             if(followings == null) followings = new int[0];
             if(followingSyncStatus == null) followingSyncStatus = new Dictionary<int, long>();
 
-            var serializedDic = JsonConvert.SerializeObject(followingSyncStatus);
+            var serializedDic = JsonSerializer.Serialize(followingSyncStatus);
 
             acct = acct.ToLowerInvariant();
             host = host.ToLowerInvariant();
@@ -205,7 +204,7 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
                 ActorId = follower.ActorId,
                 SharedInboxRoute = follower.SharedInboxRoute,
                 Followings = follower.Followings.ToList(),
-                FollowingsSyncStatus = JsonConvert.DeserializeObject<Dictionary<int,long>>(follower.FollowingsSyncStatus),
+                FollowingsSyncStatus = JsonSerializer.Deserialize<Dictionary<int,long>>(follower.FollowingsSyncStatus),
                 PostingErrorCount = follower.PostingErrorCount
             };
         }

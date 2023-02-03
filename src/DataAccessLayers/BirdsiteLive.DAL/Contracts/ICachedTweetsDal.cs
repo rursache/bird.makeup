@@ -1,6 +1,5 @@
 ﻿using System.Threading.Tasks;
 using BirdsiteLive.DAL.Models;
-using Tweetinvi.Models;
 
 namespace BirdsiteLive.DAL.Contracts
 {

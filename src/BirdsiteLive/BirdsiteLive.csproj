@@ -24,7 +24,4 @@
     <ProjectReference Include="..\BirdsiteLive.Twitter\BirdsiteLive.Twitter.csproj" />
     <ProjectReference Include="..\DataAccessLayers\BirdsiteLive.DAL.Postgres\BirdsiteLive.DAL.Postgres.csproj" />
   </ItemGroup>
-
-
-
 </Project>

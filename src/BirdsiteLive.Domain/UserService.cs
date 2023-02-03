@@ -17,8 +17,6 @@ using BirdsiteLive.Domain.Statistics;
 using BirdsiteLive.Domain.Tools;
 using BirdsiteLive.Twitter;
 using BirdsiteLive.Twitter.Models;
-using Tweetinvi.Core.Exceptions;
-using Tweetinvi.Models;
 
 namespace BirdsiteLive.Domain
 {
