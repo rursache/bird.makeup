@@ -2,13 +2,13 @@
 @model DisplayTweet
 @{
     ViewData["Title"] = "Tweet";
-    ViewData["AlternateLink"] = Context.Request.GetDisplayUrl();
+    ViewData["AlternateLink"] = Context.Request.GetDisplayUrl().Replace("http", "https");
     ViewData["MetaDescription"] = ViewData.Model.Text;
     ViewData["MetaImage"] = ViewData.Model.UserProfileImage;
     ViewData["MetaTitle"] = ViewData.Model.UserName;
 }
 
 <div align="center">
-    <blockquote class="twitter-tweet"><p lang="en" dir="ltr"><a href="@ViewData.Model.OgUrl">Tweet</a></blockquote>
+    <blockquote class="twitter-tweet"><p lang="en" dir="ltr">@ViewData.Model.Text<br><a href="@ViewData.Model.OgUrl">See Tweet</a></blockquote>
     <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
 </div>

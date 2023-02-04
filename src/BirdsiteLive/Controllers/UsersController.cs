@@ -163,7 +163,7 @@ namespace BirdsiteLive.Controllers
             //return Redirect($"https://twitter.com/{id}/status/{statusId}");
             var displayTweet = new DisplayTweet 
             {
-                Text = status.content,
+                Text = tweet.MessageContent,
                 OgUrl = $"https://twitter.com/{id}/status/{statusId}",
                 UserProfileImage = user.ProfileImageUrl,
                 UserName = user.Name,
