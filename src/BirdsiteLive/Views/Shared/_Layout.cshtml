@@ -6,6 +6,24 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@Configuration.GetSection("Instance")["Name"] - @ViewData["Title"]</title>
+    @if(ViewData["AlternateLink"] != null) 
+    {
+    <link href='@ViewData["AlternateLink"]' rel='alternate' type='application/activity+json'>
+    <meta content='@ViewData["AlternateLink"]' property="og:url" />
+    }
+    @if(ViewData["MetaDescription"] != null) 
+    {
+    <meta content='@ViewData["MetaDescription"]' name='description'>
+    <meta content='@ViewData["MetaDescription"]' property="og:description" />
+    }
+    @if(ViewData["MetaTitle"] != null) 
+    {
+    <meta content='@ViewData["MetaTitle"]' name='og:title'>
+    }
+    @if(ViewData["MetaImage"] != null) 
+    {
+    <meta content='@ViewData["MetaImage"]' property="og:image" />
+    }
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" />
     <link rel="stylesheet" href="~/css/birdsite.css" />

@@ -138,28 +138,37 @@ namespace BirdsiteLive.Controllers
         public async Task<IActionResult> Tweet(string id, string statusId)
         {
             var acceptHeaders = Request.Headers["Accept"];
+            if (!long.TryParse(statusId, out var parsedStatusId))
+                return NotFound();
+
+            var tweet = await _twitterTweetService.GetTweetAsync(parsedStatusId);
+            if (tweet == null)
+                return NotFound();
+            
+            var user = await _twitterUserService.GetUserAsync(id);
+
+            var status = _statusService.GetStatus(id, tweet);
+
             if (acceptHeaders.Any())
             {
                 var r = acceptHeaders.First();
+
                 if (r.Contains("application/activity+json"))
                 {
-                    if (!long.TryParse(statusId, out var parsedStatusId))
-                        return NotFound();
-
-                    var tweet = await _twitterTweetService.GetTweetAsync(parsedStatusId);
-                    if (tweet == null)
-                        return NotFound();
-
-                    //var user = _twitterService.GetUser(id);
-                    //if (user == null) return NotFound();
-
-                    var status = _statusService.GetStatus(id, tweet);
                     var jsonApUser = JsonConvert.SerializeObject(status);
                     return Content(jsonApUser, "application/activity+json; charset=utf-8");
                 }
             }
 
-            return Redirect($"https://twitter.com/{id}/status/{statusId}");
+            //return Redirect($"https://twitter.com/{id}/status/{statusId}");
+            var displayTweet = new DisplayTweet 
+            {
+                Text = status.content,
+                OgUrl = $"https://twitter.com/{id}/status/{statusId}",
+                UserProfileImage = user.ProfileImageUrl,
+                UserName = user.Name,
+            };
+            return View(displayTweet);
         }
 
         [Route("/users/{id}/inbox")]

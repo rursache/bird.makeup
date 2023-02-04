@@ -7,7 +7,6 @@ using BirdsiteLive.Domain.Repository;
 using BirdsiteLive.Services;
 using BirdsiteLive.Statistics.Domain;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Razor.Language.Intermediate;
 
 namespace BirdsiteLive.Component
 {
