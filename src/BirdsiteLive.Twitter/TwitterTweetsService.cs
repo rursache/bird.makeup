@@ -31,7 +31,6 @@ namespace BirdsiteLive.Twitter
         private readonly ITwitterUserDal _twitterUserDal;
         private readonly ILogger<TwitterTweetsService> _logger;
         private readonly InstanceSettings _instanceSettings;
-        private HttpClient _httpClient = new HttpClient();
 
         #region Ctor
         public TwitterTweetsService(ITwitterAuthenticationInitializer twitterAuthenticationInitializer, ITwitterStatisticsHandler statisticsHandler, ICachedTwitterUserService twitterUserService, ITwitterUserDal twitterUserDal, InstanceSettings instanceSettings, ILogger<TwitterTweetsService> logger)

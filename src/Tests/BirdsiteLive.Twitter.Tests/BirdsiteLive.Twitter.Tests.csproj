@@ -12,7 +12,7 @@
     <PackageReference Include="MSTest.TestFramework" Version="2.1.0" />
     <PackageReference Include="coverlet.collector" Version="1.2.0" />
     <PackageReference Include="moq" Version="4.16.1" />
-    
+    <PackageReference Include="Microsoft.Extensions.Http" Version="5.0.0" />
   </ItemGroup>
 
   <ItemGroup>

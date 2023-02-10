@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using BirdsiteLive.Common.Settings;
 using Microsoft.Extensions.Logging;
 using System.Net.Http;
-using System.Net.Http.Headers;
+using System.Net;
 using System.Text.Json;
 
 namespace BirdsiteLive.Twitter.Tools
@@ -21,7 +21,7 @@ namespace BirdsiteLive.Twitter.Tools
         private readonly ILogger<TwitterAuthenticationInitializer> _logger;
         private static bool _initialized;
         private static System.Timers.Timer aTimer;
-        private readonly HttpClient _httpClient = new HttpClient();
+        private readonly IHttpClientFactory _httpClientFactory;
         private List<HttpClient> _twitterClients = new List<HttpClient>();
         private List<String> _tokens = new List<string>();
         static Random rnd = new Random();
@@ -30,9 +30,10 @@ namespace BirdsiteLive.Twitter.Tools
         }
 
         #region Ctor
-        public TwitterAuthenticationInitializer(ILogger<TwitterAuthenticationInitializer> logger)
+        public TwitterAuthenticationInitializer(IHttpClientFactory httpClientFactory, ILogger<TwitterAuthenticationInitializer> logger)
         {
             _logger = logger;
+            _httpClientFactory = httpClientFactory;
 
             aTimer = new System.Timers.Timer();
             aTimer.Interval = 20 * 1000; 
@@ -53,6 +54,7 @@ namespace BirdsiteLive.Twitter.Tools
         {
             (string bearer, string guest) = await GetCred();
 
+//            HttpClient client = _httpClientFactory.CreateClient();
             HttpClient client = new HttpClient();
             client.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", $"Bearer " + bearer); 
             client.DefaultRequestHeaders.TryAddWithoutValidation("x-guest-token", guest);
@@ -60,19 +62,24 @@ namespace BirdsiteLive.Twitter.Tools
             client.DefaultRequestHeaders.TryAddWithoutValidation("x-twitter-active-user", "yes");
 
             _twitterClients.Add(client);
+            _tokens.Add(guest);
 
             if (_twitterClients.Count > 10)
+            {
                 _twitterClients.RemoveAt(0);
+                _tokens.RemoveAt(0);
+            }
         }
 
         private async Task<(string, string)> GetCred()
         {
             string token;
+            var httpClient = _httpClientFactory.CreateClient();
             using (var request = new HttpRequestMessage(new HttpMethod("POST"), "https://api.twitter.com/1.1/guest/activate.json"))
             {
                 request.Headers.TryAddWithoutValidation("Authorization", $"Bearer " + BearerToken); 
 
-                var httpResponse = await _httpClient.SendAsync(request);
+                var httpResponse = await httpClient.SendAsync(request);
 
                 var c = await httpResponse.Content.ReadAsStringAsync();
                 httpResponse.EnsureSuccessStatusCode();

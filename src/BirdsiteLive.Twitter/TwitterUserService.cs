@@ -23,7 +23,6 @@ namespace BirdsiteLive.Twitter
         private readonly ITwitterAuthenticationInitializer _twitterAuthenticationInitializer;
         private readonly ITwitterStatisticsHandler _statisticsHandler;
         private readonly ILogger<TwitterUserService> _logger;
-        private HttpClient _httpClient = new HttpClient();
         
         private readonly string endpoint = "https://twitter.com/i/api/graphql/4LB4fkCe3RDLDmOEEYtueg/UserByScreenName?variables=%7B%22screen_name%22%3A%22elonmusk%22%2C%22withSafetyModeUserFields%22%3Atrue%2C%22withSuperFollowsUserFields%22%3Atrue%7D&features=%7B%22responsive_web_twitter_blue_verified_badge_is_enabled%22%3Atrue%2C%22verified_phone_label_enabled%22%3Afalse%2C%22responsive_web_twitter_blue_new_verification_copy_is_enabled%22%3Afalse%2C%22responsive_web_graphql_timeline_navigation_enabled%22%3Atrue%7D";
 
@@ -38,7 +37,6 @@ namespace BirdsiteLive.Twitter
 
         public async Task<TwitterUser> GetUserAsync(string username)
         {
-            await _twitterAuthenticationInitializer.EnsureAuthenticationIsInitialized();
 
             JsonDocument res;
             try
