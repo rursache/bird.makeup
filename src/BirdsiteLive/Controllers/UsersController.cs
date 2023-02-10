@@ -171,6 +171,24 @@ namespace BirdsiteLive.Controllers
             return View(displayTweet);
         }
 
+        [Route("/users/{id}/statuses/{statusId}/activity")]
+        public async Task<IActionResult> Activity(string id, string statusId)
+        {
+            if (!long.TryParse(statusId, out var parsedStatusId))
+                return NotFound();
+
+            var tweet = await _twitterTweetService.GetTweetAsync(parsedStatusId);
+            if (tweet == null)
+                return NotFound();
+            
+            var user = await _twitterUserService.GetUserAsync(id);
+
+            var status = _statusService.GetActivity(id, tweet);
+
+            var jsonApUser = JsonConvert.SerializeObject(status);
+            return Content(jsonApUser, "application/activity+json; charset=utf-8");
+        }
+
         [Route("/users/{id}/inbox")]
         [HttpPost]
         public async Task<IActionResult> Inbox()

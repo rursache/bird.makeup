@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using BirdsiteLive.ActivityPub;
 using BirdsiteLive.ActivityPub.Converters;
 using BirdsiteLive.ActivityPub.Models;
@@ -17,6 +18,7 @@ namespace BirdsiteLive.Domain
     public interface IStatusService
     {
         Note GetStatus(string username, ExtractedTweet tweet);
+        ActivityCreateNote GetActivity(string username, ExtractedTweet tweet);
     }
 
     public class StatusService : IStatusService
@@ -24,15 +26,13 @@ namespace BirdsiteLive.Domain
         private readonly InstanceSettings _instanceSettings;
         private readonly IStatusExtractor _statusExtractor;
         private readonly IExtractionStatisticsHandler _statisticsHandler;
-        private readonly IPublicationRepository _publicationRepository;
 
         #region Ctor
-        public StatusService(InstanceSettings instanceSettings, IStatusExtractor statusExtractor, IExtractionStatisticsHandler statisticsHandler, IPublicationRepository publicationRepository)
+        public StatusService(InstanceSettings instanceSettings, IStatusExtractor statusExtractor, IExtractionStatisticsHandler statisticsHandler)
         {
             _instanceSettings = instanceSettings;
             _statusExtractor = statusExtractor;
             _statisticsHandler = statisticsHandler;
-            _publicationRepository = publicationRepository;
         }
         #endregion
 
@@ -50,15 +50,9 @@ namespace BirdsiteLive.Domain
 
             var to = $"{actorUrl}/followers";
 
-            var isUnlisted = _publicationRepository.IsUnlisted(username);
             var cc = new string[0];
-            if (isUnlisted)
-                cc = new[] {"https://www.w3.org/ns/activitystreams#Public"};
             
             string summary = null;
-            var sensitive = _publicationRepository.IsSensitive(username);
-            if (sensitive)
-                summary = "Potential Content Warning";
 
             var extractedTags = _statusExtractor.Extract(tweet.MessageContent);
             _statisticsHandler.ExtractedStatus(extractedTags.tags.Count(x => x.type == "Mention"));
@@ -90,7 +84,7 @@ namespace BirdsiteLive.Domain
                 to = new[] { to },
                 cc = cc,
 
-                sensitive = sensitive,
+                sensitive = false,
                 summary = summary,
                 content = $"<p>{content}</p>",
                 attachment = Convert(tweet.Media),
@@ -98,6 +92,40 @@ namespace BirdsiteLive.Domain
             };
 
             return note;
+        }
+        public ActivityCreateNote GetActivity(string username, ExtractedTweet tweet)
+        {
+            var note = GetStatus(username, tweet);
+            var actor = UrlFactory.GetActorUrl(_instanceSettings.Domain, username);
+            String noteUri;
+            string activityType;
+            if (tweet.IsRetweet) 
+            {
+                noteUri = UrlFactory.GetNoteUrl(_instanceSettings.Domain, username, tweet.Id.ToString());
+                activityType = "Announce";
+            } else
+            {
+                noteUri = UrlFactory.GetNoteUrl(_instanceSettings.Domain, username, tweet.Id.ToString());
+                activityType = "Create";
+            }
+
+            var now = DateTime.UtcNow;
+            var nowString = now.ToString("s") + "Z";
+
+            var noteActivity = new ActivityCreateNote()
+            {
+                context = "https://www.w3.org/ns/activitystreams",
+                id = $"{noteUri}/activity",
+                type = activityType,
+                actor = actor,
+                published = nowString,
+
+                to = new[] {$"{actor}/followers"},
+                cc = note.cc,
+                apObject = note
+            };
+
+            return noteActivity;
         }
 
         private Attachment[] Convert(ExtractedMedia[] media)

@@ -18,7 +18,7 @@ namespace BirdsiteLive.Domain
     {
         Task<Actor> GetUser(string objectId);
         Task<HttpStatusCode> PostDataAsync<T>(T data, string targetHost, string actorUrl, string inbox = null);
-        Task PostNewActivity(Note note, string username, string activityType, string noteId, string targetHost,
+        Task PostNewActivity(ActivityCreateNote note, string username, string noteId, string targetHost,
             string targetInbox);
     }
 
@@ -57,35 +57,11 @@ namespace BirdsiteLive.Domain
             return actor;
         }
 
-        public async Task PostNewActivity(Note note, string username, string activityType, string noteId, string targetHost, string targetInbox)
+        public async Task PostNewActivity(ActivityCreateNote noteActivity, string username, string noteId, string targetHost, string targetInbox)
         {
             try
             {
                 var actor = UrlFactory.GetActorUrl(_instanceSettings.Domain, username);
-                String noteUri;
-                if (activityType == "Create") 
-                {
-                    noteUri = UrlFactory.GetNoteUrl(_instanceSettings.Domain, username, noteId);
-                } else
-                {
-                    noteUri = UrlFactory.GetNoteUrl(_instanceSettings.Domain, username, note.announceId);
-                }
-
-                var now = DateTime.UtcNow;
-                var nowString = now.ToString("s") + "Z";
-
-                var noteActivity = new ActivityCreateNote()
-                {
-                    context = "https://www.w3.org/ns/activitystreams",
-                    id = $"{noteUri}/activity",
-                    type = activityType,
-                    actor = actor,
-                    published = nowString,
-
-                    to = new[] {$"{actor}/followers"},
-                    cc = note.cc,
-                    apObject = note
-                };
 
                 await PostDataAsync(noteActivity, targetHost, actor, targetInbox);
             }
