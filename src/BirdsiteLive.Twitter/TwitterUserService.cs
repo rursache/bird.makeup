@@ -43,7 +43,7 @@ namespace BirdsiteLive.Twitter
             {
 
                 var client = await _twitterAuthenticationInitializer.MakeHttpClient();
-                using (var request = new HttpRequestMessage(new HttpMethod("GET"), endpoint.Replace("elonmusk", username)))
+                using (var request = _twitterAuthenticationInitializer.MakeHttpRequest(new HttpMethod("GET"), endpoint.Replace("elonmusk", username)))
                 {
                     var httpResponse = await client.SendAsync(request);
                     httpResponse.EnsureSuccessStatusCode();

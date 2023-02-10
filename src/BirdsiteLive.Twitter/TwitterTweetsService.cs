@@ -48,7 +48,6 @@ namespace BirdsiteLive.Twitter
         public async Task<ExtractedTweet> GetTweetAsync(long statusId)
         {
 
-
             var client = await _twitterAuthenticationInitializer.MakeHttpClient();
 
 
@@ -58,7 +57,7 @@ namespace BirdsiteLive.Twitter
             try
             {
                 JsonDocument tweet;
-                using (var request = new HttpRequestMessage(new HttpMethod("GET"), reqURL))
+                using (var request = _twitterAuthenticationInitializer.MakeHttpRequest(new HttpMethod("GET"), reqURL))
                 {
                     var httpResponse = await client.SendAsync(request);
                     httpResponse.EnsureSuccessStatusCode();
@@ -105,7 +104,7 @@ namespace BirdsiteLive.Twitter
             List<ExtractedTweet> extractedTweets = new List<ExtractedTweet>();
             try
             {
-                using (var request = new HttpRequestMessage(new HttpMethod("GET"), reqURL))
+                using (var request = _twitterAuthenticationInitializer.MakeHttpRequest(new HttpMethod("GET"), reqURL))
                 {
 
                     var httpResponse = await client.SendAsync(request);

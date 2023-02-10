@@ -14,6 +14,7 @@ namespace BirdsiteLive.Twitter.Tools
     {
         Task EnsureAuthenticationIsInitialized();
         Task<HttpClient> MakeHttpClient();
+        HttpRequestMessage MakeHttpRequest(HttpMethod m, string endpoint);
     }
 
     public class TwitterAuthenticationInitializer : ITwitterAuthenticationInitializer
@@ -54,8 +55,8 @@ namespace BirdsiteLive.Twitter.Tools
         {
             (string bearer, string guest) = await GetCred();
 
-//            HttpClient client = _httpClientFactory.CreateClient();
-            HttpClient client = new HttpClient();
+            HttpClient client = _httpClientFactory.CreateClient();
+            //HttpClient client = new HttpClient();
             client.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", $"Bearer " + bearer); 
             client.DefaultRequestHeaders.TryAddWithoutValidation("x-guest-token", guest);
             client.DefaultRequestHeaders.TryAddWithoutValidation("Referer", "https://twitter.com/");
@@ -114,6 +115,17 @@ namespace BirdsiteLive.Twitter.Tools
                 await RefreshCred();
             int r = rnd.Next(_twitterClients.Count);
             return _twitterClients[r];
+        }
+        public HttpRequestMessage MakeHttpRequest(HttpMethod m, string endpoint)
+        {
+            var client = _httpClientFactory.CreateClient();
+            var request = new HttpRequestMessage(m, endpoint);
+            int r = rnd.Next(_twitterClients.Count);
+            request.Headers.TryAddWithoutValidation("Authorization", $"Bearer " + BearerToken); 
+            request.Headers.TryAddWithoutValidation("x-guest-token", _tokens[r]);
+            request.Headers.TryAddWithoutValidation("Referer", "https://twitter.com/");
+            request.Headers.TryAddWithoutValidation("x-twitter-active-user", "yes");
+            return request;
         }
     }
 }
