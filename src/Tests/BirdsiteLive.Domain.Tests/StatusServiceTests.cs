@@ -45,9 +45,41 @@ Photo by Tim Tronckoe | @timtronckoe
             var statusExtractor = new StatusExtractor(_settings, logger1.Object);
             var stats = new Mock<IExtractionStatisticsHandler>();
             var service = new StatusService(_settings, statusExtractor, stats.Object);
-            var result = service.GetActivity(username, extractedTweet);
+            var activity = service.GetActivity(username, extractedTweet);
 
             #region Validations
+            Assert.AreEqual(activity.type, "Create");
+
+            #endregion
+        }
+
+        [TestMethod]
+        public void RetweetTest()
+        {
+            #region Stubs
+            var username = "MyUserName";
+            var extractedTweet = new ExtractedTweet
+            {
+                Id = 124,
+                IsRetweet = true,
+                OriginalAuthor = new TwitterUser { Acct = "hello" },
+                CreatedAt = DateTime.UtcNow,
+                MessageContent = @"Getting ready for the weekend...have a great one everyone!",
+                RetweetId = 543,
+            };
+            #endregion
+
+            var logger1 = new Mock<ILogger<StatusExtractor>>();
+            var statusExtractor = new StatusExtractor(_settings, logger1.Object);
+            var stats = new Mock<IExtractionStatisticsHandler>();
+            var service = new StatusService(_settings, statusExtractor, stats.Object);
+            var activity = service.GetActivity(username, extractedTweet);
+
+            #region Validations
+            Assert.AreEqual(activity.type, "Announce");
+            Assert.AreEqual(activity.apObject.attributedTo, "https://domain.name/users/hello");
+            Assert.AreEqual(activity.apObject.announceId, "https://domain.name/users/myusername/statuses/124");
+            Assert.AreEqual(activity.apObject.id, "https://domain.name/users/hello/statuses/543");
 
             #endregion
         }

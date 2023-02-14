@@ -234,7 +234,7 @@ namespace BirdsiteLive.Pipeline.Tests.Processors.SubTasks
         }
 
         [TestMethod]
-        public async Task ExecuteAsync_SingleTweet_PublishReply_Test()
+        public async Task ExecuteAsync_SingleRetweet_Test()
         {
             #region Stubs
             var tweetId = 10;
@@ -243,7 +243,9 @@ namespace BirdsiteLive.Pipeline.Tests.Processors.SubTasks
                 new ExtractedTweet
                 {
                     Id = tweetId,
-                    IsReply = true,
+                    IsReply = false,
+                    IsRetweet = true,
+                    OriginalAuthor = new TwitterUser { Acct = "hello" },
                     IsThread = false
                 }
             };
@@ -293,10 +295,7 @@ namespace BirdsiteLive.Pipeline.Tests.Processors.SubTasks
                 }
             };
 
-            var settings = new InstanceSettings
-            {
-                PublishReplies = true
-            };
+            var settings = new InstanceSettings { };
             #endregion
 
             #region Mocks

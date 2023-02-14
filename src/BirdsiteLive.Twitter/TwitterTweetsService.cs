@@ -178,6 +178,7 @@ namespace BirdsiteLive.Twitter
             JsonElement inReplyToUserElement;
             string inReplyToUser = null;
             long? inReplyToPostId = null;
+            long retweetId = default;
 
             string userName = tweet.GetProperty("content").GetProperty("itemContent")
                     .GetProperty("tweet_results").GetProperty("result").GetProperty("core").GetProperty("user_results")
@@ -217,6 +218,10 @@ namespace BirdsiteLive.Twitter
                     .GetProperty("core").GetProperty("user_results").GetProperty("result")
                     .GetProperty("legacy").GetProperty("screen_name").GetString();
                 OriginalAuthor = await _twitterUserService.GetUserAsync(OriginalAuthorUsername);
+                retweetId = Int64.Parse(tweet.GetProperty("content").GetProperty("itemContent")
+                    .GetProperty("tweet_results").GetProperty("result").GetProperty("legacy")
+                    .GetProperty("retweeted_status_result").GetProperty("result")
+                    .GetProperty("rest_id").GetString());
             }
 
             string creationTime = tweet.GetProperty("content").GetProperty("itemContent")
@@ -291,7 +296,7 @@ namespace BirdsiteLive.Twitter
             }
             var extractedTweet = new ExtractedTweet
             {
-                Id = Int64.Parse(tweet.GetProperty("sortIndex").GetString()),
+                Id = Int64.Parse(tweet.GetProperty("entryId").GetString().Replace("tweet-", "")),
                 InReplyToStatusId = inReplyToPostId,
                 InReplyToAccount = inReplyToUser,
                 MessageContent = MessageContent.Trim(),
@@ -301,6 +306,7 @@ namespace BirdsiteLive.Twitter
                 IsRetweet = isRetweet,
                 Media = Media.Count() == 0 ? null : Media.ToArray(),
                 RetweetUrl = "https://t.co/123",
+                RetweetId = retweetId,
                 OriginalAuthor = OriginalAuthor,
             };
        

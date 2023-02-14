@@ -40,6 +40,9 @@ namespace BirdsiteLive.ActivityPub.Tests
         {
             var tweet = await _tweetService.GetTweetAsync(1600905296892891149);
             Assert.AreEqual(tweet.MessageContent, "We’re strengthening American manufacturing by creating 750,000 manufacturing jobs since I became president.");
+            Assert.AreEqual(tweet.Id, 1600905296892891149);
+            Assert.IsFalse(tweet.IsRetweet);
+            Assert.IsFalse(tweet.IsReply);
         }
 
         [TestMethod]
