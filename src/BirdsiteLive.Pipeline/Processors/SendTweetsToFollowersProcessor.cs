@@ -28,6 +28,7 @@ namespace BirdsiteLive.Pipeline.Processors
         private readonly InstanceSettings _instanceSettings;
         private readonly ILogger<SendTweetsToFollowersProcessor> _logger;
         private readonly IRemoveFollowerAction _removeFollowerAction;
+        private List<Task> _todo = new List<Task>();
 
         #region Ctor
         public SendTweetsToFollowersProcessor(ISendTweetsToInboxTask sendTweetsToInboxTask, ISendTweetsToSharedInboxTask sendTweetsToSharedInbox, ISaveProgressionTask saveProgressionTask, IFollowersDal followersDal, ILogger<SendTweetsToFollowersProcessor> logger, InstanceSettings instanceSettings, IRemoveFollowerAction removeFollowerAction)
@@ -46,51 +47,56 @@ namespace BirdsiteLive.Pipeline.Processors
         {
             var user = userWithTweetsToSync.User;
 
-            // Process Shared Inbox
-            var followersWtSharedInbox = userWithTweetsToSync.Followers
-                .Where(x => !string.IsNullOrWhiteSpace(x.SharedInboxRoute))
-                .ToList();
-            await ProcessFollowersWithSharedInboxAsync(userWithTweetsToSync.Tweets, followersWtSharedInbox, user);
+            _todo = _todo.Where(x => !x.IsCompleted).ToList();
+            
+            var t = Task.Run( async () => 
+            {
+                // Process Shared Inbox
+                var followersWtSharedInbox = userWithTweetsToSync.Followers
+                    .Where(x => !string.IsNullOrWhiteSpace(x.SharedInboxRoute))
+                    .ToList();
+                await ProcessFollowersWithSharedInboxAsync(userWithTweetsToSync.Tweets, followersWtSharedInbox, user);
 
-            // Process Inbox
-            var followerWtInbox = userWithTweetsToSync.Followers
-                .Where(x => string.IsNullOrWhiteSpace(x.SharedInboxRoute))
-                .ToList();
-            await ProcessFollowersWithInboxAsync(userWithTweetsToSync.Tweets, followerWtInbox, user);
+                // Process Inbox
+                var followerWtInbox = userWithTweetsToSync.Followers
+                    .Where(x => string.IsNullOrWhiteSpace(x.SharedInboxRoute))
+                    .ToList();
+                await ProcessFollowersWithInboxAsync(userWithTweetsToSync.Tweets, followerWtInbox, user);
 
-            await _saveProgressionTask.ProcessAsync(userWithTweetsToSync, ct);
+                await _saveProgressionTask.ProcessAsync(userWithTweetsToSync, ct);
+            });
+            _todo.Add(t);
+
+            if (_todo.Count >= _instanceSettings.ParallelFediversePosts)
+            {
+                await Task.WhenAny(_todo);
+            }
 
         }
 
         private async Task ProcessFollowersWithSharedInboxAsync(ExtractedTweet[] tweets, List<Follower> followers, SyncTwitterUser user)
         {
             var followersPerInstances = followers.GroupBy(x => x.Host);
-            List<Task> todo = new List<Task>();
 
             foreach (var followersPerInstance in followersPerInstances)
             {
-                var t = Task.Run( async () => 
+                try
                 {
-                    try
-                    {
-                        _logger.LogInformation("Sending " + tweets.Length + " tweets from user " + user.Acct + " to instance " + followersPerInstance.Key);
-                        await _sendTweetsToSharedInbox.ExecuteAsync(tweets, user, followersPerInstance.Key, followersPerInstance.ToArray());
+                    _logger.LogInformation("Sending " + tweets.Length + " tweets from user " + user.Acct + " to instance " + followersPerInstance.Key);
+                    await _sendTweetsToSharedInbox.ExecuteAsync(tweets, user, followersPerInstance.Key, followersPerInstance.ToArray());
 
-                        foreach (var f in followersPerInstance)
-                            await ProcessWorkingUserAsync(f);
-                    }
-                    catch (Exception e)
-                    {
-                        var follower = followersPerInstance.First();
-                        _logger.LogError(e, "Posting to {Host}{Route} failed", follower.Host, follower.SharedInboxRoute);
+                    foreach (var f in followersPerInstance)
+                        await ProcessWorkingUserAsync(f);
+                }
+                catch (Exception e)
+                {
+                    var follower = followersPerInstance.First();
+                    _logger.LogError(e, "Posting to {Host}{Route} failed", follower.Host, follower.SharedInboxRoute);
 
-                        foreach (var f in followersPerInstance)
-                            await ProcessFailingUserAsync(f);
-                    }
-                });
-                todo.Add(t);
+                    foreach (var f in followersPerInstance)
+                        await ProcessFailingUserAsync(f);
+                }
             }
-            await Task.WhenAll(todo);
         }
         
         private async Task ProcessFollowersWithInboxAsync(ExtractedTweet[] tweets, List<Follower> followerWtInbox, SyncTwitterUser user)

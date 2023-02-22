@@ -79,7 +79,10 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
             var loggerMock = new Mock<ILogger<SendTweetsToFollowersProcessor>>();
             var saveProgressMock = new Mock<ISaveProgressionTask>();
 
-            var settings = new InstanceSettings();
+            var settings = new InstanceSettings
+            {
+                ParallelFediversePosts = 1
+            };
 
             var removeFollowerMock = new Mock<IRemoveFollowerAction>(MockBehavior.Strict);
             #endregion
@@ -157,7 +160,10 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
             
             var loggerMock = new Mock<ILogger<SendTweetsToFollowersProcessor>>();
 
-            var settings = new InstanceSettings();
+            var settings = new InstanceSettings
+            {
+                ParallelFediversePosts = 1
+            };
 
             var saveProgressMock = new Mock<ISaveProgressionTask>();
             var removeFollowerMock = new Mock<IRemoveFollowerAction>(MockBehavior.Strict);
@@ -246,7 +252,10 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
             var loggerMock = new Mock<ILogger<SendTweetsToFollowersProcessor>>();
             var saveProgressMock = new Mock<ISaveProgressionTask>();
 
-            var settings = new InstanceSettings();
+            var settings = new InstanceSettings
+            {
+                ParallelFediversePosts = 1
+            };
 
             var removeFollowerMock = new Mock<IRemoveFollowerAction>(MockBehavior.Strict);
             #endregion
@@ -335,7 +344,10 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
             var loggerMock = new Mock<ILogger<SendTweetsToFollowersProcessor>>();
 
             var saveProgressMock = new Mock<ISaveProgressionTask>();
-            var settings = new InstanceSettings();
+            var settings = new InstanceSettings
+            {
+                ParallelFediversePosts = 1
+            };
 
             var removeFollowerMock = new Mock<IRemoveFollowerAction>(MockBehavior.Strict);
             #endregion
@@ -429,7 +441,10 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
             var loggerMock = new Mock<ILogger<SendTweetsToFollowersProcessor>>();
 
             var saveProgressMock = new Mock<ISaveProgressionTask>();
-            var settings = new InstanceSettings();
+            var settings = new InstanceSettings
+            {
+                ParallelFediversePosts = 1
+            };
 
             var removeFollowerMock = new Mock<IRemoveFollowerAction>(MockBehavior.Strict);
             #endregion
@@ -506,7 +521,10 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
             var loggerMock = new Mock<ILogger<SendTweetsToFollowersProcessor>>();
             var saveProgressMock = new Mock<ISaveProgressionTask>();
 
-            var settings = new InstanceSettings();
+            var settings = new InstanceSettings
+            {
+                ParallelFediversePosts = 1
+            };
 
             var removeFollowerMock = new Mock<IRemoveFollowerAction>(MockBehavior.Strict);
             #endregion
@@ -584,7 +602,10 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
             var loggerMock = new Mock<ILogger<SendTweetsToFollowersProcessor>>();
             var saveProgressMock = new Mock<ISaveProgressionTask>();
 
-            var settings = new InstanceSettings();
+            var settings = new InstanceSettings
+            {
+                ParallelFediversePosts = 1
+            };
 
             var removeFollowerMock = new Mock<IRemoveFollowerAction>(MockBehavior.Strict);
             #endregion
@@ -670,7 +691,10 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
             var loggerMock = new Mock<ILogger<SendTweetsToFollowersProcessor>>();
             var saveProgressMock = new Mock<ISaveProgressionTask>();
 
-            var settings = new InstanceSettings();
+            var settings = new InstanceSettings
+            {
+                ParallelFediversePosts = 1
+            };
 
             var removeFollowerMock = new Mock<IRemoveFollowerAction>(MockBehavior.Strict);
             #endregion
@@ -755,7 +779,8 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
 
             var settings = new InstanceSettings
             {
-                FailingFollowerCleanUpThreshold = 10
+                FailingFollowerCleanUpThreshold = 10,
+                ParallelFediversePosts = 1
             };
 
             var removeFollowerMock = new Mock<IRemoveFollowerAction>(MockBehavior.Strict);
@@ -844,7 +869,8 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
 
             var settings = new InstanceSettings
             {
-                FailingFollowerCleanUpThreshold = 0
+                FailingFollowerCleanUpThreshold = 0,
+                ParallelFediversePosts = 1
             };
 
             var removeFollowerMock = new Mock<IRemoveFollowerAction>(MockBehavior.Strict);
@@ -935,7 +961,10 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
             var loggerMock = new Mock<ILogger<SendTweetsToFollowersProcessor>>();
             var saveProgressMock = new Mock<ISaveProgressionTask>();
 
-            var settings = new InstanceSettings();
+            var settings = new InstanceSettings
+            {
+                ParallelFediversePosts = 1
+            };
 
             var removeFollowerMock = new Mock<IRemoveFollowerAction>(MockBehavior.Strict);
             #endregion
@@ -1027,8 +1056,11 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
             var loggerMock = new Mock<ILogger<SendTweetsToFollowersProcessor>>();
             var saveProgressMock = new Mock<ISaveProgressionTask>();
 
-            var settings = new InstanceSettings();
-
+            var settings = new InstanceSettings
+            {
+                ParallelFediversePosts = 1
+            };
+            
             var removeFollowerMock = new Mock<IRemoveFollowerAction>(MockBehavior.Strict);
             #endregion
 

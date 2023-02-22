@@ -16,5 +16,6 @@
 
         public int UserCacheCapacity { get; set; }
         public int ParallelTwitterRequests { get; set; } = 10;
+        public int ParallelFediversePosts { get; set; } = 10;
     }
 }
