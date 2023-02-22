@@ -4,7 +4,7 @@ using BirdsiteLive.Pipeline.Models;
 
 namespace BirdsiteLive.Pipeline.Contracts
 {
-    public interface ISaveProgressionProcessor
+    public interface ISaveProgressionTask
     {
         Task ProcessAsync(UserWithDataToSync userWithTweetsToSync, CancellationToken ct);
     }

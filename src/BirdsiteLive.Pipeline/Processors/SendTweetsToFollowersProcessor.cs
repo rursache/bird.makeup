@@ -22,6 +22,7 @@ namespace BirdsiteLive.Pipeline.Processors
     public class SendTweetsToFollowersProcessor : ISendTweetsToFollowersProcessor
     {
         private readonly ISendTweetsToInboxTask _sendTweetsToInboxTask;
+        private readonly ISaveProgressionTask _saveProgressionTask;
         private readonly ISendTweetsToSharedInboxTask _sendTweetsToSharedInbox;
         private readonly IFollowersDal _followersDal;
         private readonly InstanceSettings _instanceSettings;
@@ -29,18 +30,19 @@ namespace BirdsiteLive.Pipeline.Processors
         private readonly IRemoveFollowerAction _removeFollowerAction;
 
         #region Ctor
-        public SendTweetsToFollowersProcessor(ISendTweetsToInboxTask sendTweetsToInboxTask, ISendTweetsToSharedInboxTask sendTweetsToSharedInbox, IFollowersDal followersDal, ILogger<SendTweetsToFollowersProcessor> logger, InstanceSettings instanceSettings, IRemoveFollowerAction removeFollowerAction)
+        public SendTweetsToFollowersProcessor(ISendTweetsToInboxTask sendTweetsToInboxTask, ISendTweetsToSharedInboxTask sendTweetsToSharedInbox, ISaveProgressionTask saveProgressionTask, IFollowersDal followersDal, ILogger<SendTweetsToFollowersProcessor> logger, InstanceSettings instanceSettings, IRemoveFollowerAction removeFollowerAction)
         {
             _sendTweetsToInboxTask = sendTweetsToInboxTask;
             _sendTweetsToSharedInbox = sendTweetsToSharedInbox;
             _logger = logger;
             _instanceSettings = instanceSettings;
             _removeFollowerAction = removeFollowerAction;
+            _saveProgressionTask = saveProgressionTask;
             _followersDal = followersDal;
         }
         #endregion
 
-        public async Task<UserWithDataToSync> ProcessAsync(UserWithDataToSync userWithTweetsToSync, CancellationToken ct)
+        public async Task ProcessAsync(UserWithDataToSync userWithTweetsToSync, CancellationToken ct)
         {
             var user = userWithTweetsToSync.User;
 
@@ -56,7 +58,8 @@ namespace BirdsiteLive.Pipeline.Processors
                 .ToList();
             await ProcessFollowersWithInboxAsync(userWithTweetsToSync.Tweets, followerWtInbox, user);
 
-            return userWithTweetsToSync;
+            await _saveProgressionTask.ProcessAsync(userWithTweetsToSync, ct);
+
         }
 
         private async Task ProcessFollowersWithSharedInboxAsync(ExtractedTweet[] tweets, List<Follower> followers, SyncTwitterUser user)

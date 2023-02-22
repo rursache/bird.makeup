@@ -13,7 +13,7 @@ using BirdsiteLive.Twitter.Models;
 using BirdsiteLive.Common.Settings;
 using Microsoft.Extensions.Logging;
 
-namespace BirdsiteLive.Pipeline.Processors
+namespace BirdsiteLive.Pipeline.Processors.SubTasks
 {
     public class RetrieveTweetsProcessor : IRetrieveTweetsProcessor
     {

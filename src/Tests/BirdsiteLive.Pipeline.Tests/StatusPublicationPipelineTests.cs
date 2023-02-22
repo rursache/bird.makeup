@@ -30,7 +30,7 @@ namespace BirdsiteLive.Pipeline.Tests
             var retrieveTweetsProcessor = new Mock<IRetrieveTweetsProcessor>(MockBehavior.Strict);
             var retrieveFollowersProcessor = new Mock<IRetrieveFollowersProcessor>(MockBehavior.Strict);
             var sendTweetsToFollowersProcessor = new Mock<ISendTweetsToFollowersProcessor>(MockBehavior.Strict);
-            var saveProgressionProcessor = new Mock<ISaveProgressionProcessor>(MockBehavior.Strict);
+            var saveProgressionProcessor = new Mock<ISaveProgressionTask>(MockBehavior.Strict);
             var logger = new Mock<ILogger<StatusPublicationPipeline>>();
             #endregion
 

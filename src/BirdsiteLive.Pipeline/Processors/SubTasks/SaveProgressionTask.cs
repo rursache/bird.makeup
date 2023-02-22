@@ -7,15 +7,15 @@ using BirdsiteLive.Pipeline.Contracts;
 using BirdsiteLive.Pipeline.Models;
 using Microsoft.Extensions.Logging;
 
-namespace BirdsiteLive.Pipeline.Processors
+namespace BirdsiteLive.Pipeline.Processors.SubTasks
 {
-    public class SaveProgressionProcessor : ISaveProgressionProcessor
+    public class SaveProgressionTask : ISaveProgressionTask
     {
         private readonly ITwitterUserDal _twitterUserDal;
-        private readonly ILogger<SaveProgressionProcessor> _logger;
+        private readonly ILogger<SaveProgressionTask> _logger;
 
         #region Ctor
-        public SaveProgressionProcessor(ITwitterUserDal twitterUserDal, ILogger<SaveProgressionProcessor> logger)
+        public SaveProgressionTask(ITwitterUserDal twitterUserDal, ILogger<SaveProgressionTask> logger)
         {
             _twitterUserDal = twitterUserDal;
             _logger = logger;
