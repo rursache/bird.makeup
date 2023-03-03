@@ -27,18 +27,6 @@ namespace BirdsiteLive.Controllers
             return View(stats);
         }
 
-        public IActionResult Blacklisting()
-        {
-            var status = GetModerationStatus();
-            return View("Blacklisting", status);
-        }
-
-        public IActionResult Whitelisting()
-        {
-            var status = GetModerationStatus();
-            return View("Whitelisting", status);
-        }
-
         private ModerationStatus GetModerationStatus()
         {
             var status = new ModerationStatus

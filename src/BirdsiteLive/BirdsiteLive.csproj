@@ -5,7 +5,6 @@
     <UserSecretsId>d21486de-a812-47eb-a419-05682bb68856</UserSecretsId>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     <Version>0.20.0</Version>
-    <ThreadPoolMinThreads>12</ThreadPoolMinThreads>
   </PropertyGroup>
 
   <ItemGroup>

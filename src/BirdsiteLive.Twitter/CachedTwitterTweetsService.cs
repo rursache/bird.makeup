@@ -18,7 +18,7 @@ namespace BirdsiteLive.Twitter
 
         private readonly MemoryCache _tweetCache;
         private readonly MemoryCacheEntryOptions _cacheEntryOptions = new MemoryCacheEntryOptions()
-            .SetSize(1)//Size amount
+            .SetSize(1000)//Size amount
             //Priority on removing when reaching size limit (memory pressure)
             .SetPriority(CacheItemPriority.Low)
             // Keep in cache for this time, reset time if accessed.
