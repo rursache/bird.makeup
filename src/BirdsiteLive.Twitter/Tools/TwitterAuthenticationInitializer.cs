@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using BirdsiteLive.Common.Settings;
 using Microsoft.Extensions.Logging;
@@ -14,6 +15,7 @@ namespace BirdsiteLive.Twitter.Tools
     {
         Task<HttpClient> MakeHttpClient();
         HttpRequestMessage MakeHttpRequest(HttpMethod m, string endpoint);
+        Task RefreshClient(HttpRequestMessage client);
     }
 
     public class TwitterAuthenticationInitializer : ITwitterAuthenticationInitializer
@@ -45,6 +47,22 @@ namespace BirdsiteLive.Twitter.Tools
         #endregion
 
 
+        public async Task RefreshClient(HttpRequestMessage req)
+        {
+            string token = req.Headers.GetValues("x-guest-token").First();
+
+            var i = _tokens.IndexOf(token);
+
+            // this is prabably not thread save but yolo
+            try
+            {
+                _twitterClients.RemoveAt(i);
+                _tokens.RemoveAt(i);
+            }
+            catch (IndexOutOfRangeException _) {}
+
+            await RefreshCred();
+        }
 
         private async Task RefreshCred()
         {
@@ -113,7 +131,6 @@ namespace BirdsiteLive.Twitter.Tools
         }
         public HttpRequestMessage MakeHttpRequest(HttpMethod m, string endpoint)
         {
-            var client = _httpClientFactory.CreateClient();
             var request = new HttpRequestMessage(m, endpoint);
             int r = rnd.Next(_twitterClients.Count);
             request.Headers.TryAddWithoutValidation("Authorization", $"Bearer " + BearerToken); 
