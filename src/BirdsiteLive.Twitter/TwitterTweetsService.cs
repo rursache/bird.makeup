@@ -115,6 +115,7 @@ namespace BirdsiteLive.Twitter
             }
             catch (HttpRequestException e)
             {
+                _logger.LogError(e, "Error retrieving timeline of {Username}; refreshing client", username);
                 await _twitterAuthenticationInitializer.RefreshClient(request);
                 return null;
             }

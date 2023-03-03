@@ -39,18 +39,16 @@ namespace BirdsiteLive.Twitter
         {
 
             JsonDocument res;
+            var client = await _twitterAuthenticationInitializer.MakeHttpClient();
+            using var request = _twitterAuthenticationInitializer.MakeHttpRequest(new HttpMethod("GET"), endpoint.Replace("elonmusk", username));
             try
             {
 
-                var client = await _twitterAuthenticationInitializer.MakeHttpClient();
-                using (var request = _twitterAuthenticationInitializer.MakeHttpRequest(new HttpMethod("GET"), endpoint.Replace("elonmusk", username)))
-                {
-                    var httpResponse = await client.SendAsync(request);
-                    httpResponse.EnsureSuccessStatusCode();
+                var httpResponse = await client.SendAsync(request);
+                httpResponse.EnsureSuccessStatusCode();
 
-                    var c = await httpResponse.Content.ReadAsStringAsync();
-                    res = JsonDocument.Parse(c);
-                }
+                var c = await httpResponse.Content.ReadAsStringAsync();
+                res = JsonDocument.Parse(c);
                 var result = res.RootElement.GetProperty("data").GetProperty("user").GetProperty("result");
                 return Extract(result);
             }
@@ -69,6 +67,12 @@ namespace BirdsiteLive.Twitter
                 //{
                 //    throw;
                 //}
+            }
+            catch (HttpRequestException e)
+            {
+                _logger.LogError(e, "Error retrieving user {Username}, Refreshing client", username);
+                await _twitterAuthenticationInitializer.RefreshClient(request);
+                return null;
             }
             catch (Exception e)
             {

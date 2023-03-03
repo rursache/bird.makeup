@@ -59,7 +59,10 @@ namespace BirdsiteLive.Twitter.Tools
                 _twitterClients.RemoveAt(i);
                 _tokens.RemoveAt(i);
             }
-            catch (IndexOutOfRangeException _) {}
+            catch (IndexOutOfRangeException _)
+            {
+                _logger.LogError("Error refreshing twitter token");
+            }
 
             await RefreshCred();
         }
