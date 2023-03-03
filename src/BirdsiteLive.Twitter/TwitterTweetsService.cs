@@ -158,8 +158,8 @@ namespace BirdsiteLive.Twitter
                     }
                     catch (Exception e)
                     {
-                        _logger.LogError("Tried getting timeline from user " + username + ", but got error: \n" + e.Message + e.StackTrace + e.Source
-                            + JsonObject.Create(tweet).ToJsonString(new JsonSerializerOptions { WriteIndented = true }));
+                        _logger.LogError("Tried getting timeline from user " + username + ", but got error: \n" +
+                                         e.Message + e.StackTrace + e.Source);
 
                     }
 
