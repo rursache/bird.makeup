@@ -25,7 +25,7 @@ namespace BirdsiteLive.Twitter.Tools
         private List<HttpClient> _twitterClients = new List<HttpClient>();
         private List<String> _tokens = new List<string>();
         static Random rnd = new Random();
-        private const int _targetClients = 10;
+        private const int _targetClients = 20;
         public String BearerToken { 
             get { return "AAAAAAAAAAAAAAAAAAAAAPYXBAAAAAAACLXUNDekMxqa8h%2F40K4moUkGsoc%3DTYfbDKbT3jJPCEVnMYqilB28NHfOPqkca3qaAxGfsyKCs0wRbw"; }
         }
