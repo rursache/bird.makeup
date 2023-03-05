@@ -14,7 +14,7 @@ tasks:
       dotnet test
 
   - publish: |
-    cd bird.makeup/src/BirdsiteLive
-    dotnet publish --os linux --arch x64 /t:PublishContainer -c Release
-    docker tag cloutier/bird.makeup:1.0 cloutier/bird.makeup:latest
-    docker push cloutier/bird.makeup:latest
+      cd bird.makeup/src/BirdsiteLive
+      dotnet publish --os linux --arch x64 /t:PublishContainer -c Release
+      docker tag cloutier/bird.makeup:1.0 cloutier/bird.makeup:latest
+      docker push cloutier/bird.makeup:latest
