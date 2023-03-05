@@ -85,7 +85,7 @@ namespace BirdsiteLive.Domain
                 preferredUsername = acct,
                 name = twitterUser.Name,
                 inbox = $"{actorUrl}/inbox",
-                summary = description,
+                summary = "This account is a replica from Twitter. Its author can't see your replies. If you find this service useful, please consider supporting us via our Patreon. <br>" + description,
                 url = actorUrl,
                 manuallyApprovesFollowers = twitterUser.Protected,
                 publicKey = new PublicKey()
@@ -111,6 +111,12 @@ namespace BirdsiteLive.Domain
                         type = "PropertyValue",
                         name = "Official",
                         value = $"<a href=\"https://twitter.com/{acct}\" rel=\"me nofollow noopener noreferrer\" target=\"_blank\"><span class=\"invisible\">https://</span><span class=\"ellipsis\">twitter.com/{acct}</span></a>"
+                    },
+                    new UserAttachment
+                    {
+                        type = "PropertyValue",
+                        name = "Support this service",
+                        value = $"<a href=\"https://www.patreon.com/birddotmakeup\" rel=\"me nofollow noopener noreferrer\" target=\"_blank\"><span class=\"invisible\">https://</span><span class=\"ellipsis\">www.patreon.com/birddotmakeup</span></a>"
                     }
                 },
                 endpoints = new EndPoints
