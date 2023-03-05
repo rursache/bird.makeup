@@ -4,12 +4,14 @@
     <TargetFramework>net6</TargetFramework>
     <UserSecretsId>d21486de-a812-47eb-a419-05682bb68856</UserSecretsId>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
-    <Version>0.20.0</Version>
+    <Version>1.0</Version>
+    <ContainerImageName>cloutier/bird.makeup</ContainerImageName>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Lamar.Microsoft.DependencyInjection" Version="5.0.0" />
     <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.16.0" />
+    <PackageReference Include="Microsoft.NET.Build.Containers" Version="0.3.2" />
   </ItemGroup>
 
   <ItemGroup>
