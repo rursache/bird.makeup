@@ -1,6 +1,7 @@
 image: archlinux
 packages:
-  - dotnet-sdk-6.0
+  - dotnet-sdk
+  - dotnet-runtime-6.0
   - docker
 sources:
   - https://git.sr.ht/~cloutier/bird.makeup
@@ -9,7 +10,7 @@ secrets:
 tasks:
   - test: |
       sudo systemctl start docker
-      sudo docker run -d -p 5432:5432 -e POSTGRES_PASSWORD=birdsitelive -e POSTGRES_USER=birdsitelive -e POSTGRES_DB=birdsitelive postgres:9
+      sudo docker run -d -p 5432:5432 -e POSTGRES_PASSWORD=birdsitelive -e POSTGRES_USER=birdsitelive -e POSTGRES_DB=birdsitelive postgres:15
       cd bird.makeup/src
       dotnet test
 
