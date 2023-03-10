@@ -51,9 +51,10 @@ namespace BirdsiteLive.Twitter
             var client = await _twitterAuthenticationInitializer.MakeHttpClient();
 
 
-            string reqURL = "https://twitter.com/i/api/graphql/BoHLKeBvibdYDiJON1oqTg/TweetDetail?variables=%7B%22focalTweetId%22%3A%22"
-            + statusId + "%22%2C%22referrer%22%3A%22profile%22%2C%22rux_context%22%3A%22HHwWgICypZb4saYsAAAA%22%2C%22with_rux_injections%22%3Atrue%2C%22includePromotedContent%22%3Atrue%2C%22withCommunity%22%3Atrue%2C%22withQuickPromoteEligibilityTweetFields%22%3Atrue%2C%22withBirdwatchNotes%22%3Afalse%2C%22withSuperFollowsUserFields%22%3Atrue%2C%22withDownvotePerspective%22%3Afalse%2C%22withReactionsMetadata%22%3Afalse%2C%22withReactionsPerspective%22%3Afalse%2C%22withSuperFollowsTweetFields%22%3Atrue%2C%22withVoice%22%3Atrue%2C%22withV2Timeline%22%3Atrue%7D&features=%7B%22responsive_web_twitter_blue_verified_badge_is_enabled%22%3Atrue%2C%22verified_phone_label_enabled%22%3Afalse%2C%22responsive_web_graphql_timeline_navigation_enabled%22%3Atrue%2C%22unified_cards_ad_metadata_container_dynamic_card_content_query_enabled%22%3Atrue%2C%22tweetypie_unmention_optimization_enabled%22%3Atrue%2C%22responsive_web_uc_gql_enabled%22%3Atrue%2C%22vibe_api_enabled%22%3Atrue%2C%22responsive_web_edit_tweet_api_enabled%22%3Atrue%2C%22graphql_is_translatable_rweb_tweet_is_translatable_enabled%22%3Afalse%2C%22standardized_nudges_misinfo%22%3Atrue%2C%22tweet_with_visibility_results_prefer_gql_limited_actions_policy_enabled%22%3Afalse%2C%22interactive_text_enabled%22%3Atrue%2C%22responsive_web_text_conversations_enabled%22%3Afalse%2C%22responsive_web_enhance_cards_enabled%22%3Atrue%7D";
-
+            string reqURL =
+                "https://api.twitter.com/graphql/XjlydVWHFIDaAUny86oh2g/TweetDetail?variables=%7B%22focalTweetId%22%3A%22"
+                + statusId +
+                "%22,%22with_rux_injections%22%3Atrue,%22includePromotedContent%22%3Afalse,%22withCommunity%22%3Afalse,%22withQuickPromoteEligibilityTweetFields%22%3Afalse,%22withBirdwatchNotes%22%3Afalse,%22withSuperFollowsUserFields%22%3Afalse,%22withDownvotePerspective%22%3Afalse,%22withReactionsMetadata%22%3Afalse,%22withReactionsPerspective%22%3Afalse,%22withSuperFollowsTweetFields%22%3Afalse,%22withVoice%22%3Atrue,%22withV2Timeline%22%3Atrue%7D&features=%7B%22responsive_web_twitter_blue_verified_badge_is_enabled%22%3Atrue,%22responsive_web_graphql_exclude_directive_enabled%22%3Atrue,%22verified_phone_label_enabled%22%3Afalse,%22responsive_web_graphql_timeline_navigation_enabled%22%3Atrue,%22responsive_web_graphql_skip_user_profile_image_extensions_enabled%22%3Afalse,%22tweetypie_unmention_optimization_enabled%22%3Atrue,%22vibe_api_enabled%22%3Atrue,%22responsive_web_edit_tweet_api_enabled%22%3Atrue,%22graphql_is_translatable_rweb_tweet_is_translatable_enabled%22%3Afalse,%22view_counts_everywhere_api_enabled%22%3Atrue,%22longform_notetweets_consumption_enabled%22%3Atrue,%22tweet_awards_web_tipping_enabled%22%3Afalse,%22freedom_of_speech_not_reach_fetch_enabled%22%3Afalse,%22standardized_nudges_misinfo%22%3Atrue,%22tweet_with_visibility_results_prefer_gql_limited_actions_policy_enabled%22%3Afalse,%22interactive_text_enabled%22%3Atrue,%22responsive_web_text_conversations_enabled%22%3Afalse,%22longform_notetweets_richtext_consumption_enabled%22%3Afalse,%22responsive_web_enhance_cards_enabled%22%3Atrue%7D";
             try
             {
                 JsonDocument tweet;
@@ -69,7 +70,9 @@ namespace BirdsiteLive.Twitter
                 var timeline = tweet.RootElement.GetProperty("data").GetProperty("threaded_conversation_with_injections_v2")
                     .GetProperty("instructions").EnumerateArray().First().GetProperty("entries").EnumerateArray();
 
-                return await Extract( timeline.Where(x => x.GetProperty("entryId").GetString() == "tweet-" + statusId).ToArray().First() );
+                var tweetInDoc = timeline.Where(x => x.GetProperty("entryId").GetString() == "tweet-" + statusId)
+                    .ToArray().First();
+                return await Extract( tweetInDoc );
             }
             catch (Exception e)
             {
@@ -97,9 +100,9 @@ namespace BirdsiteLive.Twitter
             }
 
 
-            var reqURL = "https://twitter.com/i/api/graphql/s0hG9oAmWEYVBqOLJP-TBQ/UserTweetsAndReplies?variables=%7B%22userId%22%3A%22"
-                 + userId + 
-                "%22%2C%22count%22%3A40%2C%22includePromotedContent%22%3Atrue%2C%22withQuickPromoteEligibilityTweetFields%22%3Atrue%2C%22withSuperFollowsUserFields%22%3Atrue%2C%22withDownvotePerspective%22%3Afalse%2C%22withReactionsMetadata%22%3Afalse%2C%22withReactionsPerspective%22%3Afalse%2C%22withSuperFollowsTweetFields%22%3Atrue%2C%22withVoice%22%3Atrue%2C%22withV2Timeline%22%3Atrue%7D&features=%7B%22responsive_web_twitter_blue_verified_badge_is_enabled%22%3Atrue%2C%22verified_phone_label_enabled%22%3Afalse%2C%22responsive_web_graphql_timeline_navigation_enabled%22%3Atrue%2C%22unified_cards_ad_metadata_container_dynamic_card_content_query_enabled%22%3Atrue%2C%22tweetypie_unmention_optimization_enabled%22%3Atrue%2C%22responsive_web_uc_gql_enabled%22%3Atrue%2C%22vibe_api_enabled%22%3Atrue%2C%22responsive_web_edit_tweet_api_enabled%22%3Atrue%2C%22graphql_is_translatable_rweb_tweet_is_translatable_enabled%22%3Afalse%2C%22standardized_nudges_misinfo%22%3Atrue%2C%22tweet_with_visibility_results_prefer_gql_limited_actions_policy_enabled%22%3Afalse%2C%22interactive_text_enabled%22%3Atrue%2C%22responsive_web_text_conversations_enabled%22%3Afalse%2C%22responsive_web_enhance_cards_enabled%22%3Atrue%7D";
+            var reqURL =
+                "https://api.twitter.com/graphql/pNl8WjKAvaegIoVH--FuoQ/UserTweetsAndReplies?variables=%7B%22userId%22%3A%22" +
+                userId + "%22,%22count%22%3A40,%22includePromotedContent%22%3Atrue,%22withCommunity%22%3Atrue,%22withSuperFollowsUserFields%22%3Atrue,%22withDownvotePerspective%22%3Afalse,%22withReactionsMetadata%22%3Afalse,%22withReactionsPerspective%22%3Afalse,%22withSuperFollowsTweetFields%22%3Atrue,%22withVoice%22%3Atrue,%22withV2Timeline%22%3Atrue%7D&features=%7B%22responsive_web_twitter_blue_verified_badge_is_enabled%22%3Atrue,%22responsive_web_graphql_exclude_directive_enabled%22%3Atrue,%22verified_phone_label_enabled%22%3Afalse,%22responsive_web_graphql_timeline_navigation_enabled%22%3Atrue,%22responsive_web_graphql_skip_user_profile_image_extensions_enabled%22%3Afalse,%22tweetypie_unmention_optimization_enabled%22%3Atrue,%22vibe_api_enabled%22%3Atrue,%22responsive_web_edit_tweet_api_enabled%22%3Atrue,%22graphql_is_translatable_rweb_tweet_is_translatable_enabled%22%3Atrue,%22view_counts_everywhere_api_enabled%22%3Atrue,%22longform_notetweets_consumption_enabled%22%3Atrue,%22tweet_awards_web_tipping_enabled%22%3Afalse,%22freedom_of_speech_not_reach_fetch_enabled%22%3Afalse,%22standardized_nudges_misinfo%22%3Atrue,%22tweet_with_visibility_results_prefer_gql_limited_actions_policy_enabled%22%3Afalse,%22interactive_text_enabled%22%3Atrue,%22responsive_web_text_conversations_enabled%22%3Afalse,%22longform_notetweets_richtext_consumption_enabled%22%3Afalse,%22responsive_web_enhance_cards_enabled%22%3Afalse%7D";
             JsonDocument results;
             List<ExtractedTweet> extractedTweets = new List<ExtractedTweet>();
             using var request = _twitterAuthenticationInitializer.MakeHttpRequest(new HttpMethod("GET"), reqURL);
@@ -207,6 +210,14 @@ namespace BirdsiteLive.Twitter
                 MessageContent = tweet.GetProperty("content").GetProperty("itemContent")
                     .GetProperty("tweet_results").GetProperty("result").GetProperty("legacy")
                     .GetProperty("full_text").GetString();
+                bool isNote = tweet.GetProperty("content").GetProperty("itemContent")
+                        .GetProperty("tweet_results").GetProperty("result")
+                        .TryGetProperty("note_tweet", out var note);
+                if (isNote)
+                {
+                    MessageContent = note.GetProperty("note_tweet_results").GetProperty("result")
+                        .GetProperty("text").GetString();
+                }
                 OriginalAuthor = null;
             }
             else 
@@ -215,6 +226,15 @@ namespace BirdsiteLive.Twitter
                     .GetProperty("tweet_results").GetProperty("result").GetProperty("legacy")
                     .GetProperty("retweeted_status_result").GetProperty("result")
                     .GetProperty("legacy").GetProperty("full_text").GetString();
+                bool isNote = tweet.GetProperty("content").GetProperty("itemContent")
+                    .GetProperty("tweet_results").GetProperty("result").GetProperty("legacy")
+                    .GetProperty("retweeted_status_result").GetProperty("result")
+                    .TryGetProperty("note_tweet", out var note);
+                if (isNote)
+                {
+                    MessageContent = note.GetProperty("note_tweet_results").GetProperty("result")
+                        .GetProperty("text").GetString();
+                }
                 string OriginalAuthorUsername = tweet.GetProperty("content").GetProperty("itemContent")
                     .GetProperty("tweet_results").GetProperty("result").GetProperty("legacy")
                     .GetProperty("retweeted_status_result").GetProperty("result")
