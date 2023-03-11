@@ -10,6 +10,8 @@ services:
             - Instance:Domain=bird.makeup
             - Instance:Name=bird.makeup
             - Instance:AdminEmail=name@domain.ext
+            - Instance:ParallelTwitterRequests=50
+            - Instance:ParallelFediverseRequests=20
             - Db:Type=postgres
             - Db:Host=db
             - Db:Name=birdsitelive
@@ -18,16 +20,21 @@ services:
             - Moderation:FollowersBlackListing=bae.st
         ports:
             - "5000:80"
+        volumes:
+            - type: bind
+              source: ../key.json
+              target: /app/key.json
         depends_on:
             - db
     db:
-        image: postgres:9
+        image: postgres:15
         restart: always
         environment:
             - POSTGRES_USER=birdsitelive
             - POSTGRES_PASSWORD=birdsitelive
             - POSTGRES_DB=birdsitelive
         volumes:
-            - ../postgres:/var/lib/postgresql/data
+            - ../postgres15:/var/lib/postgresql/data
         ports:
             - "5432:5432"
+
