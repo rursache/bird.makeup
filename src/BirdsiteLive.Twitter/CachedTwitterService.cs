@@ -19,11 +19,11 @@ namespace BirdsiteLive.Twitter
 
         private readonly MemoryCache _userCache;
         private readonly MemoryCacheEntryOptions _cacheEntryOptions = new MemoryCacheEntryOptions()
-            .SetSize(1000)//Size amount
+            .SetSize(10000)//Size amount
             //Priority on removing when reaching size limit (memory pressure)
             .SetPriority(CacheItemPriority.Low)
             // Keep in cache for this time, reset time if accessed.
-            .SetSlidingExpiration(TimeSpan.FromMinutes(10))
+            .SetSlidingExpiration(TimeSpan.FromMinutes(60))
             // Remove from cache after this time, regardless of sliding expiration
             .SetAbsoluteExpiration(TimeSpan.FromDays(1));
 
@@ -41,13 +41,13 @@ namespace BirdsiteLive.Twitter
 
         public async Task<TwitterUser> GetUserAsync(string username)
         {
-            if (!_userCache.TryGetValue(username, out TwitterUser user))
+            if (!_userCache.TryGetValue(username, out Task<TwitterUser> user))
             {
-                user = await _twitterService.GetUserAsync(username);
-                if(user != null) _userCache.Set(username, user, _cacheEntryOptions);
+                user = _twitterService.GetUserAsync(username);
+                await _userCache.Set(username, user, _cacheEntryOptions);
             }
 
-            return user;
+            return await user;
         }
 
         public bool IsUserApiRateLimited()

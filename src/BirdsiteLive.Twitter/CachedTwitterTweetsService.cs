@@ -18,7 +18,7 @@ namespace BirdsiteLive.Twitter
 
         private readonly MemoryCache _tweetCache;
         private readonly MemoryCacheEntryOptions _cacheEntryOptions = new MemoryCacheEntryOptions()
-            .SetSize(1000)//Size amount
+            .SetSize(10000)//Size amount
             //Priority on removing when reaching size limit (memory pressure)
             .SetPriority(CacheItemPriority.Low)
             // Keep in cache for this time, reset time if accessed.
@@ -45,13 +45,13 @@ namespace BirdsiteLive.Twitter
         }
         public async Task<ExtractedTweet> GetTweetAsync(long id)
         {
-            if (!_tweetCache.TryGetValue(id, out ExtractedTweet tweet))
+            if (!_tweetCache.TryGetValue(id, out Task<ExtractedTweet> tweet))
             {
-                tweet = await _twitterService.GetTweetAsync(id);
-                if(tweet != null) _tweetCache.Set(id, tweet, _cacheEntryOptions);
+                tweet = _twitterService.GetTweetAsync(id);
+                await _tweetCache.Set(id, tweet, _cacheEntryOptions);
             }
 
-            return tweet;
+            return await tweet;
         }
 
         public void SetTweet(long id, ExtractedTweet tweet)
