@@ -188,7 +188,7 @@ namespace BirdsiteLive.Domain
                 id = $"{activity.apObject}#accepts/follows/{Guid.NewGuid()}",
                 type = "Accept",
                 actor = activity.apObject,
-                apObject = new ActivityFollow()
+                apObject = new NestedActivity()
                 {
                     id = activity.id,
                     type = activity.type,

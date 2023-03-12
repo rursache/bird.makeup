@@ -1,6 +1,7 @@
 ﻿using System;
 using BirdsiteLive.ActivityPub.Models;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
+using System.Text.Json;
 
 namespace BirdsiteLive.ActivityPub
 {
@@ -10,22 +11,21 @@ namespace BirdsiteLive.ActivityPub
         {
             try
             {
-                var activity = JsonConvert.DeserializeObject<Activity>(json);
+                var activity = JsonSerializer.Deserialize<Activity>(json);
                 switch (activity.type)
                 {
                     case "Follow":
-                        return JsonConvert.DeserializeObject<ActivityFollow>(json);
+                        return JsonSerializer.Deserialize<ActivityFollow>(json);
                     case "Undo":
-                        var a = JsonConvert.DeserializeObject<ActivityUndo>(json);
+                        var a = JsonSerializer.Deserialize<ActivityUndo>(json);
                         if(a.apObject.type == "Follow")
-                            return JsonConvert.DeserializeObject<ActivityUndoFollow>(json);
+                            return JsonSerializer.Deserialize<ActivityUndoFollow>(json);
                         break;
                     case "Delete":
-                        return JsonConvert.DeserializeObject<ActivityDelete>(json);
+                        return JsonSerializer.Deserialize<ActivityDelete>(json);
                     case "Accept":
-                        var accept = JsonConvert.DeserializeObject<ActivityAccept>(json);
-                        //var acceptType = JsonConvert.DeserializeObject<Activity>(accept.apObject);
-                        switch ((accept.apObject as dynamic).type.ToString())
+                        var accept = JsonSerializer.Deserialize<ActivityAccept>(json);
+                        switch (accept.apObject.type)
                         {
                             case "Follow":
                                 var acceptFollow = new ActivityAcceptFollow()
@@ -34,13 +34,13 @@ namespace BirdsiteLive.ActivityPub
                                     id = accept.id,
                                     actor = accept.actor,
                                     context = accept.context,
-                                    apObject = new ActivityFollow()
+                                    apObject = new NestedActivity()
                                     {
-                                        id = (accept.apObject as dynamic).id?.ToString(),
-                                        type = (accept.apObject as dynamic).type?.ToString(),
-                                        actor = (accept.apObject as dynamic).actor?.ToString(),
-                                        context = (accept.apObject as dynamic).context?.ToString(),
-                                        apObject = (accept.apObject as dynamic).@object?.ToString()
+                                        id = accept.apObject.id,
+                                        type = accept.apObject.type,
+                                        actor = accept.apObject.actor,
+                                        context = accept.apObject.context,
+                                        apObject = accept.apObject.apObject,
                                     }
                                 };
                                 return acceptFollow;
@@ -58,7 +58,7 @@ namespace BirdsiteLive.ActivityPub
 
         private class Ac : Activity
         {
-            [JsonProperty("object")]
+            [JsonPropertyName("object")]
             public Activity apObject { get; set; }
         }
     }

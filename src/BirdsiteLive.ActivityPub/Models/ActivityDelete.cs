@@ -1,10 +1,10 @@
-﻿using Newtonsoft.Json;
+﻿using System.Text.Json.Serialization;
 
 namespace BirdsiteLive.ActivityPub.Models
 {
     public class ActivityDelete : Activity
     {
-        [JsonProperty("object")]
-        public object apObject { get; set; }
+        [JsonPropertyName("object")]
+        public string apObject { get; set; }
     }
 }

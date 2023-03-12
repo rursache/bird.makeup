@@ -2,7 +2,7 @@
 
 namespace BirdsiteLive.ActivityPub
 {
-    public class Activity
+    public class NestedActivity
     {
         [JsonPropertyName("@context")]
         public object context { get; set; }
@@ -10,7 +10,7 @@ namespace BirdsiteLive.ActivityPub
         public string type { get; set; }
         public string actor { get; set; }
 
-        //[JsonPropertyName("object")]
-        //public string apObject { get; set; }
+        [JsonPropertyName("object")]
+        public string apObject { get; set; }
     }
 }

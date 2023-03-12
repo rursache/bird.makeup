@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.Json;
 using System.Net.Mime;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -19,7 +20,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
-using Newtonsoft.Json;
 
 namespace BirdsiteLive.Controllers
 {
@@ -111,7 +111,7 @@ namespace BirdsiteLive.Controllers
                     if (isSaturated) return new ObjectResult("Too Many Requests") { StatusCode = 429 };
                     if (notFound) return NotFound();
                     var apUser = _userService.GetUser(user);
-                    var jsonApUser = JsonConvert.SerializeObject(apUser);
+                    var jsonApUser = System.Text.Json.JsonSerializer.Serialize(apUser);
                     return Content(jsonApUser, "application/activity+json; charset=utf-8");
                 }
             }
@@ -155,7 +155,7 @@ namespace BirdsiteLive.Controllers
 
                 if (r.Contains("application/activity+json"))
                 {
-                    var jsonApUser = JsonConvert.SerializeObject(status);
+                    var jsonApUser = JsonSerializer.Serialize(status);
                     return Content(jsonApUser, "application/activity+json; charset=utf-8");
                 }
             }
@@ -185,7 +185,7 @@ namespace BirdsiteLive.Controllers
 
             var status = _statusService.GetActivity(id, tweet);
 
-            var jsonApUser = JsonConvert.SerializeObject(status);
+            var jsonApUser = JsonSerializer.Serialize(status);
             return Content(jsonApUser, "application/activity+json; charset=utf-8");
         }
 
@@ -269,7 +269,7 @@ namespace BirdsiteLive.Controllers
             {
                 id = $"https://{_instanceSettings.Domain}/users/{id}/followers"
             };
-            var jsonApUser = JsonConvert.SerializeObject(followers);
+            var jsonApUser = JsonSerializer.Serialize(followers);
             return Content(jsonApUser, "application/activity+json; charset=utf-8");
         }
     }

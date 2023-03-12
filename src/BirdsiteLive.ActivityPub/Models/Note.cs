@@ -1,12 +1,10 @@
-﻿using BirdsiteLive.ActivityPub.Converters;
-using Newtonsoft.Json;
+﻿using System.Text.Json.Serialization;
 
 namespace BirdsiteLive.ActivityPub.Models
 {
     public class Note
     {
-        [JsonProperty("@context")]
-        [JsonConverter(typeof(ContextArrayConverter))]
+        [JsonPropertyName("@context")]
         public string[] context { get; set; } = new[] { "https://www.w3.org/ns/activitystreams" };
 
         public string id { get; set; }

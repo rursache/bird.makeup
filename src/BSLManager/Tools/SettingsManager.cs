@@ -1,8 +1,8 @@
 ﻿using System;
 using System.IO;
+using System.Text.Json;
 using System.Runtime.CompilerServices;
 using BirdsiteLive.Common.Settings;
-using Newtonsoft.Json;
 
 namespace BSLManager.Tools
 {
@@ -94,7 +94,7 @@ namespace BSLManager.Tools
                 if (!File.Exists(LocalFileName)) return null;
 
                 var jsonContent = File.ReadAllText(LocalFileName);
-                var content = JsonConvert.DeserializeObject<LocalSettingsData>(jsonContent);
+                var content = JsonSerializer.Deserialize<LocalSettingsData>(jsonContent);
                 return content;
             }
             catch (Exception)
@@ -105,7 +105,7 @@ namespace BSLManager.Tools
 
         private void SaveLocalSettings(LocalSettingsData data)
         {
-            var jsonContent = JsonConvert.SerializeObject(data);
+            var jsonContent = JsonSerializer.Serialize(data);
             File.WriteAllText(LocalFileName, jsonContent);
         }
     }

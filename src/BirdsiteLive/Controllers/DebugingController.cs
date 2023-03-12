@@ -10,7 +10,6 @@ using BirdsiteLive.Common.Settings;
 using BirdsiteLive.Domain;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
-using Newtonsoft.Json;
 
 namespace BirdsiteLive.Controllers
 {

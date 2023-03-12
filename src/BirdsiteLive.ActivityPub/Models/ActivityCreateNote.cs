@@ -1,6 +1,5 @@
-﻿using System;
-using BirdsiteLive.ActivityPub.Models;
-using Newtonsoft.Json;
+﻿using BirdsiteLive.ActivityPub.Models;
+using System.Text.Json.Serialization;
 
 namespace BirdsiteLive.ActivityPub
 {
@@ -10,7 +9,7 @@ namespace BirdsiteLive.ActivityPub
         public string[] to { get; set; }
         public string[] cc { get; set; }
 
-        [JsonProperty("object")]
+        [JsonPropertyName("object")]
         public Note apObject { get; set; }
     }
 }

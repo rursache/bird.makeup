@@ -1,10 +1,10 @@
-﻿using Newtonsoft.Json;
+﻿using System.Text.Json.Serialization;
 
 namespace BirdsiteLive.ActivityPub
 {
     public class ActivityAccept : Activity
     {
-        [JsonProperty("object")]
-        public object apObject { get; set; }
+        [JsonPropertyName("object")]
+        public NestedActivity apObject { get; set; }
     }
 }

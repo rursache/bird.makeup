@@ -1,14 +1,12 @@
 ﻿using System.Net;
 using BirdsiteLive.ActivityPub.Converters;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace BirdsiteLive.ActivityPub
 {
     public class Actor
     {
-        //[JsonPropertyName("@context")]
-        [JsonProperty("@context")]
-        [JsonConverter(typeof(ContextArrayConverter))]
+        [JsonPropertyName("@context")]
         public string[] context { get; set; } = new[] { "https://www.w3.org/ns/activitystreams", "https://w3id.org/security/v1" };
         public string id { get; set; }
         public string type { get; set; }

@@ -4,13 +4,14 @@ using System.Net;
 using System.Net.Http;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using BirdsiteLive.ActivityPub;
 using BirdsiteLive.ActivityPub.Converters;
 using BirdsiteLive.ActivityPub.Models;
 using BirdsiteLive.Common.Settings;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 
 namespace BirdsiteLive.Domain
 {
@@ -52,7 +53,7 @@ namespace BirdsiteLive.Domain
 
             var content = await result.Content.ReadAsStringAsync();
 
-            var actor = JsonConvert.DeserializeObject<Actor>(content);
+            var actor = JsonSerializer.Deserialize<Actor>(content);
             if (string.IsNullOrWhiteSpace(actor.url)) actor.url = objectId;
             return actor;
         }
@@ -78,7 +79,7 @@ namespace BirdsiteLive.Domain
             if (!string.IsNullOrWhiteSpace(inbox))
                 usedInbox = inbox;
 
-            var json = JsonConvert.SerializeObject(data, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore });
+            var json = JsonSerializer.Serialize(data, new JsonSerializerOptions() { DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull });
 
             var date = DateTime.UtcNow.ToUniversalTime();
             var httpDate = date.ToString("r");
