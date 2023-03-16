@@ -182,20 +182,7 @@ namespace BirdsiteLive.Domain
         
         private async Task<bool> SendAcceptFollowAsync(ActivityFollow activity, string followerHost)
         {
-            var acceptFollow = new ActivityAcceptFollow()
-            {
-                context = "https://www.w3.org/ns/activitystreams",
-                id = $"{activity.apObject}#accepts/follows/{Guid.NewGuid()}",
-                type = "Accept",
-                actor = activity.apObject,
-                apObject = new NestedActivity()
-                {
-                    id = activity.id,
-                    type = activity.type,
-                    actor = activity.actor,
-                    apObject = activity.apObject
-                }
-            };
+            var acceptFollow = _activityPubService.BuildAcceptFollow(activity);
             var result = await _activityPubService.PostDataAsync(acceptFollow, followerHost, activity.apObject);
             return result == HttpStatusCode.Accepted ||
                    result == HttpStatusCode.OK; //TODO: revamp this for better error handling

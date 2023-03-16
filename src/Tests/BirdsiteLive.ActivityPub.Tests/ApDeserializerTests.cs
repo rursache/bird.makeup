@@ -1,6 +1,6 @@
 ﻿using BirdsiteLive.ActivityPub.Models;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Newtonsoft.Json;
+using System.Text.Json;
 
 namespace BirdsiteLive.ActivityPub.Tests
 {
@@ -28,9 +28,11 @@ namespace BirdsiteLive.ActivityPub.Tests
             var data = ApDeserializer.ProcessActivity(json) as ActivityUndoFollow;
             Assert.AreEqual("https://mastodon.technology/users/testtest#follows/225982/undo", data.id);
             Assert.AreEqual("Undo", data.type);
+            Assert.AreEqual("https://www.w3.org/ns/activitystreams", data.context);
             Assert.AreEqual("Follow", data.apObject.type);
             Assert.AreEqual("https://mastodon.technology/users/testtest", data.apObject.actor);
             Assert.AreEqual("https://4a120ca2680e.ngrok.io/users/manu", data.apObject.apObject);
+            Assert.AreEqual(null, data.apObject.context);
         }
 
         [TestMethod]
@@ -62,6 +64,9 @@ namespace BirdsiteLive.ActivityPub.Tests
             Assert.AreEqual("https://mastodon.technology/users/deleteduser", data.actor);
             Assert.AreEqual("https://mastodon.technology/users/deleteduser", data.apObject);
         }
+        // {"object":{"object":"https://bird.makeup/users/spectatorindex","id":"https://masto.ai/b89eb86e-c902-48bc-956f-94f081617f18","type":"Follow","actor":"https://masto.ai/users/singha"},"@context":"https://www.w3.org/ns/activitystreams","id":"https://bird.makeup/users/spectatorindex#accepts/follows/27363118-e61e-4710-a41c-75dd5d54912f","type":"Accept","actor":"https://bird.makeup/users/spectatorindex"}
+        // {"object":{"object":"https://bird.makeup/users/moltke","id":"https://universeodon.com/81cddd78-d7d6-4665-aa21-7bcfbea82b6b","type":"Follow","actor":"https://universeodon.com/users/amhrasmussen"},"@context":"https://www.w3.org/ns/activitystreams","id":"https://bird.makeup/users/moltke#accepts/follows/d28146be-e884-4e91-8385-19fa004f35b3","type":"Accept","actor":"https://bird.makeup/users/moltke"}
+
 
         //[TestMethod]
         //public void NoteDeserializationTest()

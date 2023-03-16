@@ -21,6 +21,8 @@ namespace BirdsiteLive.Domain
         Task<HttpStatusCode> PostDataAsync<T>(T data, string targetHost, string actorUrl, string inbox = null);
         Task PostNewActivity(ActivityCreateNote note, string username, string noteId, string targetHost,
             string targetInbox);
+
+        ActivityAcceptFollow BuildAcceptFollow(ActivityFollow activity);
     }
 
     public class ActivityPubService : IActivityPubService
@@ -73,13 +75,33 @@ namespace BirdsiteLive.Domain
             }
         }
 
-        public async Task<HttpStatusCode> PostDataAsync<T>(T data, string targetHost, string actorUrl, string inbox = null)
+        public ActivityAcceptFollow BuildAcceptFollow(ActivityFollow activity)
+        {
+            var acceptFollow = new ActivityAcceptFollow()
+            {
+                context = "https://www.w3.org/ns/activitystreams",
+                id = $"{activity.apObject}#accepts/follows/{Guid.NewGuid()}",
+                type = "Accept",
+                actor = activity.apObject,
+                apObject = new NestedActivity()
+                {
+                    id = activity.id,
+                    type = activity.type,
+                    actor = activity.actor,
+                    apObject = activity.apObject
+                }
+            };
+            return acceptFollow;
+        }
+        public HttpRequestMessage BuildRequest<T>(T data, string targetHost, string actorUrl,
+            string inbox = null)
         {
             var usedInbox = $"/inbox";
             if (!string.IsNullOrWhiteSpace(inbox))
                 usedInbox = inbox;
 
-            var json = JsonSerializer.Serialize(data, new JsonSerializerOptions() { DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull });
+            var json = JsonSerializer.Serialize(data,
+                new JsonSerializerOptions() { DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull });
 
             var date = DateTime.UtcNow.ToUniversalTime();
             var httpDate = date.ToString("r");
@@ -88,26 +110,33 @@ namespace BirdsiteLive.Domain
 
             var signature = _cryptoService.SignAndGetSignatureHeader(date, actorUrl, targetHost, digest, usedInbox);
 
-            var client = _httpClientFactory.CreateClient();
-            client.Timeout = TimeSpan.FromSeconds(2);
             var httpRequestMessage = new HttpRequestMessage
             {
                 Method = HttpMethod.Post,
                 RequestUri = new Uri($"https://{targetHost}{usedInbox}"),
                 Headers =
                 {
-                    {"Host", targetHost},
-                    {"Date", httpDate},
-                    {"Signature", signature},
-                    {"Digest", $"SHA-256={digest}"}
+                    { "Host", targetHost },
+                    { "Date", httpDate },
+                    { "Signature", signature },
+                    { "Digest", $"SHA-256={digest}" }
                 },
                 Content = new StringContent(json, Encoding.UTF8, "application/ld+json")
             };
 
+            return httpRequestMessage;
+        }
+
+        public async Task<HttpStatusCode> PostDataAsync<T>(T data, string targetHost, string actorUrl, string inbox = null)
+        {
+            var httpRequestMessage = BuildRequest(data, targetHost, actorUrl, inbox);
+
+            var client = _httpClientFactory.CreateClient();
+            client.Timeout = TimeSpan.FromSeconds(2);
+            
             var response = await client.SendAsync(httpRequestMessage);
             response.EnsureSuccessStatusCode();
             _logger.LogInformation("Sent tweet to " + targetHost);
-            _logger.LogInformation("Tweet content is " + json);
 
             return response.StatusCode;
         }

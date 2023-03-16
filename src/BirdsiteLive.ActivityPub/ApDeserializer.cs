@@ -56,10 +56,5 @@ namespace BirdsiteLive.ActivityPub
             return null;
         }
 
-        private class Ac : Activity
-        {
-            [JsonPropertyName("object")]
-            public Activity apObject { get; set; }
-        }
     }
 }

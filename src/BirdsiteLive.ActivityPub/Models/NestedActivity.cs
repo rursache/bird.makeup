@@ -5,6 +5,7 @@ namespace BirdsiteLive.ActivityPub
     public class NestedActivity
     {
         [JsonPropertyName("@context")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public object context { get; set; }
         public string id { get; set; }
         public string type { get; set; }
