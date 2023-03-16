@@ -34,12 +34,13 @@ namespace BirdsiteLive.ActivityPub
                                     id = accept.id,
                                     actor = accept.actor,
                                     context = accept.context,
-                                    apObject = new NestedActivity()
+                                    apObject = new ActivityFollow()
                                     {
+
                                         id = accept.apObject.id,
                                         type = accept.apObject.type,
                                         actor = accept.apObject.actor,
-                                        context = accept.apObject.context,
+                                        context = accept.apObject.context?.ToString(),
                                         apObject = accept.apObject.apObject,
                                     }
                                 };

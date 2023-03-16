@@ -83,7 +83,7 @@ namespace BirdsiteLive.Domain
                 id = $"{activity.apObject}#accepts/follows/{Guid.NewGuid()}",
                 type = "Accept",
                 actor = activity.apObject,
-                apObject = new NestedActivity()
+                apObject = new ActivityFollow()
                 {
                     id = activity.id,
                     type = activity.type,
@@ -100,8 +100,7 @@ namespace BirdsiteLive.Domain
             if (!string.IsNullOrWhiteSpace(inbox))
                 usedInbox = inbox;
 
-            var json = JsonSerializer.Serialize(data,
-                new JsonSerializerOptions() { DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull });
+            var json = JsonSerializer.Serialize(data);
 
             var date = DateTime.UtcNow.ToUniversalTime();
             var httpDate = date.ToString("r");

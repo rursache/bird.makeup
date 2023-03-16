@@ -5,6 +5,6 @@ namespace BirdsiteLive.ActivityPub
     public class ActivityAcceptFollow : Activity
     {
         [JsonPropertyName("object")]
-        public NestedActivity apObject { get; set; }
+        public ActivityFollow apObject { get; set; }
     }
 }

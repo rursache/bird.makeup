@@ -6,6 +6,7 @@ using BirdsiteLive.Domain.Factories;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using System.Text.Json;
 
 
 namespace BirdsiteLive.Domain.Tests
@@ -38,8 +39,21 @@ namespace BirdsiteLive.Domain.Tests
             var activity = new ActivityAcceptFollow()
             {
                 id = "awef",
+                context = "https://www.w3.org/ns/activitystreams",
+                type = "Accept",
+                actor = "https://mastodon.technology/users/testtest",
+                apObject = new ActivityFollow()
+                {
+                    context = "https://www.w3.org/ns/activitystreams",
+                    id = "abc",
+                    type = "Follow",
+                    actor = "https://mastodon.technology/users/testtest2",
+                    apObject = "https://mastodon.technology/users/testtest3",
+                }
+                
             };
-            var json = "{\"id\":\"awef\"}";
+            var json =
+                """{"object":{"object":"https://mastodon.technology/users/testtest3","@context":"https://www.w3.org/ns/activitystreams","id":"abc","type":"Follow","actor":"https://mastodon.technology/users/testtest2"},"@context":"https://www.w3.org/ns/activitystreams","id":"awef","type":"Accept","actor":"https://mastodon.technology/users/testtest"}""";
             #region Validations
 
             var req = service.BuildRequest(activity, "google.com", "tata", "awef");
@@ -69,6 +83,8 @@ namespace BirdsiteLive.Domain.Tests
             #region Validations
 
             var req = service.BuildAcceptFollow(activity);
+            
+            string s = JsonSerializer.Serialize(req);
             
             Assert.AreEqual(req.actor, activityRes.actor);
             Assert.AreEqual(req.context, activityRes.context);

@@ -243,10 +243,11 @@ namespace BirdsiteLive.Domain
                 actor = activity.apObject.apObject,
                 apObject = new ActivityUndoFollow()
                 {
-                    id = activity.id,
-                    type = activity.type,
-                    actor = activity.actor,
-                    apObject = activity.apObject
+                    id = (activity.apObject as dynamic).id?.ToString(),
+                    type = (activity.apObject as dynamic).type?.ToString(),
+                    actor = (activity.apObject as dynamic).actor?.ToString(),
+                    context = (activity.apObject as dynamic).context?.ToString(),
+                    apObject = (activity.apObject as dynamic).@object?.ToString()
                 }
             };
             var result = await _activityPubService.PostDataAsync(acceptFollow, followerHost, activity.apObject.apObject);
