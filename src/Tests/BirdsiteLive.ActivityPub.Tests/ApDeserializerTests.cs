@@ -68,13 +68,96 @@ namespace BirdsiteLive.ActivityPub.Tests
         // {"object":{"object":"https://bird.makeup/users/moltke","id":"https://universeodon.com/81cddd78-d7d6-4665-aa21-7bcfbea82b6b","type":"Follow","actor":"https://universeodon.com/users/amhrasmussen"},"@context":"https://www.w3.org/ns/activitystreams","id":"https://bird.makeup/users/moltke#accepts/follows/d28146be-e884-4e91-8385-19fa004f35b3","type":"Accept","actor":"https://bird.makeup/users/moltke"}
 
 
-        //[TestMethod]
-        //public void NoteDeserializationTest()
-        //{
-        //    var json =
-        //        "{\"@context\":[\"https://www.w3.org/ns/activitystreams\",{\"ostatus\":\"http://ostatus.org#\",\"atomUri\":\"ostatus:atomUri\",\"inReplyToAtomUri\":\"ostatus:inReplyToAtomUri\",\"conversation\":\"ostatus:conversation\",\"sensitive\":\"as:sensitive\",\"toot\":\"http://joinmastodon.org/ns#\",\"votersCount\":\"toot:votersCount\"}],\"id\":\"https://mastodon.technology/users/testtest/statuses/104424839893177182/activity\",\"type\":\"Create\",\"actor\":\"https://mastodon.technology/users/testtest\",\"published\":\"2020-06-29T02:10:04Z\",\"to\":[\"https://mastodon.technology/users/testtest/followers\"],\"cc\":[],\"object\":{\"id\":\"https://mastodon.technology/users/testtest/statuses/104424839893177182\",\"type\":\"Note\",\"summary\":null,\"inReplyTo\":null,\"published\":\"2020-06-29T02:10:04Z\",\"url\":\"https://mastodon.technology/@testtest/104424839893177182\",\"attributedTo\":\"https://mastodon.technology/users/testtest\",\"to\":[\"https://mastodon.technology/users/testtest/followers\"],\"cc\":[],\"sensitive\":false,\"atomUri\":\"https://mastodon.technology/users/testtest/statuses/104424839893177182\",\"inReplyToAtomUri\":null,\"conversation\":\"tag:mastodon.technology,2020-06-29:objectId=34900058:objectType=Conversation\",\"content\":\"<p>test</p>\",\"contentMap\":{\"en\":\"<p>test</p>\"},\"attachment\":[],\"tag\":[],\"replies\":{\"id\":\"https://mastodon.technology/users/testtest/statuses/104424839893177182/replies\",\"type\":\"Collection\",\"first\":{\"type\":\"CollectionPage\",\"next\":\"https://mastodon.technology/users/testtest/statuses/104424839893177182/replies?only_other_accounts=true&page=true\",\"partOf\":\"https://mastodon.technology/users/testtest/statuses/104424839893177182/replies\",\"items\":[]}}}}";
+        [TestMethod]
+        public void ActorDeserializationTest()
+        {
+            var json = """
+					{
+						"@context": [
+							"https://www.w3.org/ns/activitystreams",
+							"https://w3id.org/security/v1",
+							{
+								"manuallyApprovesFollowers": "as:manuallyApprovesFollowers",
+								"toot": "http://joinmastodon.org/ns#",
+								"featured": {
+									"@id": "toot:featured",
+									"@type": "@id"
+								},
+								"featuredTags": {
+									"@id": "toot:featuredTags",
+									"@type": "@id"
+								},
+								"alsoKnownAs": {
+									"@id": "as:alsoKnownAs",
+									"@type": "@id"
+								},
+								"movedTo": {
+									"@id": "as:movedTo",
+									"@type": "@id"
+								},
+								"schema": "http://schema.org#",
+								"PropertyValue": "schema:PropertyValue",
+								"value": "schema:value",
+								"discoverable": "toot:discoverable",
+								"Device": "toot:Device",
+								"Ed25519Signature": "toot:Ed25519Signature",
+								"Ed25519Key": "toot:Ed25519Key",
+								"Curve25519Key": "toot:Curve25519Key",
+								"EncryptedMessage": "toot:EncryptedMessage",
+								"publicKeyBase64": "toot:publicKeyBase64",
+								"deviceId": "toot:deviceId",
+								"claim": {
+									"@type": "@id",
+									"@id": "toot:claim"
+								},
+								"fingerprintKey": {
+									"@type": "@id",
+									"@id": "toot:fingerprintKey"
+								},
+								"identityKey": {
+									"@type": "@id",
+									"@id": "toot:identityKey"
+								},
+								"devices": {
+									"@type": "@id",
+									"@id": "toot:devices"
+								},
+								"messageFranking": "toot:messageFranking",
+								"messageType": "toot:messageType",
+								"cipherText": "toot:cipherText",
+								"suspended": "toot:suspended"
+							}
+						],
+						"id": "https://mastodon.online/users/devvincent",
+						"type": "Person",
+						"following": "https://mastodon.online/users/devvincent/following",
+						"followers": "https://mastodon.online/users/devvincent/followers",
+						"inbox": "https://mastodon.online/users/devvincent/inbox",
+						"outbox": "https://mastodon.online/users/devvincent/outbox",
+						"featured": "https://mastodon.online/users/devvincent/collections/featured",
+						"featuredTags": "https://mastodon.online/users/devvincent/collections/tags",
+						"preferredUsername": "devvincent",
+						"name": "",
+						"summary": "",
+						"url": "https://mastodon.online/@devvincent",
+						"manuallyApprovesFollowers": false,
+						"discoverable": false,
+						"published": "2022-05-08T00:00:00Z",
+						"devices": "https://mastodon.online/users/devvincent/collections/devices",
+						"publicKey": {
+							"id": "https://mastodon.online/users/devvincent#main-key",
+							"owner": "https://mastodon.online/users/devvincent",
+							"publicKeyPem": "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA7U07uS4zu5jeZSBVZ072\naXcTeVQc0baM8BBUvJkpX+mV2vh+V4yfqN44KzFxlkk8XcAoidt8HBAvpQ/5yCwZ\neGS2ySCxC+sqvErIbaYadWVHGJhZjLYPVa0n8wvkqRQ0aUJ8K17/wY+/YYfukgeC\nTGHGoyzDDZZxrR1Z8LTvImSEkYooTvvzaaFaTUnFwCKepxftKLdJAfp4sP4l1Zom\nUZGwaYimuJmN1bfhet/2v0S7M7/XPlmVRpfUluE2vYE0RtJt3BVDZfoWEGJPk9us\nN/JHu6UBUh6UM6ASFy5MlDLh36OxyO9sVx1WgQlNDmu2qcGUIkIgqTKppDCIP3Xk\nVQIDAQAB\n-----END PUBLIC KEY-----\n"
+						},
+						"tag": [],
+						"attachment": [],
+						"endpoints": {
+							"sharedInbox": "https://mastodon.online/inbox"
+						}
+					}
+				""";
 
-        //    var data = ApDeserializer.ProcessActivity(json) as ActivityAcceptFollow;
-        //}
+            var actor = JsonSerializer.Deserialize<Actor>(json);
+        }
     }
 }

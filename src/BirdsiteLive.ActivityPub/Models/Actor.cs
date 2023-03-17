@@ -7,7 +7,7 @@ namespace BirdsiteLive.ActivityPub
     public class Actor
     {
         [JsonPropertyName("@context")]
-        public string[] context { get; set; } = new[] { "https://www.w3.org/ns/activitystreams", "https://w3id.org/security/v1" };
+        public object[] context { get; set; } = new string[] { "https://www.w3.org/ns/activitystreams", "https://w3id.org/security/v1" };
         public string id { get; set; }
         public string type { get; set; }
         public string followers { get; set; }
