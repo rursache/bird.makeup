@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using BirdsiteLive.DAL.Contracts;
@@ -29,7 +30,13 @@ namespace BirdsiteLive.Pipeline.Processors
                     user.Followers = followers;
                 });
                 todo.Add(t);
+
+                if (todo.Count(x => !x.IsCompleted) >= 25)
+                {
+                    await Task.WhenAny(todo);
+                }
             }
+            
             await Task.WhenAll(todo);
 
             return userWithTweetsToSyncs;
