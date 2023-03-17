@@ -56,7 +56,9 @@ namespace BirdsiteLive.Pipeline
             retrieveFollowersBlock.LinkTo(retrieveFollowersBufferBlock, new DataflowLinkOptions { PropagateCompletion = true });
             retrieveFollowersBufferBlock.LinkTo(sendTweetsToFollowersBlock, new DataflowLinkOptions { PropagateCompletion = true });
 
-            // Launch twitter user retriever
+            // Launch twitter user retriever after a little delay
+            // to give time for the Tweet cache to fill
+            await Task.Delay(30 * 1000, ct);
             var retrieveTwitterAccountsTask = _retrieveTwitterAccountsProcessor.GetTwitterUsersAsync(twitterUserToRefreshBufferBlock, ct);
 
             // Wait
