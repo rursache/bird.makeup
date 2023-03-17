@@ -22,7 +22,6 @@ namespace BirdsiteLive.Pipeline.Processors
     public class SendTweetsToFollowersProcessor : ISendTweetsToFollowersProcessor
     {
         private readonly ISendTweetsToInboxTask _sendTweetsToInboxTask;
-        private readonly ISaveProgressionTask _saveProgressionTask;
         private readonly ISendTweetsToSharedInboxTask _sendTweetsToSharedInbox;
         private readonly IFollowersDal _followersDal;
         private readonly InstanceSettings _instanceSettings;
@@ -31,14 +30,13 @@ namespace BirdsiteLive.Pipeline.Processors
         private List<Task> _todo = new List<Task>();
 
         #region Ctor
-        public SendTweetsToFollowersProcessor(ISendTweetsToInboxTask sendTweetsToInboxTask, ISendTweetsToSharedInboxTask sendTweetsToSharedInbox, ISaveProgressionTask saveProgressionTask, IFollowersDal followersDal, ILogger<SendTweetsToFollowersProcessor> logger, InstanceSettings instanceSettings, IRemoveFollowerAction removeFollowerAction)
+        public SendTweetsToFollowersProcessor(ISendTweetsToInboxTask sendTweetsToInboxTask, ISendTweetsToSharedInboxTask sendTweetsToSharedInbox, IFollowersDal followersDal, ILogger<SendTweetsToFollowersProcessor> logger, InstanceSettings instanceSettings, IRemoveFollowerAction removeFollowerAction)
         {
             _sendTweetsToInboxTask = sendTweetsToInboxTask;
             _sendTweetsToSharedInbox = sendTweetsToSharedInbox;
             _logger = logger;
             _instanceSettings = instanceSettings;
             _removeFollowerAction = removeFollowerAction;
-            _saveProgressionTask = saveProgressionTask;
             _followersDal = followersDal;
         }
         #endregion
@@ -62,8 +60,6 @@ namespace BirdsiteLive.Pipeline.Processors
                     .Where(x => string.IsNullOrWhiteSpace(x.SharedInboxRoute))
                     .ToList();
                 await ProcessFollowersWithInboxAsync(userWithTweetsToSync.Tweets, followerWtInbox, user);
-
-                await _saveProgressionTask.ProcessAsync(userWithTweetsToSync, ct);
             });
             _todo.Add(t);
 

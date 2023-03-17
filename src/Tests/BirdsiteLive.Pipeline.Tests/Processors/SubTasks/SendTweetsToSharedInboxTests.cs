@@ -105,13 +105,6 @@ namespace BirdsiteLive.Pipeline.Tests.Processors.SubTasks
 
             var followersDalMock = new Mock<IFollowersDal>(MockBehavior.Strict);
 
-            foreach (var follower in followers)
-            {
-                followersDalMock
-                    .Setup(x => x.UpdateFollowerAsync(
-                        It.Is<Follower>(y => y.Id == follower.Id && y.FollowingsSyncStatus[twitterUserId] == tweetId)))
-                    .Returns(Task.CompletedTask);
-            }
 
             var loggerMock = new Mock<ILogger<SendTweetsToSharedInboxTask>>();
             #endregion
@@ -212,14 +205,6 @@ namespace BirdsiteLive.Pipeline.Tests.Processors.SubTasks
 
             var followersDalMock = new Mock<IFollowersDal>(MockBehavior.Strict);
 
-            foreach (var follower in followers)
-            {
-                followersDalMock
-                    .Setup(x => x.UpdateFollowerAsync(
-                        It.Is<Follower>(y => y.Id == follower.Id && y.FollowingsSyncStatus[twitterUserId] == tweetId)))
-                    .Returns(Task.CompletedTask);
-            }
-
             var loggerMock = new Mock<ILogger<SendTweetsToSharedInboxTask>>();
             #endregion
 
@@ -318,13 +303,6 @@ namespace BirdsiteLive.Pipeline.Tests.Processors.SubTasks
 
             var followersDalMock = new Mock<IFollowersDal>(MockBehavior.Strict);
 
-            foreach (var follower in followers)
-            {
-                followersDalMock
-                    .Setup(x => x.UpdateFollowerAsync(
-                        It.Is<Follower>(y => y.Id == follower.Id && y.FollowingsSyncStatus[twitterUserId] == tweetId)))
-                    .Returns(Task.CompletedTask);
-            }
 
             var loggerMock = new Mock<ILogger<SendTweetsToSharedInboxTask>>();
             #endregion
@@ -398,7 +376,7 @@ namespace BirdsiteLive.Pipeline.Tests.Processors.SubTasks
 
             #region Mocks
             var activityPubService = new Mock<IActivityPubService>(MockBehavior.Strict);
-            foreach (var tweetId in new[] { tweetId2, tweetId3 })
+            foreach (var tweetId in new[] { tweetId1, tweetId2, tweetId3 })
             {
                 activityPubService
                     .Setup(x => x.PostNewActivity(
@@ -411,7 +389,7 @@ namespace BirdsiteLive.Pipeline.Tests.Processors.SubTasks
             }
 
             var statusServiceMock = new Mock<IStatusService>(MockBehavior.Strict);
-            foreach (var tweetId in new[] { tweetId2, tweetId3 })
+            foreach (var tweetId in new[] { tweetId1, tweetId2, tweetId3 })
             {
                 statusServiceMock
                     .Setup(x => x.GetActivity(
@@ -421,14 +399,6 @@ namespace BirdsiteLive.Pipeline.Tests.Processors.SubTasks
             }
 
             var followersDalMock = new Mock<IFollowersDal>(MockBehavior.Strict);
-
-            foreach (var follower in followers)
-            {
-                followersDalMock
-                    .Setup(x => x.UpdateFollowerAsync(
-                        It.Is<Follower>(y => y.Id == follower.Id && y.FollowingsSyncStatus[twitterUserId] == tweetId3)))
-                    .Returns(Task.CompletedTask);
-            }
 
             var loggerMock = new Mock<ILogger<SendTweetsToSharedInboxTask>>();
             #endregion
@@ -506,6 +476,15 @@ namespace BirdsiteLive.Pipeline.Tests.Processors.SubTasks
 
             activityPubService
                 .Setup(x => x.PostNewActivity(
+                    It.Is<ActivityCreateNote>(y => y.apObject.id == tweetId1.ToString()),
+                    It.Is<string>(y => y == twitterHandle),
+                    It.Is<string>(y => y == tweetId1.ToString()),
+                    It.Is<string>(y => y == host),
+                    It.Is<string>(y => y == inbox)))
+                .Returns(Task.CompletedTask);
+            
+            activityPubService
+                .Setup(x => x.PostNewActivity(
                     It.Is<ActivityCreateNote>(y => y.apObject.id == tweetId2.ToString()),
                     It.Is<string>(y => y == twitterHandle),
                     It.Is<string>(y => y == tweetId2.ToString()),
@@ -523,7 +502,7 @@ namespace BirdsiteLive.Pipeline.Tests.Processors.SubTasks
                 .Throws(new HttpRequestException());
 
             var statusServiceMock = new Mock<IStatusService>(MockBehavior.Strict);
-            foreach (var tweetId in new[] { tweetId2, tweetId3 })
+            foreach (var tweetId in new[] { tweetId1, tweetId2, tweetId3 })
             {
                 statusServiceMock
                     .Setup(x => x.GetActivity(
@@ -533,14 +512,6 @@ namespace BirdsiteLive.Pipeline.Tests.Processors.SubTasks
             }
 
             var followersDalMock = new Mock<IFollowersDal>(MockBehavior.Strict);
-
-            foreach (var follower in followers)
-            {
-                followersDalMock
-                    .Setup(x => x.UpdateFollowerAsync(
-                        It.Is<Follower>(y => y.Id == follower.Id && y.FollowingsSyncStatus[twitterUserId] == tweetId2)))
-                    .Returns(Task.CompletedTask);
-            }
 
             var loggerMock = new Mock<ILogger<SendTweetsToSharedInboxTask>>();
             #endregion
@@ -632,14 +603,6 @@ namespace BirdsiteLive.Pipeline.Tests.Processors.SubTasks
                 .Throws(new ArgumentException("Invalid pattern blabla at offset 9"));
 
             var followersDalMock = new Mock<IFollowersDal>(MockBehavior.Strict);
-
-            foreach (var follower in followers)
-            {
-                followersDalMock
-                    .Setup(x => x.UpdateFollowerAsync(
-                        It.Is<Follower>(y => y.Id == follower.Id && y.FollowingsSyncStatus[twitterUserId] == tweetId)))
-                    .Returns(Task.CompletedTask);
-            }
 
             var loggerMock = new Mock<ILogger<SendTweetsToSharedInboxTask>>();
             #endregion

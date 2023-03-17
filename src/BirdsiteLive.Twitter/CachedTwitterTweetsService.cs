@@ -17,13 +17,7 @@ namespace BirdsiteLive.Twitter
         private readonly ITwitterTweetsService _twitterService;
 
         private readonly MemoryCache _tweetCache;
-        private readonly MemoryCacheEntryOptions _cacheEntryOptions = new MemoryCacheEntryOptions()
-            //Priority on removing when reaching size limit (memory pressure)
-            .SetPriority(CacheItemPriority.Low)
-            // Keep in cache for this time, reset time if accessed.
-            .SetSlidingExpiration(TimeSpan.FromMinutes(60))
-            // Remove from cache after this time, regardless of sliding expiration
-            .SetAbsoluteExpiration(TimeSpan.FromDays(1));
+        private readonly MemoryCacheEntryOptions _cacheEntryOptions;
 
         #region Ctor
         public CachedTwitterTweetsService(ITwitterTweetsService twitterService, InstanceSettings settings)
@@ -32,8 +26,16 @@ namespace BirdsiteLive.Twitter
 
             _tweetCache = new MemoryCache(new MemoryCacheOptions()
             {
-                SizeLimit = settings.TweetCacheCapacity, 
+                SizeLimit = settings.TweetCacheCapacity,
             });
+            _cacheEntryOptions = new MemoryCacheEntryOptions()
+                .SetSize(1)
+                //Priority on removing when reaching size limit (memory pressure)
+                .SetPriority(CacheItemPriority.Low)
+                // Keep in cache for this time, reset time if accessed.
+                .SetSlidingExpiration(TimeSpan.FromMinutes(60))
+                // Remove from cache after this time, regardless of sliding expiration
+                .SetAbsoluteExpiration(TimeSpan.FromDays(1));
         }
         #endregion
 
