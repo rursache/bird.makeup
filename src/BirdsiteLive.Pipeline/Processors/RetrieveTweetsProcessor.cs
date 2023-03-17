@@ -51,9 +51,10 @@ namespace BirdsiteLive.Pipeline.Processors.SubTasks
                 index++;
 
                 var t = Task.Run(async () => {
+                    var user = userWtData.User;
+                    var now = DateTime.UtcNow;
                     try 
                     {
-                        var user = userWtData.User;
                         var tweets = await RetrieveNewTweets(user);
                         _logger.LogInformation(index + "/" + syncTwitterUsers.Count() + " Got " + tweets.Length + " tweets from user " + user.Acct + " " );
                         if (tweets.Length > 0 && user.LastTweetPostedId != -1)
@@ -61,15 +62,13 @@ namespace BirdsiteLive.Pipeline.Processors.SubTasks
                             userWtData.Tweets = tweets;
                             usersWtTweets.Add(userWtData);
                         }
-                        else if (tweets.Length > 0 && user.LastTweetPostedId == -1)
+                        else if (tweets.Length > 0)
                         {
                             var tweetId = tweets.Last().Id;
-                            var now = DateTime.UtcNow;
                             await _twitterUserDal.UpdateTwitterUserAsync(user.Id, tweetId, tweetId, user.FetchingErrorCount, now);
                         }
                         else
                         {
-                            var now = DateTime.UtcNow;
                             await _twitterUserDal.UpdateTwitterUserAsync(user.Id, user.LastTweetPostedId, user.LastTweetSynchronizedForAllFollowersId, user.FetchingErrorCount, now);
                         }
 
@@ -77,7 +76,7 @@ namespace BirdsiteLive.Pipeline.Processors.SubTasks
                     catch(Exception e)
                     {
                         _logger.LogError(e.Message);
-
+                        await _twitterUserDal.UpdateTwitterUserAsync(user.Id, user.LastTweetPostedId, user.LastTweetSynchronizedForAllFollowersId, user.FetchingErrorCount, now);
                     }
                 });
                 todo.Add(t);
