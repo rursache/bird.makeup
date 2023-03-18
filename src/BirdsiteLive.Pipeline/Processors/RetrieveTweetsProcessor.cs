@@ -61,9 +61,6 @@ namespace BirdsiteLive.Pipeline.Processors.SubTasks
                         {
                             userWtData.Tweets = tweets;
                             usersWtTweets.Add(userWtData);
-                        }
-                        else if (tweets.Length > 0)
-                        {
                             var tweetId = tweets.Last().Id;
                             await _twitterUserDal.UpdateTwitterUserAsync(user.Id, tweetId, tweetId, user.FetchingErrorCount, now);
                         }
