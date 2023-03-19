@@ -57,7 +57,13 @@ namespace BirdsiteLive.Pipeline.Processors.SubTasks
                     {
                         var tweets = await RetrieveNewTweets(user);
                         _logger.LogInformation(index + "/" + syncTwitterUsers.Count() + " Got " + tweets.Length + " tweets from user " + user.Acct + " " );
-                        if (tweets.Length > 0 && user.LastTweetPostedId != -1)
+                        if (tweets.Length > 0 && user.LastTweetPostedId == -1)
+                        {
+                            // skip the first time to avoid sending backlog of tweet
+                            var tweetId = tweets.Last().Id;
+                            await _twitterUserDal.UpdateTwitterUserAsync(user.Id, tweetId, tweetId, user.FetchingErrorCount, now);
+                        }
+                        else if (tweets.Length > 0 && user.LastTweetPostedId != -1)
                         {
                             userWtData.Tweets = tweets;
                             usersWtTweets.Add(userWtData);
