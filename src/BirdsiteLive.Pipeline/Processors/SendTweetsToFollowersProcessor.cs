@@ -67,6 +67,8 @@ namespace BirdsiteLive.Pipeline.Processors
             {
                 await Task.WhenAny(_todo);
             }
+            
+            _logger.LogInformation("Done sending " + userWithTweetsToSync.Followers.Length + "tweets for user " + userWithTweetsToSync.User.Acct);
 
         }
 
