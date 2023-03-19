@@ -99,7 +99,7 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
         {
             if (followedUserId == default) throw new ArgumentException("followedUserId");
 
-            var query = $"SELECT * FROM {_settings.FollowersTableName} WHERE $1=ANY(followings)";
+            var query = $"SELECT * FROM {_settings.FollowersTableName} WHERE followings @> ARRAY[$1]";
 
             await using var connection = DataSource.CreateConnection();
             await connection.OpenAsync();
