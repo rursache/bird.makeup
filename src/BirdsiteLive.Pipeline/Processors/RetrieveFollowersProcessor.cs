@@ -30,11 +30,6 @@ namespace BirdsiteLive.Pipeline.Processors
                     user.Followers = followers;
                 });
                 todo.Add(t);
-
-                if (todo.Count(x => !x.IsCompleted) >= 25)
-                {
-                    await Task.WhenAny(todo);
-                }
             }
             
             await Task.WhenAll(todo);
