@@ -88,7 +88,7 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
             #endregion
 
             var processor = new SendTweetsToFollowersProcessor(sendTweetsToInboxTaskMock.Object, sendTweetsToSharedInboxTaskMock.Object, followersDalMock.Object, loggerMock.Object, settings, removeFollowerMock.Object);
-            await processor.ProcessAsync(userWithTweets, CancellationToken.None);
+            await processor.ProcessAsync(new[] {userWithTweets}, CancellationToken.None);
 
             #region Validations
             sendTweetsToInboxTaskMock.VerifyAll();
@@ -170,7 +170,7 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
             #endregion
 
             var processor = new SendTweetsToFollowersProcessor(sendTweetsToInboxTaskMock.Object, sendTweetsToSharedInboxTaskMock.Object, followersDalMock.Object, loggerMock.Object, settings, removeFollowerMock.Object);
-            await processor.ProcessAsync(userWithTweets, CancellationToken.None);
+            await processor.ProcessAsync(new[] {userWithTweets}, CancellationToken.None);
 
             #region Validations
             sendTweetsToInboxTaskMock.VerifyAll();
@@ -261,7 +261,7 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
             #endregion
 
             var processor = new SendTweetsToFollowersProcessor(sendTweetsToInboxTaskMock.Object, sendTweetsToSharedInboxTaskMock.Object, followersDalMock.Object, loggerMock.Object, settings, removeFollowerMock.Object);
-            await processor.ProcessAsync(userWithTweets, CancellationToken.None);
+            await processor.ProcessAsync(new[] {userWithTweets}, CancellationToken.None);
 
             #region Validations
             sendTweetsToInboxTaskMock.VerifyAll();
@@ -353,7 +353,7 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
             #endregion
 
             var processor = new SendTweetsToFollowersProcessor(sendTweetsToInboxTaskMock.Object, sendTweetsToSharedInboxTaskMock.Object, followersDalMock.Object, loggerMock.Object, settings, removeFollowerMock.Object);
-            await processor.ProcessAsync(userWithTweets, CancellationToken.None);
+            await processor.ProcessAsync(new [] {userWithTweets}, CancellationToken.None);
 
             #region Validations
             sendTweetsToInboxTaskMock.VerifyAll();
@@ -450,7 +450,7 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
             #endregion
 
             var processor = new SendTweetsToFollowersProcessor(sendTweetsToInboxTaskMock.Object, sendTweetsToSharedInboxTaskMock.Object, followersDalMock.Object, loggerMock.Object, settings, removeFollowerMock.Object);
-            await processor.ProcessAsync(userWithTweets, CancellationToken.None);
+            await processor.ProcessAsync(new [] {userWithTweets}, CancellationToken.None);
 
             #region Validations
             sendTweetsToInboxTaskMock.VerifyAll();
@@ -530,7 +530,7 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
             #endregion
 
             var processor = new SendTweetsToFollowersProcessor(sendTweetsToInboxTaskMock.Object, sendTweetsToSharedInboxTaskMock.Object, followersDalMock.Object, loggerMock.Object, settings, removeFollowerMock.Object);
-            await processor.ProcessAsync(userWithTweets, CancellationToken.None);
+            await processor.ProcessAsync(new [] {userWithTweets}, CancellationToken.None);
 
             #region Validations
             sendTweetsToInboxTaskMock.VerifyAll();
@@ -611,7 +611,7 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
             #endregion
 
             var processor = new SendTweetsToFollowersProcessor(sendTweetsToInboxTaskMock.Object, sendTweetsToSharedInboxTaskMock.Object, followersDalMock.Object, loggerMock.Object, settings, removeFollowerMock.Object);
-            await processor.ProcessAsync(userWithTweets, CancellationToken.None);
+            await processor.ProcessAsync(new [] {userWithTweets}, CancellationToken.None);
 
             #region Validations
             sendTweetsToInboxTaskMock.VerifyAll();
@@ -700,7 +700,7 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
             #endregion
 
             var processor = new SendTweetsToFollowersProcessor(sendTweetsToInboxTaskMock.Object, sendTweetsToSharedInboxTaskMock.Object, followersDalMock.Object, loggerMock.Object, settings, removeFollowerMock.Object);
-            await processor.ProcessAsync(userWithTweets, CancellationToken.None);
+            await processor.ProcessAsync(new [] {userWithTweets}, CancellationToken.None);
 
             #region Validations
             sendTweetsToInboxTaskMock.VerifyAll();
@@ -790,7 +790,7 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
             #endregion
 
             var processor = new SendTweetsToFollowersProcessor(sendTweetsToInboxTaskMock.Object, sendTweetsToSharedInboxTaskMock.Object, followersDalMock.Object, loggerMock.Object, settings, removeFollowerMock.Object);
-            await processor.ProcessAsync(userWithTweets, CancellationToken.None);
+            await processor.ProcessAsync(new [] {userWithTweets}, CancellationToken.None);
 
             #region Validations
             sendTweetsToInboxTaskMock.VerifyAll();
@@ -880,7 +880,7 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
             #endregion
 
             var processor = new SendTweetsToFollowersProcessor(sendTweetsToInboxTaskMock.Object, sendTweetsToSharedInboxTaskMock.Object, followersDalMock.Object, loggerMock.Object, settings, removeFollowerMock.Object);
-            await processor.ProcessAsync(userWithTweets, CancellationToken.None);
+            await processor.ProcessAsync(new [] {userWithTweets}, CancellationToken.None);
 
             #region Validations
             sendTweetsToInboxTaskMock.VerifyAll();
@@ -970,7 +970,7 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
             #endregion
 
             var processor = new SendTweetsToFollowersProcessor(sendTweetsToInboxTaskMock.Object, sendTweetsToSharedInboxTaskMock.Object, followersDalMock.Object, loggerMock.Object, settings, removeFollowerMock.Object);
-            await processor.ProcessAsync(userWithTweets, CancellationToken.None);
+            await processor.ProcessAsync(new [] {userWithTweets}, CancellationToken.None);
 
             #region Validations
             sendTweetsToInboxTaskMock.VerifyAll();
@@ -1065,7 +1065,7 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
             #endregion
 
             var processor = new SendTweetsToFollowersProcessor(sendTweetsToInboxTaskMock.Object, sendTweetsToSharedInboxTaskMock.Object, followersDalMock.Object, loggerMock.Object, settings, removeFollowerMock.Object);
-            await processor.ProcessAsync(userWithTweets, CancellationToken.None);
+            await processor.ProcessAsync(new [] { userWithTweets }, CancellationToken.None);
 
             #region Validations
             sendTweetsToInboxTaskMock.VerifyAll();

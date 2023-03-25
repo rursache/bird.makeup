@@ -41,34 +41,39 @@ namespace BirdsiteLive.Pipeline.Processors
         }
         #endregion
 
-        public async Task ProcessAsync(UserWithDataToSync userWithTweetsToSync, CancellationToken ct)
+        public async Task ProcessAsync(UserWithDataToSync[] usersWithTweetsToSync, CancellationToken ct)
         {
-            var user = userWithTweetsToSync.User;
-
-            _todo = _todo.Where(x => !x.IsCompleted).ToList();
-            
-            var t = Task.Run( async () => 
+            foreach (var userWithTweetsToSync in usersWithTweetsToSync)
             {
-                // Process Shared Inbox
-                var followersWtSharedInbox = userWithTweetsToSync.Followers
-                    .Where(x => !string.IsNullOrWhiteSpace(x.SharedInboxRoute))
-                    .ToList();
-                await ProcessFollowersWithSharedInboxAsync(userWithTweetsToSync.Tweets, followersWtSharedInbox, user);
+                var user = userWithTweetsToSync.User;
 
-                // Process Inbox
-                var followerWtInbox = userWithTweetsToSync.Followers
-                    .Where(x => string.IsNullOrWhiteSpace(x.SharedInboxRoute))
-                    .ToList();
-                await ProcessFollowersWithInboxAsync(userWithTweetsToSync.Tweets, followerWtInbox, user);
-            }, ct);
-            _todo.Add(t);
+                _todo = _todo.Where(x => !x.IsCompleted).ToList();
+                
+                var t = Task.Run( async () => 
+                {
+                    // Process Shared Inbox
+                    var followersWtSharedInbox = userWithTweetsToSync.Followers
+                        .Where(x => !string.IsNullOrWhiteSpace(x.SharedInboxRoute))
+                        .ToList();
+                    await ProcessFollowersWithSharedInboxAsync(userWithTweetsToSync.Tweets, followersWtSharedInbox, user);
 
-            if (_todo.Count >= _instanceSettings.ParallelFediversePosts)
-            {
-                await Task.WhenAny(_todo);
+                    // Process Inbox
+                    var followerWtInbox = userWithTweetsToSync.Followers
+                        .Where(x => string.IsNullOrWhiteSpace(x.SharedInboxRoute))
+                        .ToList();
+                    await ProcessFollowersWithInboxAsync(userWithTweetsToSync.Tweets, followerWtInbox, user);
+                    
+                    _logger.LogInformation("Done sending " + userWithTweetsToSync.Tweets.Length + "tweets for user " + userWithTweetsToSync.User.Acct);
+                }, ct);
+                _todo.Add(t);
+
+                if (_todo.Count >= _instanceSettings.ParallelFediversePosts)
+                {
+                    await Task.WhenAny(_todo);
+                }
+                
+                
             }
-            
-            _logger.LogInformation("Done sending " + userWithTweetsToSync.Followers.Length + "tweets for user " + userWithTweetsToSync.User.Acct);
 
         }
 
