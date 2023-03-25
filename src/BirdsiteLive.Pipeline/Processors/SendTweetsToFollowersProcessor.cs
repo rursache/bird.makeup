@@ -49,10 +49,6 @@ namespace BirdsiteLive.Pipeline.Processors
             
             var t = Task.Run( async () => 
             {
-                if (userWithTweetsToSync.Followers is null || userWithTweetsToSync.Followers.Length == 0)
-                {
-                    userWithTweetsToSync.Followers = await _followersDal.GetFollowersAsync(user.Id);
-                }
                 // Process Shared Inbox
                 var followersWtSharedInbox = userWithTweetsToSync.Followers
                     .Where(x => !string.IsNullOrWhiteSpace(x.SharedInboxRoute))
