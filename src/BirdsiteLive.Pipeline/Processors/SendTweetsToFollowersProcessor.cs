@@ -49,6 +49,10 @@ namespace BirdsiteLive.Pipeline.Processors
             
             var t = Task.Run( async () => 
             {
+                if (userWithTweetsToSync.Followers is null || userWithTweetsToSync.Followers.Length == 0)
+                {
+                    userWithTweetsToSync.Followers = await _followersDal.GetFollowersAsync(user.Id);
+                }
                 // Process Shared Inbox
                 var followersWtSharedInbox = userWithTweetsToSync.Followers
                     .Where(x => !string.IsNullOrWhiteSpace(x.SharedInboxRoute))
@@ -60,7 +64,7 @@ namespace BirdsiteLive.Pipeline.Processors
                     .Where(x => string.IsNullOrWhiteSpace(x.SharedInboxRoute))
                     .ToList();
                 await ProcessFollowersWithInboxAsync(userWithTweetsToSync.Tweets, followerWtInbox, user);
-            });
+            }, ct);
             _todo.Add(t);
 
             if (_todo.Count >= _instanceSettings.ParallelFediversePosts)

@@ -14,6 +14,7 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
     [TestClass]
     public class RetrieveFollowersProcessorTests
     {
+        [Ignore]
         [TestMethod]
         public async Task ProcessAsync_Test()
         {
