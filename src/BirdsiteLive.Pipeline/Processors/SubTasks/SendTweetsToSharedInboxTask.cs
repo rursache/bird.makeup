@@ -43,7 +43,6 @@ namespace BirdsiteLive.Pipeline.Processors.SubTasks
             var tweetsToSend = tweets
                 .OrderBy(x => x.Id)
                 .ToList();
-            _logger.LogInformation("After filtering, there were " + tweetsToSend.Count() + " tweets left to send");
 
             foreach (var tweet in tweetsToSend)
             {

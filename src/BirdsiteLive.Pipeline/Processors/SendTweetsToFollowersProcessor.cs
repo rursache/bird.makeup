@@ -63,7 +63,8 @@ namespace BirdsiteLive.Pipeline.Processors
                         .ToList();
                     await ProcessFollowersWithInboxAsync(userWithTweetsToSync.Tweets, followerWtInbox, user);
                     
-                    _logger.LogInformation("Done sending " + userWithTweetsToSync.Tweets.Length + "tweets for user " + userWithTweetsToSync.User.Acct);
+                    _logger.LogInformation("Done sending " + userWithTweetsToSync.Tweets.Length + " tweets for "
+                        + userWithTweetsToSync.Followers.Length + "followers for user " + userWithTweetsToSync.User.Acct);
                 }, ct);
                 _todo.Add(t);
 
