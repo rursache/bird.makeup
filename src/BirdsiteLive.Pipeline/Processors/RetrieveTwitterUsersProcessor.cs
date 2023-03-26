@@ -15,15 +15,17 @@ namespace BirdsiteLive.Pipeline.Processors
     public class RetrieveTwitterUsersProcessor : IRetrieveTwitterUsersProcessor
     {
         private readonly ITwitterUserDal _twitterUserDal;
+        private readonly IFollowersDal _followersDal;
         private readonly ILogger<RetrieveTwitterUsersProcessor> _logger;
         private static Random rng = new Random();
         
         public int WaitFactor = 1000 * 60; //1 min
 
         #region Ctor
-        public RetrieveTwitterUsersProcessor(ITwitterUserDal twitterUserDal, ILogger<RetrieveTwitterUsersProcessor> logger)
+        public RetrieveTwitterUsersProcessor(ITwitterUserDal twitterUserDal, IFollowersDal followersDal, ILogger<RetrieveTwitterUsersProcessor> logger)
         {
             _twitterUserDal = twitterUserDal;
+            _followersDal = followersDal;
             _logger = logger;
         }
         #endregion
@@ -38,13 +40,17 @@ namespace BirdsiteLive.Pipeline.Processors
                 {
                     var users = await _twitterUserDal.GetAllTwitterUsersWithFollowersAsync(2000);
 
-                    var userCount = users.Any() ? Math.Min(users.Length, 100) : 1;
+                    var userCount = users.Any() ? Math.Min(users.Length, 200) : 1;
                     var splitUsers = users.OrderBy(a => rng.Next()).ToArray().Split(userCount).ToList();
 
                     foreach (var u in splitUsers)
                     {
                         ct.ThrowIfCancellationRequested();
-                        UserWithDataToSync[] toSync = u.Select(x => new UserWithDataToSync { User = x }).ToArray();
+                        UserWithDataToSync[] toSync = await Task.WhenAll(
+                            u.Select(async x => new UserWithDataToSync
+                                { User = x, Followers = await _followersDal.GetFollowersAsync(x.Id) } 
+                            )
+                        );
 
                         await twitterUsersBufferBlock.SendAsync(toSync, ct);
                     }

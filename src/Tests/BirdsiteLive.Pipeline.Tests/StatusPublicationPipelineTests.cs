@@ -16,7 +16,7 @@ namespace BirdsiteLive.Pipeline.Tests
         public async Task ExecuteAsync_Test()
         {
             #region Stubs
-            var ct = new CancellationTokenSource(10);
+            var ct = new CancellationTokenSource(100 * 1000);
             #endregion
 
             #region Mocks

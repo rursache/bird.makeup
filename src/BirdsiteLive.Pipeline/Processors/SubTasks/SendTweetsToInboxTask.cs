@@ -31,7 +31,6 @@ namespace BirdsiteLive.Pipeline.Processors.SubTasks
         {
             _activityPubService = activityPubService;
             _statusService = statusService;
-            _followersDal = followersDal;
             _settings = settings;
             _logger = logger;
         }
@@ -40,46 +39,32 @@ namespace BirdsiteLive.Pipeline.Processors.SubTasks
         public async Task ExecuteAsync(IEnumerable<ExtractedTweet> tweets, Follower follower, SyncTwitterUser user)
         {
             var userId = user.Id;
-            var fromStatusId = follower.FollowingsSyncStatus[userId];
+            //var fromStatusId = follower.FollowingsSyncStatus[userId];
             var tweetsToSend = tweets
-                .Where(x => x.Id > fromStatusId)
                 .OrderBy(x => x.Id)
                 .ToList();
 
             var inbox = follower.InboxRoute;
 
-            var syncStatus = fromStatusId;
-            try
+            foreach (var tweet in tweetsToSend)
             {
-                foreach (var tweet in tweetsToSend)
+                try
                 {
-                    try
+                    var activity = _statusService.GetActivity(user.Acct, tweet);
+                    await _activityPubService.PostNewActivity(activity, user.Acct, tweet.Id.ToString(), follower.Host, inbox);
+                }
+                catch (ArgumentException e)
+                {
+                    if (e.Message.Contains("Invalid pattern") && e.Message.Contains("at offset")) //Regex exception
                     {
-                        var activity = _statusService.GetActivity(user.Acct, tweet);
-                        await _activityPubService.PostNewActivity(activity, user.Acct, tweet.Id.ToString(), follower.Host, inbox);
+                        _logger.LogError(e, "Can't parse {MessageContent} from Tweet {Id}", tweet.MessageContent, tweet.Id);
                     }
-                    catch (ArgumentException e)
+                    else
                     {
-                        if (e.Message.Contains("Invalid pattern") && e.Message.Contains("at offset")) //Regex exception
-                        {
-                            _logger.LogError(e, "Can't parse {MessageContent} from Tweet {Id}", tweet.MessageContent, tweet.Id);
-                        }
-                        else
-                        {
-                            throw;
-                        }
+                        throw;
                     }
+                }
 
-                    syncStatus = tweet.Id;
-                }
-            }
-            finally
-            {
-                if (syncStatus != fromStatusId)
-                {
-                    follower.FollowingsSyncStatus[userId] = syncStatus;
-                    await _followersDal.UpdateFollowerAsync(follower);
-                }
             }
         }
     }

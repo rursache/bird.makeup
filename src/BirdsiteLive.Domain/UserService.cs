@@ -186,6 +186,7 @@ namespace BirdsiteLive.Domain
             var result = await _activityPubService.PostDataAsync(acceptFollow, followerHost, activity.apObject);
             return result == HttpStatusCode.Accepted ||
                    result == HttpStatusCode.OK; //TODO: revamp this for better error handling
+
         }
 
         public async Task<bool> SendRejectFollowAsync(ActivityFollow activity, string followerHost)
