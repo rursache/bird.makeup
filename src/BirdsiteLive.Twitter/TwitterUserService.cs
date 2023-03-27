@@ -40,7 +40,7 @@ namespace BirdsiteLive.Twitter
 
             JsonDocument res;
             var client = await _twitterAuthenticationInitializer.MakeHttpClient();
-            using var request = _twitterAuthenticationInitializer.MakeHttpRequest(new HttpMethod("GET"), endpoint.Replace("elonmusk", username));
+            using var request = _twitterAuthenticationInitializer.MakeHttpRequest(new HttpMethod("GET"), endpoint.Replace("elonmusk", username), true);
             try
             {
 
