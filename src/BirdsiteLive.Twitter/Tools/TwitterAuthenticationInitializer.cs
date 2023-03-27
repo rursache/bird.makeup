@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using System.Net.Http;
 using System.Net;
 using System.Text.Json;
+using System.Threading.RateLimiting;
 
 namespace BirdsiteLive.Twitter.Tools
 {
@@ -27,6 +28,8 @@ namespace BirdsiteLive.Twitter.Tools
         private List<HttpClient> _twitterClients = new List<HttpClient>();
         private List<String> _tokens = new List<string>();
         static Random rnd = new Random();
+        private RateLimiter _rateLimiter;
+        static SemaphoreSlim semaphoreSlim = new SemaphoreSlim(1, 1);
         private const int _targetClients = 3;
         public String BearerToken { 
             get { return "AAAAAAAAAAAAAAAAAAAAAPYXBAAAAAAACLXUNDekMxqa8h%2F40K4moUkGsoc%3DTYfbDKbT3jJPCEVnMYqilB28NHfOPqkca3qaAxGfsyKCs0wRbw"; }
@@ -41,7 +44,7 @@ namespace BirdsiteLive.Twitter.Tools
             aTimer = new System.Timers.Timer();
             aTimer.Interval = 20 * 1000; 
             aTimer.Elapsed += async (sender, e) => await RefreshCred();
-            
+
             aTimer.Start();
         }
         #endregion
@@ -69,22 +72,32 @@ namespace BirdsiteLive.Twitter.Tools
 
         private async Task RefreshCred()
         {
-            (string bearer, string guest) = await GetCred();
-
-            HttpClient client = _httpClientFactory.CreateClient();
-            //HttpClient client = new HttpClient();
-            client.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", $"Bearer " + bearer); 
-            client.DefaultRequestHeaders.TryAddWithoutValidation("x-guest-token", guest);
-            client.DefaultRequestHeaders.TryAddWithoutValidation("Referer", "https://twitter.com/");
-            client.DefaultRequestHeaders.TryAddWithoutValidation("x-twitter-active-user", "yes");
-
-            _twitterClients.Add(client);
-            _tokens.Add(guest);
-
-            if (_twitterClients.Count > _targetClients)
+            
+            await semaphoreSlim.WaitAsync();
+            try
             {
-                _twitterClients.RemoveAt(0);
-                _tokens.RemoveAt(0);
+                (string bearer, string guest) = await GetCred();
+
+                HttpClient client = _httpClientFactory.CreateClient();
+                //HttpClient client = new HttpClient();
+                client.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", $"Bearer " + bearer);
+                client.DefaultRequestHeaders.TryAddWithoutValidation("x-guest-token", guest);
+                client.DefaultRequestHeaders.TryAddWithoutValidation("Referer", "https://twitter.com/");
+                client.DefaultRequestHeaders.TryAddWithoutValidation("x-twitter-active-user", "yes");
+
+                _twitterClients.Add(client);
+                _tokens.Add(guest);
+
+                if (_twitterClients.Count > _targetClients)
+                {
+                    _twitterClients.RemoveAt(0);
+                    _tokens.RemoveAt(0);
+                }
+
+            }
+            finally
+            {
+                semaphoreSlim.Release();
             }
         }
 
