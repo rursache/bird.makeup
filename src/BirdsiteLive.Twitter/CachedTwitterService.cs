@@ -11,6 +11,7 @@ namespace BirdsiteLive.Twitter
     {
         void PurgeUser(string username);
         void AddUser(TwitterUser user);
+        bool UserIsCached(string username);
     }
 
     public class CachedTwitterUserService : ICachedTwitterUserService
@@ -39,6 +40,10 @@ namespace BirdsiteLive.Twitter
         }
         #endregion
 
+        public bool UserIsCached(string username)
+        {
+            return _userCache.TryGetValue(username, out _);
+        }
         public async Task<TwitterUser> GetUserAsync(string username)
         {
             if (!_userCache.TryGetValue(username, out Task<TwitterUser> user))

@@ -23,7 +23,6 @@ namespace BirdsiteLive.Twitter.Tools
     {
         private readonly ILogger<TwitterAuthenticationInitializer> _logger;
         private static bool _initialized;
-        private static System.Timers.Timer aTimer;
         private readonly IHttpClientFactory _httpClientFactory;
         private List<HttpClient> _twitterClients = new List<HttpClient>();
         private List<String> _tokens = new List<string>();
@@ -40,12 +39,6 @@ namespace BirdsiteLive.Twitter.Tools
         {
             _logger = logger;
             _httpClientFactory = httpClientFactory;
-
-            aTimer = new System.Timers.Timer();
-            aTimer.Interval = 20 * 1000; 
-            aTimer.Elapsed += async (sender, e) => await RefreshCred();
-
-            aTimer.Start();
         }
         #endregion
 

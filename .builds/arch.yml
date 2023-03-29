@@ -13,8 +13,12 @@ tasks:
       sudo docker run -d -p 5432:5432 -e POSTGRES_PASSWORD=birdsitelive -e POSTGRES_USER=birdsitelive -e POSTGRES_DB=birdsitelive postgres:15
       cd bird.makeup/src
       dotnet test
-
-  - publish: |
+  - publish-arm: |
+      cd bird.makeup/src/BirdsiteLive
+      dotnet publish --os linux --arch arm64 /t:PublishContainer -c Release
+      docker tag cloutier/bird.makeup:1.0 cloutier/bird.makeup:latest-arm
+      docker push cloutier/bird.makeup:latest-arm
+  - publish-x64: |
       cd bird.makeup/src/BirdsiteLive
       dotnet publish --os linux --arch x64 /t:PublishContainer -c Release
       docker tag cloutier/bird.makeup:1.0 cloutier/bird.makeup:latest

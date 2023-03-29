@@ -14,7 +14,7 @@
         public int FailingTwitterUserCleanUpThreshold { get; set; }
         public int FailingFollowerCleanUpThreshold { get; set; } = -1;
 
-        public int UserCacheCapacity { get; set; } = 20_000;
+        public int UserCacheCapacity { get; set; } = 40_000;
         public int TweetCacheCapacity { get; set; } = 20_000;
         public int ParallelTwitterRequests { get; set; } = 10;
         public int ParallelFediversePosts { get; set; } = 10;

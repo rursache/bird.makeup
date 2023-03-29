@@ -25,7 +25,7 @@ namespace BirdsiteLive.Controllers
 {
     public class UsersController : Controller
     {
-        private readonly ITwitterUserService _twitterUserService;
+        private readonly ICachedTwitterUserService _twitterUserService;
         private readonly ICachedTwitterTweetsService _twitterTweetService;
         private readonly IUserService _userService;
         private readonly IStatusService _statusService;
@@ -33,7 +33,7 @@ namespace BirdsiteLive.Controllers
         private readonly ILogger<UsersController> _logger;
 
         #region Ctor
-        public UsersController(ITwitterUserService twitterUserService, IUserService userService, IStatusService statusService, InstanceSettings instanceSettings, ICachedTwitterTweetsService twitterTweetService, ILogger<UsersController> logger)
+        public UsersController(ICachedTwitterUserService twitterUserService, IUserService userService, IStatusService statusService, InstanceSettings instanceSettings, ICachedTwitterTweetsService twitterTweetService, ILogger<UsersController> logger)
         {
             _twitterUserService = twitterUserService;
             _userService = userService;
@@ -75,6 +75,14 @@ namespace BirdsiteLive.Controllers
             {
                 try
                 {
+                    if (!_twitterUserService.UserIsCached(id))
+                    {
+                        try
+                        {
+                            await _twitterTweetService.GetTimelineAsync(id);
+                        }
+                        catch (Exception e) { }
+                    }
                     user = await _twitterUserService.GetUserAsync(id);
                 }
                 catch (UserNotFoundException)
