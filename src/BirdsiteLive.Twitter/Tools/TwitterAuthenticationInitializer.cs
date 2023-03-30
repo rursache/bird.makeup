@@ -7,6 +7,8 @@ using BirdsiteLive.Common.Settings;
 using Microsoft.Extensions.Logging;
 using System.Net.Http;
 using System.Net;
+using System.Net.Http.Headers;
+using System.Text;
 using System.Text.Json;
 using System.Threading.RateLimiting;
 
@@ -30,17 +32,50 @@ namespace BirdsiteLive.Twitter.Tools
         private RateLimiter _rateLimiter;
         static SemaphoreSlim semaphoreSlim = new SemaphoreSlim(1, 1);
         private const int _targetClients = 3;
+        private InstanceSettings _instanceSettings;
+        private readonly (string, string)[] _apiKeys = new[]
+        {
+            ("IQKbtAYlXLripLGPWd0HUA", "GgDYlkSvaPxGxC4X8liwpUoqKwwr3lCADbz8A7ADU"), // iPhone
+            ("3nVuSoBZnx6U4vzUxf5w", "Bcs59EFbbsdF6Sl9Ng71smgStWEGwXXKSjYvPVt7qys"), // Android
+            ("CjulERsDeqhhjSme66ECg", "IQWdVyqFxghAtURHGeGiWAsmCAGmdW3WmbEx6Hck"), // iPad
+            ("3rJOl1ODzm9yZy63FACdg", "5jPoQ5kQvMJFDYRNE8bQ4rHuds4xJqhvgNJM4awaE8"), // Mac
+        };
         public String BearerToken { 
-            get { return "AAAAAAAAAAAAAAAAAAAAAPYXBAAAAAAACLXUNDekMxqa8h%2F40K4moUkGsoc%3DTYfbDKbT3jJPCEVnMYqilB28NHfOPqkca3qaAxGfsyKCs0wRbw"; }
+            //get { return "AAAAAAAAAAAAAAAAAAAAAPYXBAAAAAAACLXUNDekMxqa8h%2F40K4moUkGsoc%3DTYfbDKbT3jJPCEVnMYqilB28NHfOPqkca3qaAxGfsyKCs0wRbw"; }
+            get
+            {
+                return _instanceSettings.TwitterBearerToken;
+            }
         }
 
         #region Ctor
-        public TwitterAuthenticationInitializer(IHttpClientFactory httpClientFactory, ILogger<TwitterAuthenticationInitializer> logger)
+        public TwitterAuthenticationInitializer(IHttpClientFactory httpClientFactory, InstanceSettings settings, ILogger<TwitterAuthenticationInitializer> logger)
         {
             _logger = logger;
+            _instanceSettings = settings;
             _httpClientFactory = httpClientFactory;
         }
         #endregion
+
+        private async Task GenerateBearerToken()
+        {
+            var httpClient = _httpClientFactory.CreateClient();
+            using (var request = new HttpRequestMessage(new HttpMethod("POST"), "https://api.twitter.com/oauth2/token?grant_type=client_credentials"))
+            {
+                int r = rnd.Next(_apiKeys.Length);
+                var (login, password) = _apiKeys[r];
+                var authValue = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(Encoding.UTF8.GetBytes($"{login}:{password}")));
+                request.Headers.TryAddWithoutValidation("Basic", $"Bearer " + authValue); 
+
+                var httpResponse = await httpClient.SendAsync(request);
+
+                var c = await httpResponse.Content.ReadAsStringAsync();
+                httpResponse.EnsureSuccessStatusCode();
+                var doc = JsonDocument.Parse(c);
+                var token = doc.RootElement.GetProperty("access_token").GetString();
+            }
+            
+        }
 
 
         public async Task RefreshClient(HttpRequestMessage req)
@@ -49,7 +84,7 @@ namespace BirdsiteLive.Twitter.Tools
 
             var i = _tokens.IndexOf(token);
 
-            // this is prabably not thread save but yolo
+            // this is prabably not thread safe but yolo
             try
             {
                 _twitterClients.RemoveAt(i);
@@ -143,6 +178,8 @@ namespace BirdsiteLive.Twitter.Tools
             var request = new HttpRequestMessage(m, endpoint);
             int r = rnd.Next(_twitterClients.Count);
             request.Headers.TryAddWithoutValidation("Authorization", $"Bearer " + BearerToken); 
+            request.Headers.TryAddWithoutValidation("Referer", "https://twitter.com/");
+            request.Headers.TryAddWithoutValidation("x-twitter-active-user", "yes");
             if (addToken)
                 request.Headers.TryAddWithoutValidation("x-guest-token", _tokens[r]);
             //request.Headers.TryAddWithoutValidation("Referer", "https://twitter.com/");
