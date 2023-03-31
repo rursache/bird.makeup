@@ -75,14 +75,6 @@ namespace BirdsiteLive.Controllers
             {
                 try
                 {
-                    if (!_twitterUserService.UserIsCached(id))
-                    {
-                        try
-                        {
-                            await _twitterTweetService.GetTimelineAsync(id);
-                        }
-                        catch (Exception e) { }
-                    }
                     user = await _twitterUserService.GetUserAsync(id);
                 }
                 catch (UserNotFoundException)
