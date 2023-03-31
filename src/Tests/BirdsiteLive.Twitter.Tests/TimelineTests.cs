@@ -41,11 +41,7 @@ namespace BirdsiteLive.ActivityPub.Tests
             ITwitterUserService user = new TwitterUserService(auth, stats.Object, logger2.Object);
             ICachedTwitterUserService user2 = new CachedTwitterUserService(user, settings);
             _tweetService = new TwitterTweetsService(auth, stats.Object, user2, twitterDal.Object, settings, logger3.Object);
-            
-            await Task.Delay(1000);
-            await auth.MakeHttpClient();
-            await Task.Delay(1000);
-            await auth.MakeHttpClient();
+
         }
 
         [TestMethod]

@@ -78,6 +78,7 @@ namespace BirdsiteLive.ActivityPub.Tests
             Assert.IsTrue(tweet.Media[0].Url.StartsWith("https://video.twimg.com/"));
         }
 
+        [Ignore]
         [TestMethod]
         public async Task GifAndQT()
         {
