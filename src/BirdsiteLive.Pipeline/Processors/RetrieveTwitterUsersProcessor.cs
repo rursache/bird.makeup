@@ -16,16 +16,18 @@ namespace BirdsiteLive.Pipeline.Processors
     {
         private readonly ITwitterUserDal _twitterUserDal;
         private readonly IFollowersDal _followersDal;
+        private readonly InstanceSettings _instanceSettings;
         private readonly ILogger<RetrieveTwitterUsersProcessor> _logger;
         private static Random rng = new Random();
         
         public int WaitFactor = 1000 * 60; //1 min
 
         #region Ctor
-        public RetrieveTwitterUsersProcessor(ITwitterUserDal twitterUserDal, IFollowersDal followersDal, ILogger<RetrieveTwitterUsersProcessor> logger)
+        public RetrieveTwitterUsersProcessor(ITwitterUserDal twitterUserDal, IFollowersDal followersDal, InstanceSettings instanceSettings, ILogger<RetrieveTwitterUsersProcessor> logger)
         {
             _twitterUserDal = twitterUserDal;
             _followersDal = followersDal;
+            _instanceSettings = instanceSettings;
             _logger = logger;
         }
         #endregion
@@ -38,7 +40,7 @@ namespace BirdsiteLive.Pipeline.Processors
 
                 try
                 {
-                    var users = await _twitterUserDal.GetAllTwitterUsersWithFollowersAsync(2000);
+                    var users = await _twitterUserDal.GetAllTwitterUsersWithFollowersAsync(2000, _instanceSettings.n_start, _instanceSettings.n_end, _instanceSettings.m);
 
                     var userCount = users.Any() ? Math.Min(users.Length, 200) : 1;
                     var splitUsers = users.OrderBy(a => rng.Next()).ToArray().Split(userCount).ToList();

@@ -118,14 +118,20 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
             }
         }
 
-        public async Task<SyncTwitterUser[]> GetAllTwitterUsersWithFollowersAsync(int maxNumber)
+        public async Task<SyncTwitterUser[]> GetAllTwitterUsersWithFollowersAsync(int maxNumber, int nStart, int nEnd, int m)
         {
-            var query = "SELECT * FROM (SELECT unnest(followings) as follow FROM followers GROUP BY follow) AS f INNER JOIN twitter_users ON f.follow=twitter_users.id  ORDER BY lastSync ASC NULLS FIRST LIMIT $1";
+            var query = "SELECT * FROM (SELECT unnest(followings) as follow FROM followers GROUP BY follow) AS f INNER JOIN twitter_users ON f.follow=twitter_users.id WHERE mod(id, $2) >= $3 AND mod(id, $2) <= $4 ORDER BY lastSync ASC NULLS FIRST LIMIT $1";
 
             await using var connection = DataSource.CreateConnection();
             await connection.OpenAsync();
             await using var command = new NpgsqlCommand(query, connection) {
-                Parameters = { new() { Value = maxNumber}}
+                Parameters =
+                {
+                    new() { Value = maxNumber},
+                    new() { Value = m},
+                    new() { Value = nStart},
+                    new() { Value = nEnd}
+                }
             };
             var reader = await command.ExecuteReaderAsync();
             var results = new List<SyncTwitterUser>();
