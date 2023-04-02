@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -44,21 +45,27 @@ namespace BirdsiteLive.Pipeline.Processors
                         await Task.Delay(10000);
                 }
                 
-                var users = await _twitterUserDal.GetAllTwitterUsersWithFollowersAsync(2000, _instanceSettings.n_start, _instanceSettings.n_end, _instanceSettings.m);
+                var usersDal = await _twitterUserDal.GetAllTwitterUsersWithFollowersAsync(2000, _instanceSettings.n_start, _instanceSettings.n_end, _instanceSettings.m);
 
-                var userCount = users.Any() ? Math.Min(users.Length, 200) : 1;
-                var splitUsers = users.OrderBy(a => rng.Next()).ToArray().Split(userCount).ToList();
+                var userCount = usersDal.Any() ? Math.Min(usersDal.Length, 200) : 1;
+                var splitUsers = usersDal.OrderBy(a => rng.Next()).ToArray().Split(userCount).ToList();
 
-                foreach (var u in splitUsers)
+                foreach (var users in splitUsers)
                 {
                     ct.ThrowIfCancellationRequested();
-                    UserWithDataToSync[] toSync = await Task.WhenAll(
-                        u.Select(async x => new UserWithDataToSync
-                            { User = x, Followers = await _followersDal.GetFollowersAsync(x.Id) } 
-                        )
-                    );
+                    List<UserWithDataToSync> toSync = new List<UserWithDataToSync>();
+                    foreach (var u in users)
+                    {
+                        var followers = await _followersDal.GetFollowersAsync(u.Id);
+                        toSync.Add( new UserWithDataToSync()
+                        {
+                            User = u,
+                            Followers = followers
+                        });
+                        
+                    }
 
-                    await twitterUsersBufferBlock.SendAsync(toSync, ct);
+                    await twitterUsersBufferBlock.SendAsync(toSync.ToArray(), ct);
 
                 }
                 
