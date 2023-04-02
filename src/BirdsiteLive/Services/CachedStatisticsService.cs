@@ -15,7 +15,7 @@ namespace BirdsiteLive.Services
         private readonly ITwitterUserDal _twitterUserDal;
         private readonly IFollowersDal _followersDal;
 
-        private static CachedStatistics _cachedStatistics;
+        private static Task<CachedStatistics> _cachedStatistics;
         private readonly InstanceSettings _instanceSettings;
 
         #region Ctor
@@ -24,28 +24,36 @@ namespace BirdsiteLive.Services
             _twitterUserDal = twitterUserDal;
             _instanceSettings = instanceSettings;
             _followersDal = followersDal;
+            _cachedStatistics = CreateStats();
         }
         #endregion
 
         public async Task<CachedStatistics> GetStatisticsAsync()
         {
-            if (_cachedStatistics == null ||
-                (DateTime.UtcNow - _cachedStatistics.RefreshedTime).TotalMinutes > 15)
+            var stats = await _cachedStatistics;
+            if ((DateTime.UtcNow - stats.RefreshedTime).TotalMinutes > 5)
             {
-                var twitterUserCount = await _twitterUserDal.GetTwitterUsersCountAsync();
-                var twitterSyncLag = await _twitterUserDal.GetTwitterSyncLag();
-                var fediverseUsers = await _followersDal.GetFollowersCountAsync();
-
-                _cachedStatistics = new CachedStatistics
-                {
-                    RefreshedTime = DateTime.UtcNow,
-                    SyncLag = twitterSyncLag,
-                    TwitterUsers = twitterUserCount,
-                    FediverseUsers = fediverseUsers
-                };
+                _cachedStatistics = CreateStats();
             }
 
-            return _cachedStatistics;
+            return stats;
+        }
+
+        private async Task<CachedStatistics> CreateStats()
+        {
+            var twitterUserCount = await _twitterUserDal.GetTwitterUsersCountAsync();
+            var twitterSyncLag = await _twitterUserDal.GetTwitterSyncLag();
+            var fediverseUsers = await _followersDal.GetFollowersCountAsync();
+
+            var stats = new CachedStatistics
+            {
+                RefreshedTime = DateTime.UtcNow,
+                SyncLag = twitterSyncLag,
+                TwitterUsers = twitterUserCount,
+                FediverseUsers = fediverseUsers
+            };
+        
+            return stats;
         }
     }
 
