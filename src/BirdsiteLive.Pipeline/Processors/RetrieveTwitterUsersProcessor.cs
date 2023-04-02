@@ -38,31 +38,31 @@ namespace BirdsiteLive.Pipeline.Processors
             {
                 ct.ThrowIfCancellationRequested();
 
-                try
+                if (_instanceSettings.ParallelTwitterRequests == 0)
                 {
-                    var users = await _twitterUserDal.GetAllTwitterUsersWithFollowersAsync(2000, _instanceSettings.n_start, _instanceSettings.n_end, _instanceSettings.m);
-
-                    var userCount = users.Any() ? Math.Min(users.Length, 200) : 1;
-                    var splitUsers = users.OrderBy(a => rng.Next()).ToArray().Split(userCount).ToList();
-
-                    foreach (var u in splitUsers)
-                    {
-                        ct.ThrowIfCancellationRequested();
-                        UserWithDataToSync[] toSync = await Task.WhenAll(
-                            u.Select(async x => new UserWithDataToSync
-                                { User = x, Followers = await _followersDal.GetFollowersAsync(x.Id) } 
-                            )
-                        );
-
-                        await twitterUsersBufferBlock.SendAsync(toSync, ct);
-                    }
-
-                    await Task.Delay(10, ct); // this is somehow necessary
+                    while (true)
+                        await Task.Delay(10000);
                 }
-                catch (Exception e)
+                
+                var users = await _twitterUserDal.GetAllTwitterUsersWithFollowersAsync(2000, _instanceSettings.n_start, _instanceSettings.n_end, _instanceSettings.m);
+
+                var userCount = users.Any() ? Math.Min(users.Length, 200) : 1;
+                var splitUsers = users.OrderBy(a => rng.Next()).ToArray().Split(userCount).ToList();
+
+                foreach (var u in splitUsers)
                 {
-                    _logger.LogError(e, "Failing retrieving Twitter Users.");
+                    ct.ThrowIfCancellationRequested();
+                    UserWithDataToSync[] toSync = await Task.WhenAll(
+                        u.Select(async x => new UserWithDataToSync
+                            { User = x, Followers = await _followersDal.GetFollowersAsync(x.Id) } 
+                        )
+                    );
+
+                    await twitterUsersBufferBlock.SendAsync(toSync, ct);
+
                 }
+                
+                await Task.Delay(10, ct); // this is somehow necessary
             }
         }
     }
