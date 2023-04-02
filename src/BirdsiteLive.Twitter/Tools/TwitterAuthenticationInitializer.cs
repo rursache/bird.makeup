@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Linq;
 using System.Threading.Tasks;
 using BirdsiteLive.Common.Settings;
@@ -26,11 +27,9 @@ namespace BirdsiteLive.Twitter.Tools
         private readonly ILogger<TwitterAuthenticationInitializer> _logger;
         private static bool _initialized;
         private readonly IHttpClientFactory _httpClientFactory;
-        private List<HttpClient> _twitterClients = new List<HttpClient>();
-        private List<(String, String)> _tokens = new List<(string,string)>();
+        private ConcurrentDictionary<String, String> _token2 = new ConcurrentDictionary<string, string>();
         static Random rnd = new Random();
         private RateLimiter _rateLimiter;
-        static SemaphoreSlim semaphoreSlim = new SemaphoreSlim(1, 1);
         private const int _targetClients = 3;
         private InstanceSettings _instanceSettings;
         private readonly (string, string)[] _apiKeys = new[]
@@ -41,7 +40,6 @@ namespace BirdsiteLive.Twitter.Tools
             ("3rJOl1ODzm9yZy63FACdg", "5jPoQ5kQvMJFDYRNE8bQ4rHuds4xJqhvgNJM4awaE8"), // Mac
         };
         public String BearerToken { 
-            //get { return "AAAAAAAAAAAAAAAAAAAAAPYXBAAAAAAACLXUNDekMxqa8h%2F40K4moUkGsoc%3DTYfbDKbT3jJPCEVnMYqilB28NHfOPqkca3qaAxGfsyKCs0wRbw"; }
             get
             {
                 return _instanceSettings.TwitterBearerToken;
@@ -82,20 +80,8 @@ namespace BirdsiteLive.Twitter.Tools
         public async Task RefreshClient(HttpRequestMessage req)
         {
             string token = req.Headers.GetValues("x-guest-token").First();
-            string bearer = req.Headers.GetValues("Authorization").First().Replace("Bearer ", "");
 
-            var i = _tokens.IndexOf((bearer, token));
-
-            // this is prabably not thread safe but yolo
-            try
-            {
-                _twitterClients.RemoveAt(i);
-                _tokens.RemoveAt(i);
-            }
-            catch (IndexOutOfRangeException _)
-            {
-                _logger.LogError("Error refreshing twitter token");
-            }
+            _token2.TryRemove(token, out _);
 
             await RefreshCred();
             await Task.Delay(1000);
@@ -104,21 +90,8 @@ namespace BirdsiteLive.Twitter.Tools
 
         private async Task RefreshCred()
         {
-            
             (string bearer, string guest) = await GetCred();
-
-            HttpClient client = _httpClientFactory.CreateClient();
-            //HttpClient client = new HttpClient();
-
-            _twitterClients.Add(client);
-            _tokens.Add((bearer,guest));
-
-            if (_twitterClients.Count > _targetClients)
-            {
-                _twitterClients.RemoveAt(0);
-                _tokens.RemoveAt(0);
-            }
-
+            _token2.TryAdd(guest, bearer);
         }
 
         private async Task<(string, string)> GetCred()
@@ -144,16 +117,15 @@ namespace BirdsiteLive.Twitter.Tools
 
         public async Task<HttpClient> MakeHttpClient()
         {
-            if (_twitterClients.Count < 2)
+            if (_token2.Count < _targetClients)
                 await RefreshCred();
-            int r = rnd.Next(_twitterClients.Count);
-            return _twitterClients[r];
+            return _httpClientFactory.CreateClient();
         }
         public HttpRequestMessage MakeHttpRequest(HttpMethod m, string endpoint, bool addToken)
         {
             var request = new HttpRequestMessage(m, endpoint);
-            int r = rnd.Next(_twitterClients.Count);
-            (string bearer, string token) = _tokens[r];
+            //(string bearer, string token) = _tokens[r];
+            (string token, string bearer) = _token2.MaxBy(x => rnd.Next());
             request.Headers.TryAddWithoutValidation("Authorization", $"Bearer " + bearer); 
             request.Headers.TryAddWithoutValidation("Referer", "https://twitter.com/");
             request.Headers.TryAddWithoutValidation("x-twitter-active-user", "yes");
