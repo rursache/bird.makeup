@@ -11,6 +11,8 @@ using BirdsiteLive.ActivityPub;
 using BirdsiteLive.ActivityPub.Models;
 using BirdsiteLive.Common.Regexes;
 using BirdsiteLive.Common.Settings;
+using BirdsiteLive.DAL.Contracts;
+using BirdsiteLive.DAL.Models;
 using BirdsiteLive.Domain;
 using BirdsiteLive.Models;
 using BirdsiteLive.Tools;
@@ -30,16 +32,20 @@ namespace BirdsiteLive.Controllers
         private readonly IUserService _userService;
         private readonly IStatusService _statusService;
         private readonly InstanceSettings _instanceSettings;
+        private readonly IFollowersDal _followersDal;
+        private readonly ITwitterUserDal _twitterUserDal;
         private readonly ILogger<UsersController> _logger;
 
         #region Ctor
-        public UsersController(ICachedTwitterUserService twitterUserService, IUserService userService, IStatusService statusService, InstanceSettings instanceSettings, ICachedTwitterTweetsService twitterTweetService, ILogger<UsersController> logger)
+        public UsersController(ICachedTwitterUserService twitterUserService, IUserService userService, IStatusService statusService, InstanceSettings instanceSettings, ICachedTwitterTweetsService twitterTweetService, IFollowersDal followersDal, ITwitterUserDal twitterUserDal, ILogger<UsersController> logger)
         {
             _twitterUserService = twitterUserService;
             _userService = userService;
             _statusService = statusService;
             _instanceSettings = instanceSettings;
             _twitterTweetService = twitterTweetService;
+            _followersDal = followersDal;
+            _twitterUserDal = twitterUserDal;
             _logger = logger;
         }
         #endregion
@@ -119,6 +125,12 @@ namespace BirdsiteLive.Controllers
             if (isSaturated) return View("ApiSaturated");
             if (notFound) return View("UserNotFound");
 
+            Follower[] followers = new Follower[] { };
+            
+            var userDal = await _twitterUserDal.GetTwitterUserAsync(user.Acct);
+            if (userDal != null)
+                followers = await _followersDal.GetFollowersAsync(userDal.Id);
+
             var displayableUser = new DisplayTwitterUser
             {
                 Name = user.Name,
@@ -127,6 +139,8 @@ namespace BirdsiteLive.Controllers
                 Url = user.Url,
                 ProfileImageUrl = user.ProfileImageUrl,
                 Protected = user.Protected,
+                FollowerCount = followers.Length,
+                MostPopularServer = followers.GroupBy(x => x.Host).OrderByDescending(x => x.Count()).Select(x => x.Key).FirstOrDefault("N/A"),
 
                 InstanceHandle = $"@{user.Acct.ToLowerInvariant()}@{_instanceSettings.Domain}"
             };
