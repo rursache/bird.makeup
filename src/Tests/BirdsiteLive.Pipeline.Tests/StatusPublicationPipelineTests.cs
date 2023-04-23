@@ -30,18 +30,16 @@ namespace BirdsiteLive.Pipeline.Tests
             var retrieveTweetsProcessor = new Mock<IRetrieveTweetsProcessor>(MockBehavior.Strict);
             var retrieveFollowersProcessor = new Mock<IRetrieveFollowersProcessor>(MockBehavior.Strict);
             var sendTweetsToFollowersProcessor = new Mock<ISendTweetsToFollowersProcessor>(MockBehavior.Strict);
-            var saveProgressionProcessor = new Mock<ISaveProgressionTask>(MockBehavior.Strict);
             var logger = new Mock<ILogger<StatusPublicationPipeline>>();
             #endregion
 
-            var pipeline = new StatusPublicationPipeline(retrieveTweetsProcessor.Object, retrieveTwitterUserProcessor.Object, retrieveFollowersProcessor.Object, sendTweetsToFollowersProcessor.Object, saveProgressionProcessor.Object, logger.Object);
+            var pipeline = new StatusPublicationPipeline(retrieveTweetsProcessor.Object, retrieveTwitterUserProcessor.Object, retrieveFollowersProcessor.Object, sendTweetsToFollowersProcessor.Object, logger.Object);
             await pipeline.ExecuteAsync(ct.Token);
 
             #region Validations
             retrieveTweetsProcessor.VerifyAll();
             retrieveFollowersProcessor.VerifyAll();
             sendTweetsToFollowersProcessor.VerifyAll();
-            saveProgressionProcessor.VerifyAll();
             logger.VerifyAll();
             #endregion
         }

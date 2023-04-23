@@ -21,16 +21,14 @@ namespace BirdsiteLive.Pipeline
         private readonly IRetrieveTweetsProcessor _retrieveTweetsProcessor;
         private readonly IRetrieveFollowersProcessor _retrieveFollowersProcessor;
         private readonly ISendTweetsToFollowersProcessor _sendTweetsToFollowersProcessor;
-        private readonly ISaveProgressionTask _saveProgressionTask;
         private readonly ILogger<StatusPublicationPipeline> _logger;
 
         #region Ctor
-        public StatusPublicationPipeline(IRetrieveTweetsProcessor retrieveTweetsProcessor, IRetrieveTwitterUsersProcessor retrieveTwitterAccountsProcessor, IRetrieveFollowersProcessor retrieveFollowersProcessor, ISendTweetsToFollowersProcessor sendTweetsToFollowersProcessor, ISaveProgressionTask saveProgressionTask, ILogger<StatusPublicationPipeline> logger)
+        public StatusPublicationPipeline(IRetrieveTweetsProcessor retrieveTweetsProcessor, IRetrieveTwitterUsersProcessor retrieveTwitterAccountsProcessor, IRetrieveFollowersProcessor retrieveFollowersProcessor, ISendTweetsToFollowersProcessor sendTweetsToFollowersProcessor, ILogger<StatusPublicationPipeline> logger)
         {
             _retrieveTweetsProcessor = retrieveTweetsProcessor;
             _retrieveFollowersProcessor = retrieveFollowersProcessor;
             _sendTweetsToFollowersProcessor = sendTweetsToFollowersProcessor;
-            _saveProgressionTask = saveProgressionTask;
             _retrieveTwitterAccountsProcessor = retrieveTwitterAccountsProcessor;
 
             _logger = logger;

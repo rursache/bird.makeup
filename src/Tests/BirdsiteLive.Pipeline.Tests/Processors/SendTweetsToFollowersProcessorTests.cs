@@ -77,7 +77,6 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
             var followersDalMock = new Mock<IFollowersDal>(MockBehavior.Strict);
             
             var loggerMock = new Mock<ILogger<SendTweetsToFollowersProcessor>>();
-            var saveProgressMock = new Mock<ISaveProgressionTask>();
 
             var settings = new InstanceSettings
             {
@@ -165,7 +164,6 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
                 ParallelFediversePosts = 1
             };
 
-            var saveProgressMock = new Mock<ISaveProgressionTask>();
             var removeFollowerMock = new Mock<IRemoveFollowerAction>(MockBehavior.Strict);
             #endregion
 
@@ -250,7 +248,6 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
                 .Returns(Task.CompletedTask);
 
             var loggerMock = new Mock<ILogger<SendTweetsToFollowersProcessor>>();
-            var saveProgressMock = new Mock<ISaveProgressionTask>();
 
             var settings = new InstanceSettings
             {
@@ -343,7 +340,6 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
 
             var loggerMock = new Mock<ILogger<SendTweetsToFollowersProcessor>>();
 
-            var saveProgressMock = new Mock<ISaveProgressionTask>();
             var settings = new InstanceSettings
             {
                 ParallelFediversePosts = 1
@@ -440,7 +436,6 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
 
             var loggerMock = new Mock<ILogger<SendTweetsToFollowersProcessor>>();
 
-            var saveProgressMock = new Mock<ISaveProgressionTask>();
             var settings = new InstanceSettings
             {
                 ParallelFediversePosts = 1
@@ -519,7 +514,6 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
             var followersDalMock = new Mock<IFollowersDal>(MockBehavior.Strict);
 
             var loggerMock = new Mock<ILogger<SendTweetsToFollowersProcessor>>();
-            var saveProgressMock = new Mock<ISaveProgressionTask>();
 
             var settings = new InstanceSettings
             {
@@ -600,7 +594,6 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
             var followersDalMock = new Mock<IFollowersDal>(MockBehavior.Strict);
 
             var loggerMock = new Mock<ILogger<SendTweetsToFollowersProcessor>>();
-            var saveProgressMock = new Mock<ISaveProgressionTask>();
 
             var settings = new InstanceSettings
             {
@@ -689,7 +682,6 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
                 .Returns(Task.CompletedTask);
 
             var loggerMock = new Mock<ILogger<SendTweetsToFollowersProcessor>>();
-            var saveProgressMock = new Mock<ISaveProgressionTask>();
 
             var settings = new InstanceSettings
             {
@@ -775,7 +767,6 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
             var followersDalMock = new Mock<IFollowersDal>(MockBehavior.Strict);
 
             var loggerMock = new Mock<ILogger<SendTweetsToFollowersProcessor>>();
-            var saveProgressMock = new Mock<ISaveProgressionTask>();
 
             var settings = new InstanceSettings
             {
@@ -865,7 +856,6 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
             var followersDalMock = new Mock<IFollowersDal>(MockBehavior.Strict);
 
             var loggerMock = new Mock<ILogger<SendTweetsToFollowersProcessor>>();
-            var saveProgressMock = new Mock<ISaveProgressionTask>();
 
             var settings = new InstanceSettings
             {
@@ -959,7 +949,6 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
                 .Returns(Task.CompletedTask);
 
             var loggerMock = new Mock<ILogger<SendTweetsToFollowersProcessor>>();
-            var saveProgressMock = new Mock<ISaveProgressionTask>();
 
             var settings = new InstanceSettings
             {
@@ -1054,7 +1043,6 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
                 .Returns(Task.CompletedTask);
 
             var loggerMock = new Mock<ILogger<SendTweetsToFollowersProcessor>>();
-            var saveProgressMock = new Mock<ISaveProgressionTask>();
 
             var settings = new InstanceSettings
             {
