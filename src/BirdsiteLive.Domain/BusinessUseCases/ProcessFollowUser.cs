@@ -42,9 +42,6 @@ namespace BirdsiteLive.Domain.BusinessUseCases
             var twitterUserId = twitterUser.Id;
             if(!follower.Followings.Contains(twitterUserId))
                 follower.Followings.Add(twitterUserId);
-
-            if(!follower.FollowingsSyncStatus.ContainsKey(twitterUserId))
-                follower.FollowingsSyncStatus.Add(twitterUserId, -1);
             
             // Save Follower
             await _followerDal.UpdateFollowerAsync(follower);

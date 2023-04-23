@@ -57,7 +57,6 @@ namespace BirdsiteLive.Pipeline.Tests.Processors.SubTasks
                 Id = 1,
                 Host = host,
                 InboxRoute = inbox,
-                FollowingsSyncStatus = new Dictionary<int, long> { { twitterUserId, 9 } }
             };
 
             var settings = new InstanceSettings
@@ -139,7 +138,6 @@ namespace BirdsiteLive.Pipeline.Tests.Processors.SubTasks
                 Id = 1,
                 Host = host,
                 InboxRoute = inbox,
-                FollowingsSyncStatus = new Dictionary<int, long> { { twitterUserId, 9 } }
             };
 
             var settings = new InstanceSettings { };
@@ -218,7 +216,6 @@ namespace BirdsiteLive.Pipeline.Tests.Processors.SubTasks
                 Id = 1,
                 Host = host,
                 InboxRoute = inbox,
-                FollowingsSyncStatus = new Dictionary<int, long> { { twitterUserId, 9 } }
             };
 
             var settings = new InstanceSettings
@@ -301,7 +298,6 @@ namespace BirdsiteLive.Pipeline.Tests.Processors.SubTasks
                 Id = 1,
                 Host = host,
                 InboxRoute = inbox,
-                FollowingsSyncStatus = new Dictionary<int, long> { { twitterUserId, 9 } }
             };
 
             var settings = new InstanceSettings
@@ -375,7 +371,6 @@ namespace BirdsiteLive.Pipeline.Tests.Processors.SubTasks
                 Id = 1,
                 Host = host,
                 InboxRoute = inbox,
-                FollowingsSyncStatus = new Dictionary<int, long> { { twitterUserId, 10 } }
             };
 
             var settings = new InstanceSettings
@@ -456,7 +451,6 @@ namespace BirdsiteLive.Pipeline.Tests.Processors.SubTasks
                 Id = 1,
                 Host = host,
                 InboxRoute = inbox,
-                FollowingsSyncStatus = new Dictionary<int, long> { { twitterUserId, 10 } }
             };
 
             var settings = new InstanceSettings
@@ -560,7 +554,6 @@ namespace BirdsiteLive.Pipeline.Tests.Processors.SubTasks
                 Id = 1,
                 Host = host,
                 InboxRoute = inbox,
-                FollowingsSyncStatus = new Dictionary<int, long> { { twitterUserId, 9 } }
             };
 
             var settings = new InstanceSettings

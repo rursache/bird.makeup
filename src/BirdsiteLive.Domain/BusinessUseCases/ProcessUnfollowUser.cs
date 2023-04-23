@@ -36,9 +36,6 @@ namespace BirdsiteLive.Domain.BusinessUseCases
             if (follower.Followings.Contains(twitterUserId))
                 follower.Followings.Remove(twitterUserId);
 
-            if (follower.FollowingsSyncStatus.ContainsKey(twitterUserId))
-                follower.FollowingsSyncStatus.Remove(twitterUserId);
-
             // Save or delete Follower
             if (follower.Followings.Any())
                 await _followerDal.UpdateFollowerAsync(follower);

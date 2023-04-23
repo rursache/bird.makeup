@@ -27,7 +27,6 @@ namespace BirdsiteLive.Moderation.Tests.Actions
                 {
                     Id = 48,
                     Followings = new List<int>{ 24 },
-                    FollowingsSyncStatus = new Dictionary<int, long> { { 24, 1024 } }
                 }
             };
             #endregion
@@ -84,7 +83,6 @@ namespace BirdsiteLive.Moderation.Tests.Actions
                 {
                     Id = 48,
                     Followings = new List<int>{ 24, 36 },
-                    FollowingsSyncStatus = new Dictionary<int, long> { { 24, 1024 }, { 36, 24 } }
                 }
             };
             #endregion
@@ -100,7 +98,6 @@ namespace BirdsiteLive.Moderation.Tests.Actions
                 .Setup(x => x.UpdateFollowerAsync(
                     It.Is<Follower>(y => y.Id == 48
                         && y.Followings.Count == 1
-                        && y.FollowingsSyncStatus.Count == 1
                     )))
                 .Returns(Task.CompletedTask);
 

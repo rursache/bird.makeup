@@ -21,12 +21,9 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
         }
         #endregion
 
-        public async Task CreateFollowerAsync(string acct, string host, string inboxRoute, string sharedInboxRoute, string actorId, int[] followings = null, Dictionary<int, long> followingSyncStatus = null)
+        public async Task CreateFollowerAsync(string acct, string host, string inboxRoute, string sharedInboxRoute, string actorId, int[] followings = null)
         {
             if(followings == null) followings = new int[0];
-            if(followingSyncStatus == null) followingSyncStatus = new Dictionary<int, long>();
-
-            var serializedDic = JsonSerializer.Serialize(followingSyncStatus);
 
             acct = acct.ToLowerInvariant();
             host = host.ToLowerInvariant();
@@ -34,8 +31,8 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
             using (var dbConnection = Connection)
             {
                 await dbConnection.ExecuteAsync(
-                    $"INSERT INTO {_settings.FollowersTableName} (acct,host,inboxRoute,sharedInboxRoute,followings,followingsSyncStatus,actorId) VALUES(@acct,@host,@inboxRoute,@sharedInboxRoute,@followings,CAST(@followingsSyncStatus as json),@actorId)",
-                    new { acct, host, inboxRoute, sharedInboxRoute, followings, followingsSyncStatus = serializedDic, actorId });
+                    $"INSERT INTO {_settings.FollowersTableName} (acct,host,inboxRoute,sharedInboxRoute,followings,actorId) VALUES(@acct,@host,@inboxRoute,@sharedInboxRoute,@followings,@actorId)",
+                    new { acct, host, inboxRoute, sharedInboxRoute, followings, actorId });
             }
         }
 
@@ -78,13 +75,10 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
             if (!await reader.ReadAsync())
                 return null;
 
-            string syncStatusString = reader["followingsSyncStatus"] as string;
-            var syncStatus = System.Text.Json.JsonSerializer.Deserialize<Dictionary<int, long>>(syncStatusString);
             return new Follower
             {
                 Id = reader["id"] as int? ?? default,
                 Followings = (reader["followings"] as int[] ?? new int[0]).ToList(),
-                FollowingsSyncStatus = syncStatus,
                 ActorId = reader["actorId"] as string,
                 Acct = reader["acct"] as string,
                 Host = reader["host"] as string,
@@ -112,12 +106,10 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
             while (await reader.ReadAsync())
             {
                 string syncStatusString = reader["followingsSyncStatus"] as string;
-                var syncStatus = System.Text.Json.JsonSerializer.Deserialize<Dictionary<int, long>>(syncStatusString);
                 followers.Add(new Follower
                 {
                     Id = reader["id"] as int? ?? default,
                     Followings = (reader["followings"] as int[] ?? new int[0]).ToList(),
-                    FollowingsSyncStatus = syncStatus,
                     ActorId = reader["actorId"] as string,
                     Acct = reader["acct"] as string,
                     Host = reader["host"] as string,
@@ -147,14 +139,12 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
             if (follower == default) throw new ArgumentException("follower");
             if (follower.Id == default) throw new ArgumentException("id");
 
-            var serializedDic = System.Text.Json.JsonSerializer.Serialize(follower.FollowingsSyncStatus);
-            var query = $"UPDATE {_settings.FollowersTableName} SET followings = $1, followingsSyncStatus = CAST($2 as json), postingErrorCount = $3 WHERE id = $4";
+            var query = $"UPDATE {_settings.FollowersTableName} SET followings = $1, postingErrorCount = $2 WHERE id = $3";
             await using var connection = DataSource.CreateConnection();
             await connection.OpenAsync();
             await using var command = new NpgsqlCommand(query, connection) {
                 Parameters = { 
                     new() { Value = follower.Followings}, 
-                    new() { Value = serializedDic}, 
                     new() { Value = follower.PostingErrorCount}, 
                     new() { Value = follower.Id}
                 }
@@ -204,7 +194,6 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
                 ActorId = follower.ActorId,
                 SharedInboxRoute = follower.SharedInboxRoute,
                 Followings = follower.Followings.ToList(),
-                FollowingsSyncStatus = JsonSerializer.Deserialize<Dictionary<int,long>>(follower.FollowingsSyncStatus),
                 PostingErrorCount = follower.PostingErrorCount
             };
         }
@@ -212,10 +201,7 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
 
     internal class SerializedFollower {
         public int Id { get; set; }
-
         public int[] Followings { get; set; }
-        public string FollowingsSyncStatus { get; set; }
-
         public string Acct { get; set; }
         public string Host { get; set; }
         public string InboxRoute { get; set; }

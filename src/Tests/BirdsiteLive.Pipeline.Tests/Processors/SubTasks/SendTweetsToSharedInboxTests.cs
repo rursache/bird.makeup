@@ -61,21 +61,18 @@ namespace BirdsiteLive.Pipeline.Tests.Processors.SubTasks
                     Id = 1,
                     Host = host,
                     SharedInboxRoute = inbox,
-                    FollowingsSyncStatus = new Dictionary<int, long> { { twitterUserId, 9 } }
                 },
                 new Follower
                 {
                     Id = 2,
                     Host = host,
                     SharedInboxRoute = inbox,
-                    FollowingsSyncStatus = new Dictionary<int, long> { { twitterUserId, 8 } }
                 },
                 new Follower
                 {
                     Id = 3,
                     Host = host,
                     SharedInboxRoute = inbox,
-                    FollowingsSyncStatus = new Dictionary<int, long> { { twitterUserId, 7 } }
                 }
             };
 
@@ -161,21 +158,18 @@ namespace BirdsiteLive.Pipeline.Tests.Processors.SubTasks
                     Id = 1,
                     Host = host,
                     SharedInboxRoute = inbox,
-                    FollowingsSyncStatus = new Dictionary<int, long> { { twitterUserId, 9 } }
                 },
                 new Follower
                 {
                     Id = 2,
                     Host = host,
                     SharedInboxRoute = inbox,
-                    FollowingsSyncStatus = new Dictionary<int, long> { { twitterUserId, 8 } }
                 },
                 new Follower
                 {
                     Id = 3,
                     Host = host,
                     SharedInboxRoute = inbox,
-                    FollowingsSyncStatus = new Dictionary<int, long> { { twitterUserId, 7 } }
                 }
             };
 
@@ -262,21 +256,18 @@ namespace BirdsiteLive.Pipeline.Tests.Processors.SubTasks
                     Id = 1,
                     Host = host,
                     SharedInboxRoute = inbox,
-                    FollowingsSyncStatus = new Dictionary<int, long> { { twitterUserId, 9 } }
                 },
                 new Follower
                 {
                     Id = 2,
                     Host = host,
                     SharedInboxRoute = inbox,
-                    FollowingsSyncStatus = new Dictionary<int, long> { { twitterUserId, 8 } }
                 },
                 new Follower
                 {
                     Id = 3,
                     Host = host,
                     SharedInboxRoute = inbox,
-                    FollowingsSyncStatus = new Dictionary<int, long> { { twitterUserId, 7 } }
                 }
             };
 
@@ -350,21 +341,18 @@ namespace BirdsiteLive.Pipeline.Tests.Processors.SubTasks
                     Id = 1,
                     Host = host,
                     SharedInboxRoute = inbox,
-                    FollowingsSyncStatus = new Dictionary<int, long> {{twitterUserId, 10}}
                 },
                 new Follower
                 {
                     Id = 2,
                     Host = host,
                     SharedInboxRoute = inbox,
-                    FollowingsSyncStatus = new Dictionary<int, long> {{twitterUserId, 8}}
                 },
                 new Follower
                 {
                     Id = 3,
                     Host = host,
                     SharedInboxRoute = inbox,
-                    FollowingsSyncStatus = new Dictionary<int, long> {{twitterUserId, 7}}
                 }
             };
 
@@ -447,21 +435,18 @@ namespace BirdsiteLive.Pipeline.Tests.Processors.SubTasks
                     Id = 1,
                     Host = host,
                     SharedInboxRoute = inbox,
-                    FollowingsSyncStatus = new Dictionary<int, long> {{twitterUserId, 10}}
                 },
                 new Follower
                 {
                     Id = 2,
                     Host = host,
                     SharedInboxRoute = inbox,
-                    FollowingsSyncStatus = new Dictionary<int, long> {{twitterUserId, 8}}
                 },
                 new Follower
                 {
                     Id = 3,
                     Host = host,
                     SharedInboxRoute = inbox,
-                    FollowingsSyncStatus = new Dictionary<int, long> {{twitterUserId, 7}}
                 }
             };
 
@@ -568,21 +553,18 @@ namespace BirdsiteLive.Pipeline.Tests.Processors.SubTasks
                     Id = 1,
                     Host = host,
                     SharedInboxRoute = inbox,
-                    FollowingsSyncStatus = new Dictionary<int, long> { { twitterUserId, 9 } }
                 },
                 new Follower
                 {
                     Id = 2,
                     Host = host,
                     SharedInboxRoute = inbox,
-                    FollowingsSyncStatus = new Dictionary<int, long> { { twitterUserId, 8 } }
                 },
                 new Follower
                 {
                     Id = 3,
                     Host = host,
                     SharedInboxRoute = inbox,
-                    FollowingsSyncStatus = new Dictionary<int, long> { { twitterUserId, 7 } }
                 }
             };
 
@@ -648,21 +630,18 @@ namespace BirdsiteLive.Pipeline.Tests.Processors.SubTasks
                     Id = 1,
                     Host = host,
                     SharedInboxRoute = inbox,
-                    FollowingsSyncStatus = new Dictionary<int, long> { { twitterUserId, 9 } }
                 },
                 new Follower
                 {
                     Id = 2,
                     Host = host,
                     SharedInboxRoute = inbox,
-                    FollowingsSyncStatus = new Dictionary<int, long> { { twitterUserId, 8 } }
                 },
                 new Follower
                 {
                     Id = 3,
                     Host = host,
                     SharedInboxRoute = inbox,
-                    FollowingsSyncStatus = new Dictionary<int, long> { { twitterUserId, 7 } }
                 }
             };
 

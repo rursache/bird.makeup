@@ -52,7 +52,6 @@ namespace BirdsiteLive.Domain.Tests.BusinessUseCases
                 Acct = username,
                 Host = domain,
                 Followings = new List<int>(),
-                FollowingsSyncStatus = new Dictionary<int, long>()
             };
             #endregion
 
@@ -91,7 +90,6 @@ namespace BirdsiteLive.Domain.Tests.BusinessUseCases
                 Acct = username,
                 Host = domain,
                 Followings = new List<int> { 2, 3 },
-                FollowingsSyncStatus = new Dictionary<int, long> { { 2, 460 }, { 3, 563} }
             };
 
             var twitterUser = new SyncTwitterUser
@@ -117,8 +115,7 @@ namespace BirdsiteLive.Domain.Tests.BusinessUseCases
 
             followersDalMock
                 .Setup(x => x.UpdateFollowerAsync(
-                    It.Is<Follower>(y => !y.Followings.Contains(twitterUser.Id)
-                                         && !y.FollowingsSyncStatus.ContainsKey(twitterUser.Id))
+                    It.Is<Follower>(y => !y.Followings.Contains(twitterUser.Id) )
                 ))
                 .Returns(Task.CompletedTask);
 
@@ -155,7 +152,6 @@ namespace BirdsiteLive.Domain.Tests.BusinessUseCases
                 Acct = username,
                 Host = domain,
                 Followings = new List<int> { 2 },
-                FollowingsSyncStatus = new Dictionary<int, long> { { 2, 460 } }
             };
 
             var twitterUser = new SyncTwitterUser

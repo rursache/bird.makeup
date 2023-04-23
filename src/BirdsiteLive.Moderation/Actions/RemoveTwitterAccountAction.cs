@@ -41,9 +41,6 @@ namespace BirdsiteLive.Moderation.Actions
                 if (follower.Followings.Contains(twitterUserId))
                     follower.Followings.Remove(twitterUserId);
 
-                if (follower.FollowingsSyncStatus.ContainsKey(twitterUserId))
-                    follower.FollowingsSyncStatus.Remove(twitterUserId);
-
                 if (follower.Followings.Any())
                     await _followersDal.UpdateFollowerAsync(follower);
                 else

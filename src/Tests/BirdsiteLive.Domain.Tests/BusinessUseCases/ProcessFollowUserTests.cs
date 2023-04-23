@@ -30,7 +30,6 @@ namespace BirdsiteLive.Domain.Tests.BusinessUseCases
                 SharedInboxRoute = followerInbox,
                 InboxRoute = inbox,
                 Followings = new List<int>(),
-                FollowingsSyncStatus = new Dictionary<int, long>()
             };
 
             var twitterUser = new SyncTwitterUser
@@ -56,14 +55,12 @@ namespace BirdsiteLive.Domain.Tests.BusinessUseCases
                     It.Is<string>(y => y == followerInbox),
                     It.Is<string>(y => y == inbox),
                     It.Is<string>(y => y == actorId),
-                    null,
-                    null))
+                    null ))
                 .Returns(Task.CompletedTask);
 
             followersDalMock
                 .Setup(x => x.UpdateFollowerAsync(
-                    It.Is<Follower>(y => y.Followings.Contains(twitterUser.Id)
-                                         && y.FollowingsSyncStatus[twitterUser.Id] == -1)
+                    It.Is<Follower>(y => y.Followings.Contains(twitterUser.Id))
                 ))
                 .Returns(Task.CompletedTask);
 
@@ -108,7 +105,6 @@ namespace BirdsiteLive.Domain.Tests.BusinessUseCases
                 SharedInboxRoute = followerInbox,
                 InboxRoute = inbox,
                 Followings = new List<int>(),
-                FollowingsSyncStatus = new Dictionary<int, long>()
             };
 
             var twitterUser = new SyncTwitterUser
@@ -128,8 +124,7 @@ namespace BirdsiteLive.Domain.Tests.BusinessUseCases
             
             followersDalMock
                 .Setup(x => x.UpdateFollowerAsync(
-                    It.Is<Follower>(y => y.Followings.Contains(twitterUser.Id)
-                                         && y.FollowingsSyncStatus[twitterUser.Id] == -1)
+                    It.Is<Follower>(y => y.Followings.Contains(twitterUser.Id) )
                 ))
                 .Returns(Task.CompletedTask);
 
