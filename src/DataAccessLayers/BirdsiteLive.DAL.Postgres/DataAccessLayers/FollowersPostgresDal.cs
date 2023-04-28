@@ -105,7 +105,6 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
             var followers = new List<Follower>();
             while (await reader.ReadAsync())
             {
-                string syncStatusString = reader["followingsSyncStatus"] as string;
                 followers.Add(new Follower
                 {
                     Id = reader["id"] as int? ?? default,

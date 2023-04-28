@@ -37,7 +37,6 @@ namespace BirdsiteLive.Domain.Tests.BusinessUseCases
                 Id = 2,
                 Acct = twitterName,
                 LastTweetPostedId = -1,
-                LastTweetSynchronizedForAllFollowersId = -1
             };
             #endregion
 
@@ -112,7 +111,6 @@ namespace BirdsiteLive.Domain.Tests.BusinessUseCases
                 Id = 2,
                 Acct = twitterName,
                 LastTweetPostedId = -1,
-                LastTweetSynchronizedForAllFollowersId = -1
             };
             #endregion
 

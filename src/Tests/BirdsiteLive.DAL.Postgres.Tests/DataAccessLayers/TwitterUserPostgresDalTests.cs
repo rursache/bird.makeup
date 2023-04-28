@@ -48,7 +48,6 @@ namespace BirdsiteLive.DAL.Postgres.Tests.DataAccessLayers
 
             Assert.AreEqual(acct, result.Acct);
             Assert.AreEqual(lastTweetId, result.LastTweetPostedId);
-            Assert.AreEqual(lastTweetId, result.LastTweetSynchronizedForAllFollowersId);
             Assert.AreEqual(0, result.FetchingErrorCount);
             Assert.IsTrue(result.Id > 0);
         }
@@ -67,7 +66,6 @@ namespace BirdsiteLive.DAL.Postgres.Tests.DataAccessLayers
 
             Assert.AreEqual(acct, resultById.Acct);
             Assert.AreEqual(lastTweetId, resultById.LastTweetPostedId);
-            Assert.AreEqual(lastTweetId, resultById.LastTweetSynchronizedForAllFollowersId);
             Assert.AreEqual(result.Id, resultById.Id);
         }
 
@@ -87,13 +85,12 @@ namespace BirdsiteLive.DAL.Postgres.Tests.DataAccessLayers
             var updatedLastSyncId = 1550L;
             var now = DateTime.Now;
             var errors = 15;
-            await dal.UpdateTwitterUserAsync(result.Id, updatedLastTweetId, updatedLastSyncId, errors, now);
+            await dal.UpdateTwitterUserAsync(result.Id, updatedLastTweetId, errors, now);
 
             result = await dal.GetTwitterUserAsync(acct);
 
             Assert.AreEqual(acct, result.Acct);
             Assert.AreEqual(updatedLastTweetId, result.LastTweetPostedId);
-            Assert.AreEqual(updatedLastSyncId, result.LastTweetSynchronizedForAllFollowersId);
             Assert.AreEqual(errors, result.FetchingErrorCount);
             Assert.IsTrue(Math.Abs((now.ToUniversalTime() - result.LastSync).Milliseconds) < 100);
         }
@@ -116,7 +113,6 @@ namespace BirdsiteLive.DAL.Postgres.Tests.DataAccessLayers
             var errors = 15;
 
             result.LastTweetPostedId = updatedLastTweetId;
-            result.LastTweetSynchronizedForAllFollowersId = updatedLastSyncId;
             result.FetchingErrorCount = errors;
             result.LastSync = now;
             await dal.UpdateTwitterUserAsync(result);
@@ -125,7 +121,6 @@ namespace BirdsiteLive.DAL.Postgres.Tests.DataAccessLayers
 
             Assert.AreEqual(acct, result.Acct);
             Assert.AreEqual(updatedLastTweetId, result.LastTweetPostedId);
-            Assert.AreEqual(updatedLastSyncId, result.LastTweetSynchronizedForAllFollowersId);
             Assert.AreEqual(errors, result.FetchingErrorCount);
             Assert.IsTrue(Math.Abs((now.ToUniversalTime() - result.LastSync).Milliseconds) < 100);
         }
@@ -148,7 +143,6 @@ namespace BirdsiteLive.DAL.Postgres.Tests.DataAccessLayers
             var errors = 32768;
 
             result.LastTweetPostedId = updatedLastTweetId;
-            result.LastTweetSynchronizedForAllFollowersId = updatedLastSyncId;
             result.FetchingErrorCount = errors;
             result.LastSync = now;
             await dal.UpdateTwitterUserAsync(result);
@@ -157,7 +151,6 @@ namespace BirdsiteLive.DAL.Postgres.Tests.DataAccessLayers
 
             Assert.AreEqual(acct, result.Acct);
             Assert.AreEqual(updatedLastTweetId, result.LastTweetPostedId);
-            Assert.AreEqual(updatedLastSyncId, result.LastTweetSynchronizedForAllFollowersId);
             Assert.AreEqual(errors, result.FetchingErrorCount);
             Assert.IsTrue(Math.Abs((now.ToUniversalTime() - result.LastSync).Milliseconds) < 100);
         }
@@ -167,7 +160,7 @@ namespace BirdsiteLive.DAL.Postgres.Tests.DataAccessLayers
         public async Task Update_NoId()
         {
             var dal = new TwitterUserPostgresDal(_settings);
-            await dal.UpdateTwitterUserAsync(default, default, default, default, DateTime.UtcNow);
+            await dal.UpdateTwitterUserAsync(default, default, default, DateTime.UtcNow);
         }
 
         [TestMethod]
@@ -175,23 +168,16 @@ namespace BirdsiteLive.DAL.Postgres.Tests.DataAccessLayers
         public async Task Update_NoLastTweetPostedId()
         {
             var dal = new TwitterUserPostgresDal(_settings);
-            await dal.UpdateTwitterUserAsync(12, default, default, default, DateTime.UtcNow);
+            await dal.UpdateTwitterUserAsync(12, default,  default, DateTime.UtcNow);
         }
 
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentException))]
-        public async Task Update_NoLastTweetSynchronizedForAllFollowersId()
-        {
-            var dal = new TwitterUserPostgresDal(_settings);
-            await dal.UpdateTwitterUserAsync(12, 9556, default, default, DateTime.UtcNow);
-        }
 
         [TestMethod]
         [ExpectedException(typeof(ArgumentException))]
         public async Task Update_NoLastSync()
         {
             var dal = new TwitterUserPostgresDal(_settings);
-            await dal.UpdateTwitterUserAsync(12, 9556, 65, default, default);
+            await dal.UpdateTwitterUserAsync(12, 9556, 65,  default);
         }
 
         [TestMethod]
@@ -261,7 +247,6 @@ namespace BirdsiteLive.DAL.Postgres.Tests.DataAccessLayers
             Assert.IsFalse(result[0].Id == default);
             Assert.IsFalse(result[0].Acct == default);
             Assert.IsFalse(result[0].LastTweetPostedId == default);
-            Assert.IsFalse(result[0].LastTweetSynchronizedForAllFollowersId == default);
         }
 
         [TestMethod]
@@ -318,7 +303,7 @@ namespace BirdsiteLive.DAL.Postgres.Tests.DataAccessLayers
             {
                 var user = allUsers[i];
                 var date = i % 2 == 0 ? oldest : newest;
-                await dal.UpdateTwitterUserAsync(user.Id, user.LastTweetPostedId, user.LastTweetSynchronizedForAllFollowersId, 0, date);
+                await dal.UpdateTwitterUserAsync(user.Id, user.LastTweetPostedId, 0, date);
             }
 
             var result = await dal.GetAllTwitterUsersAsync(10);
@@ -326,7 +311,6 @@ namespace BirdsiteLive.DAL.Postgres.Tests.DataAccessLayers
             Assert.IsFalse(result[0].Id == default);
             Assert.IsFalse(result[0].Acct == default);
             Assert.IsFalse(result[0].LastTweetPostedId == default);
-            Assert.IsFalse(result[0].LastTweetSynchronizedForAllFollowersId == default);
 
             foreach (var acc in result)
                 Assert.IsTrue(Math.Abs((acc.LastSync - oldest.ToUniversalTime()).TotalMilliseconds) < 1000);
@@ -349,7 +333,6 @@ namespace BirdsiteLive.DAL.Postgres.Tests.DataAccessLayers
             Assert.IsFalse(result[0].Id == default);
             Assert.IsFalse(result[0].Acct == default);
             Assert.IsFalse(result[0].LastTweetPostedId == default);
-            Assert.IsFalse(result[0].LastTweetSynchronizedForAllFollowersId == default);
         }
 
         [TestMethod]
@@ -382,7 +365,7 @@ namespace BirdsiteLive.DAL.Postgres.Tests.DataAccessLayers
                 if (i == 0 || i == 2 || i == 3)
                 {
                     var t = await dal.GetTwitterUserAsync(acct);
-                    await dal.UpdateTwitterUserAsync(t.Id ,1L,2L, 50+i*2, DateTime.Now);
+                    await dal.UpdateTwitterUserAsync(t.Id ,1L, 50+i*2, DateTime.Now);
                 }
             }
 

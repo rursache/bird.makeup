@@ -23,7 +23,7 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
     public class DbInitializerPostgresDal : PostgresBase, IDbInitializerDal
     {
         private readonly PostgresTools _tools;
-        private readonly Version _currentVersion = new Version(2, 5);
+        private readonly Version _currentVersion = new Version(3, 0);
         private const string DbVersionType = "db-version";
 
         #region Ctor
@@ -136,7 +136,8 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
                 new Tuple<Version, Version>(new Version(2,1), new Version(2,2)),
                 new Tuple<Version, Version>(new Version(2,2), new Version(2,3)),
                 new Tuple<Version, Version>(new Version(2,3), new Version(2,4)),
-                new Tuple<Version, Version>(new Version(2,4), new Version(2,5))
+                new Tuple<Version, Version>(new Version(2,4), new Version(2,5)),
+                new Tuple<Version, Version>(new Version(2,5), new Version(3,0))
             };
         }
 
@@ -179,6 +180,48 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
                 await _tools.ExecuteRequestAsync(alterTwitterUserId);
 
             }
+            else if (from == new Version(2, 5) && to == new Version(3, 0))
+            {
+                var dropFollowingSyncStatus = $@"ALTER TABLE {_settings.FollowersTableName} DROP COLUMN followingssyncstatus";
+                await _tools.ExecuteRequestAsync(dropFollowingSyncStatus);
+
+                var dropLastTweet = $@"ALTER TABLE {_settings.TwitterUserTableName} DROP COLUMN lasttweetsynchronizedforallfollowersid";
+                await _tools.ExecuteRequestAsync(dropLastTweet);
+                
+                var addFediverseEquivalent = $@"ALTER TABLE {_settings.TwitterUserTableName} ADD fediverseaccount text";
+                await _tools.ExecuteRequestAsync(addFediverseEquivalent);
+                
+                var createWorkers = $@"CREATE TABLE {_settings.WorkersTableName}
+                (
+                    id BIGINT PRIMARY KEY,
+                    rangeStart INTEGER,
+                    rangeEnd INTEGER,
+                    lastSeen TIMESTAMP (2) WITHOUT TIME ZONE,
+                    name text
+                );";
+                await _tools.ExecuteRequestAsync(createWorkers);
+                
+                var createWorkerInstance = $@" INSERT INTO {_settings.WorkersTableName} (id,rangeStart,rangeEnd) VALUES(0,0, 100) ";
+                await _tools.ExecuteRequestAsync(createWorkerInstance);
+                
+                var createInstagram = $@"CREATE TABLE {_settings.InstagramUserTableName}
+                (
+                    id SERIAL PRIMARY KEY,
+                    acct VARCHAR(20) UNIQUE, 
+                    
+                    data JSONB
+                );";
+                await _tools.ExecuteRequestAsync(createInstagram);
+                
+                var createInstagramPost = $@"CREATE TABLE {_settings.CachedInstaPostsTableName}
+                (
+                    id VARCHAR(30) PRIMARY KEY,
+                    acct VARCHAR(20) UNIQUE, 
+                    
+                    data JSONB
+                );";
+                await _tools.ExecuteRequestAsync(createInstagramPost);
+            }
             else
             {
                 throw new NotImplementedException();
@@ -207,7 +250,10 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
                 $@"DROP TABLE {_settings.DbVersionTableName};",
                 $@"DROP TABLE {_settings.TwitterUserTableName};",
                 $@"DROP TABLE {_settings.FollowersTableName};",
-                $@"DROP TABLE {_settings.CachedTweetsTableName};"
+                $@"DROP TABLE {_settings.CachedTweetsTableName};",
+                $@"DROP TABLE {_settings.InstagramUserTableName};",
+                $@"DROP TABLE {_settings.CachedInstaPostsTableName};",
+                $@"DROP TABLE {_settings.WorkersTableName};"
             };
 
             foreach (var r in dropsRequests)

@@ -9,7 +9,6 @@ namespace BirdsiteLive.DAL.Models
         public string Acct { get; set; }
 
         public long LastTweetPostedId { get; set; }
-        public long LastTweetSynchronizedForAllFollowersId { get; set; }
 
         public DateTime LastSync { get; set; }
 

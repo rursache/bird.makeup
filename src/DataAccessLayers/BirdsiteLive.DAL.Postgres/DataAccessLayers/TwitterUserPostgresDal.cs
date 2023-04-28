@@ -27,8 +27,8 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
             using (var dbConnection = Connection)
             {
                 await dbConnection.ExecuteAsync(
-                    $"INSERT INTO {_settings.TwitterUserTableName} (acct,lastTweetPostedId,lastTweetSynchronizedForAllFollowersId) VALUES(@acct,@lastTweetPostedId,@lastTweetSynchronizedForAllFollowersId)",
-                    new { acct, lastTweetPostedId, lastTweetSynchronizedForAllFollowersId = lastTweetPostedId });
+                    $"INSERT INTO {_settings.TwitterUserTableName} (acct,lastTweetPostedId) VALUES(@acct,@lastTweetPostedId)",
+                    new { acct, lastTweetPostedId });
             }
         }
 
@@ -53,7 +53,6 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
                 Acct = reader["acct"] as string,
                 TwitterUserId = reader["twitterUserId"] as long? ?? default,
                 LastTweetPostedId = reader["lastTweetPostedId"] as long? ?? default,
-                LastTweetSynchronizedForAllFollowersId = reader["lastTweetSynchronizedForAllFollowersId"] as long? ?? default,
                 LastSync = reader["lastSync"] as DateTime? ?? default,
                 FetchingErrorCount = reader["fetchingErrorCount"] as int? ?? default,
             };
@@ -79,7 +78,6 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
                 Acct = reader["acct"] as string,
                 TwitterUserId = reader["twitterUserId"] as long? ?? default,
                 LastTweetPostedId = reader["lastTweetPostedId"] as long? ?? default,
-                LastTweetSynchronizedForAllFollowersId = reader["lastTweetSynchronizedForAllFollowersId"] as long? ?? default,
                 LastSync = reader["lastSync"] as DateTime? ?? default,
                 FetchingErrorCount = reader["fetchingErrorCount"] as int? ?? default,
             };
@@ -143,7 +141,6 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
                         Acct = reader["acct"] as string,
                         TwitterUserId = reader["twitterUserId"] as long? ?? default,
                         LastTweetPostedId = reader["lastTweetPostedId"] as long? ?? default,
-                        LastTweetSynchronizedForAllFollowersId = reader["lastTweetSynchronizedForAllFollowersId"] as long? ?? default,
                         LastSync = reader["lastSync"] as DateTime? ?? default,
                         FetchingErrorCount = reader["fetchingErrorCount"] as int? ?? default,
                     }
@@ -189,21 +186,19 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
 
             await command.ExecuteNonQueryAsync();
         }
-        public async Task UpdateTwitterUserAsync(int id, long lastTweetPostedId, long lastTweetSynchronizedForAllFollowersId, int fetchingErrorCount, DateTime lastSync)
+        public async Task UpdateTwitterUserAsync(int id, long lastTweetPostedId, int fetchingErrorCount, DateTime lastSync)
         {
             if(id == default) throw new ArgumentException("id");
             if(lastTweetPostedId == default) throw new ArgumentException("lastTweetPostedId");
-            if(lastTweetSynchronizedForAllFollowersId == default) throw new ArgumentException("lastTweetSynchronizedForAllFollowersId");
             if(lastSync == default) throw new ArgumentException("lastSync");
 
-            var query = $"UPDATE {_settings.TwitterUserTableName} SET lastTweetPostedId = $1, lastTweetSynchronizedForAllFollowersId = $2, fetchingErrorCount = $3, lastSync = $4 WHERE id = $5";
+            var query = $"UPDATE {_settings.TwitterUserTableName} SET lastTweetPostedId = $1, fetchingErrorCount = $2, lastSync = $3 WHERE id = $4";
 
             await using var connection = DataSource.CreateConnection();
             await connection.OpenAsync();
             await using var command = new NpgsqlCommand(query, connection) {
                 Parameters = { 
                     new() { Value = lastTweetPostedId}, 
-                    new() { Value = lastTweetSynchronizedForAllFollowersId},
                     new() { Value = fetchingErrorCount},
                     new() { Value = lastSync.ToUniversalTime()},
                     new() { Value = id},
@@ -215,7 +210,7 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
 
         public async Task UpdateTwitterUserAsync(SyncTwitterUser user)
         {
-            await UpdateTwitterUserAsync(user.Id, user.LastTweetPostedId, user.LastTweetSynchronizedForAllFollowersId, user.FetchingErrorCount, user.LastSync);
+            await UpdateTwitterUserAsync(user.Id, user.LastTweetPostedId, user.FetchingErrorCount, user.LastSync);
         }
 
         public async Task DeleteTwitterUserAsync(string acct)

@@ -97,7 +97,6 @@ namespace BirdsiteLive.Domain.Tests.BusinessUseCases
                 Id = 2,
                 Acct = twitterName,
                 LastTweetPostedId = 460,
-                LastTweetSynchronizedForAllFollowersId = 460
             };
 
             var followerList = new List<Follower>
@@ -159,7 +158,6 @@ namespace BirdsiteLive.Domain.Tests.BusinessUseCases
                 Id = 2,
                 Acct = twitterName,
                 LastTweetPostedId = 460,
-                LastTweetSynchronizedForAllFollowersId = 460
             };
 
             var followerList = new List<Follower>();

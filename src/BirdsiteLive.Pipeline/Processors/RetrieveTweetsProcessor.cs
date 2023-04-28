@@ -61,25 +61,25 @@ namespace BirdsiteLive.Pipeline.Processors.SubTasks
                         {
                             // skip the first time to avoid sending backlog of tweet
                             var tweetId = tweets.Last().Id;
-                            await _twitterUserDal.UpdateTwitterUserAsync(user.Id, tweetId, tweetId, user.FetchingErrorCount, now);
+                            await _twitterUserDal.UpdateTwitterUserAsync(user.Id, tweetId, user.FetchingErrorCount, now);
                         }
                         else if (tweets.Length > 0 && user.LastTweetPostedId != -1)
                         {
                             userWtData.Tweets = tweets;
                             usersWtTweets.Add(userWtData);
                             var tweetId = tweets.Last().Id;
-                            await _twitterUserDal.UpdateTwitterUserAsync(user.Id, tweetId, tweetId, user.FetchingErrorCount, now);
+                            await _twitterUserDal.UpdateTwitterUserAsync(user.Id, tweetId, user.FetchingErrorCount, now);
                         }
                         else
                         {
-                            await _twitterUserDal.UpdateTwitterUserAsync(user.Id, user.LastTweetPostedId, user.LastTweetSynchronizedForAllFollowersId, user.FetchingErrorCount, now);
+                            await _twitterUserDal.UpdateTwitterUserAsync(user.Id, user.LastTweetPostedId, user.FetchingErrorCount, now);
                         }
 
                     } 
                     catch(Exception e)
                     {
                         _logger.LogError(e.Message);
-                        await _twitterUserDal.UpdateTwitterUserAsync(user.Id, user.LastTweetPostedId, user.LastTweetSynchronizedForAllFollowersId, user.FetchingErrorCount, now);
+                        await _twitterUserDal.UpdateTwitterUserAsync(user.Id, user.LastTweetPostedId, user.FetchingErrorCount, now);
                     }
                 });
                 todo.Add(t);
@@ -104,7 +104,7 @@ namespace BirdsiteLive.Pipeline.Processors.SubTasks
                 if (user.LastTweetPostedId == -1)
                     tweets = await _twitterTweetsService.GetTimelineAsync(user.Acct);
                 else
-                    tweets = await _twitterTweetsService.GetTimelineAsync(user.Acct, user.LastTweetSynchronizedForAllFollowersId);
+                    tweets = await _twitterTweetsService.GetTimelineAsync(user.Acct, user.LastTweetPostedId);
             }
             catch (Exception e)
             {
