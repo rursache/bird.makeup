@@ -19,6 +19,8 @@ jobs:
       
       - name: Sync with SourceHut
         run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
           git remote add sourcehut https://git.sr.ht/~cloutier/bird.makeup
           git fetch sourcehut
           git merge -X 'theirs' --no-commit --allow-unrelated-histories sourcehut/master
