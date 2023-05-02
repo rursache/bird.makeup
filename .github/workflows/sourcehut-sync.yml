@@ -25,5 +25,6 @@ jobs:
           git fetch sourcehut
           git merge -X 'theirs' --no-commit --allow-unrelated-histories sourcehut/master
           git reset -- .github
+          git reset -- Dockerfile
           git commit --no-edit
           git push
