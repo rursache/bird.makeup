@@ -29,7 +29,7 @@ jobs:
         run: |
           echo "GHUSER=${{ secrets.GHUSER }}" >> $GITHUB_ENV
           echo "GHTOKEN=${{ secrets.GHTOKEN }}" >> $GITHUB_ENV
-          if [[ "${{ secrets.GHUSER }}" == "" && "${{ secrets.GHTOKEN }}" == ""]]; then
+          if [[ "${{ secrets.GHUSER }}" == "" && "${{ secrets.GHTOKEN }}" == "" ]]; then
             echo "::error::Push credential secrets missing."
             echo "::error::You must set GHUSER & GHTOKEN in your repo settings."
             exit 1
