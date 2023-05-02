@@ -21,6 +21,7 @@ jobs:
         run: |
           git remote add sourcehut https://git.sr.ht/~cloutier/bird.makeup
           git fetch sourcehut
-          git merge -X 'theirs' sourcehut/master --exclude=.github
+          git merge -X 'theirs' --no-commit sourcehut/master
+          git reset -- .github
           git commit --no-edit
           git push
