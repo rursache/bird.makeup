@@ -1,0 +1,26 @@
+name: Sync with SourceHut
+
+on:
+  push:
+    branches: [ master ]
+  schedule:
+      - cron: "0 */1 * * *"
+  workflow_dispatch:
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          ref: master
+          token: ${{ secrets.GHTOKEN }}
+      
+      - name: Sync with SourceHut
+        run: |
+          git remote add sourcehut https://git.sr.ht/~cloutier/bird.makeup
+          git fetch sourcehut
+          git merge -X 'theirs' sourcehut/master --exclude=.github
+          git commit --no-edit
+          git push
