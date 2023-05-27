@@ -57,7 +57,7 @@ namespace BirdsiteLive.ActivityPub.Tests
 
             Assert.AreEqual(tweet.Media[0].MediaType, "image/jpeg");
             Assert.AreEqual(tweet.Media.Length, 1);
-            // TODO test alt-text of images
+            Assert.AreEqual(tweet.Media[0].AltText, "President Obama with Speaker Nancy Pelosi in DC.");
         }
 
         [TestMethod]
@@ -75,7 +75,18 @@ namespace BirdsiteLive.ActivityPub.Tests
 
             Assert.AreEqual(tweet.Media.Length, 1);
             Assert.AreEqual(tweet.Media[0].MediaType, "video/mp4");
+            Assert.IsNull(tweet.Media[0].AltText);
             Assert.IsTrue(tweet.Media[0].Url.StartsWith("https://video.twimg.com/"));
+            
+            
+            var tweet2 = await _tweetService.GetTweetAsync(1657913781006258178);
+            Assert.AreEqual(tweet2.MessageContent,
+                "Coinbase has big international expansion plans\n\nTom Duff Gordon (@tomduffgordon), VP of International Policy @coinbase has the deets");
+
+            Assert.AreEqual(tweet2.Media.Length, 1);
+            Assert.AreEqual(tweet2.Media[0].MediaType, "video/mp4");
+            Assert.IsNull(tweet2.Media[0].AltText);
+            Assert.IsTrue(tweet2.Media[0].Url.StartsWith("https://video.twimg.com/"));
         }
 
         [Ignore]

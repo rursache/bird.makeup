@@ -272,7 +272,8 @@ namespace BirdsiteLive.Twitter
                 {
                     var type = media.GetProperty("type").GetString();
                     string url = "";
-                    if (type == "video" || type == "animated_gif")
+                    string altText = null;
+                    if (media.TryGetProperty("video_info", out _))
                     {
                         var bitrate = -1;
                         foreach (JsonElement v in media.GetProperty("video_info").GetProperty("variants").EnumerateArray())
@@ -291,10 +292,16 @@ namespace BirdsiteLive.Twitter
                     {
                         url = media.GetProperty("media_url_https").GetString();
                     }
+
+                    if (media.TryGetProperty("ext_alt_text", out JsonElement altNode))
+                    {
+                        altText = altNode.GetString();
+                    }
                     var m = new ExtractedMedia
                     {
-                        MediaType = GetMediaType(type, media.GetProperty("media_url_https").GetString()),
+                        MediaType = GetMediaType(type, url),
                         Url = url,
+                        AltText = altText
                     };
                     Media.Add(m);
 
