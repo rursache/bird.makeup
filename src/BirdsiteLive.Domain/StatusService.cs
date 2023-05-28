@@ -137,7 +137,8 @@ namespace BirdsiteLive.Domain
                 {
                     type = "Document",
                     url = x.Url,
-                    mediaType = x.MediaType
+                    mediaType = x.MediaType,
+                    name = x.AltText
                 };
             }).ToArray();
         }

@@ -1,0 +1,9 @@
+#Cats
+SELECT ?item ?username ?username2 ?linkcount ?itemLabel
+WHERE 
+{
+  ?item wdt:P2002 ?username. 
+  ?item wdt:P4033 ?username2. 
+        ?item wikibase:sitelinks ?linkcount .
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en". } # Helps get the label in your language, if not, then en language
+} ORDER BY DESC(?linkcount) LIMIT 5000
