@@ -172,6 +172,19 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
             }
         }
 
+        public async Task UpdateTwitterUserFediAcctAsync(string twitterUsername, string fediUsername)
+        {
+            if(twitterUsername == default) throw new ArgumentException("id");
+
+            var query = $"UPDATE {_settings.TwitterUserTableName} SET fediverseaccount = $1 WHERE acct = $2";
+            await using var connection = DataSource.CreateConnection();
+            await connection.OpenAsync();
+            await using var command = new NpgsqlCommand(query, connection) {
+                Parameters = { new() { Value = fediUsername}, new() { Value = twitterUsername}}
+            };
+
+            await command.ExecuteNonQueryAsync();
+        }
         public async Task UpdateTwitterUserIdAsync(string username, long twitterUserId)
         {
             if(username == default) throw new ArgumentException("id");

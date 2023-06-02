@@ -7,4 +7,9 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\DataAccessLayers\BirdsiteLive.DAL.Postgres\BirdsiteLive.DAL.Postgres.csproj" />
+      <ProjectReference Include="..\DataAccessLayers\BirdsiteLive.DAL\BirdsiteLive.DAL.csproj" />
+    </ItemGroup>
+
 </Project>
