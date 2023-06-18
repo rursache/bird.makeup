@@ -141,7 +141,7 @@ namespace BirdsiteLive.Controllers
                 Protected = user.Protected,
                 FollowerCount = followers.Length,
                 MostPopularServer = followers.GroupBy(x => x.Host).OrderByDescending(x => x.Count()).Select(x => x.Key).FirstOrDefault("N/A"),
-
+                FediverseAccount = userDal.FediAcct,
                 InstanceHandle = $"@{user.Acct.ToLowerInvariant()}@{_instanceSettings.Domain}"
             };
             return View(displayableUser);
