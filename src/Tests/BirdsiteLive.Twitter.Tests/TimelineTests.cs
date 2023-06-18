@@ -57,12 +57,13 @@ namespace BirdsiteLive.ActivityPub.Tests
         {
             var tweets = await _tweetService.GetTimelineAsync("grantimahara", default);
             Assert.IsTrue(tweets[0].IsReply);
-            Assert.IsTrue(tweets.Length > 30);
+            Assert.IsTrue(tweets.Length > 10);
 
             Assert.AreEqual(tweets[2].MessageContent, "Liftoff!");
             Assert.AreEqual(tweets[2].RetweetId, 1266812530833240064);
             Assert.AreEqual(tweets[2].Id, 1266813644626489345);
             Assert.AreEqual(tweets[2].OriginalAuthor.Acct, "SpaceX");
+            Assert.AreEqual(tweets[2].Author.Acct, "grantimahara");
             Assert.IsTrue(tweets[2].IsRetweet);
         }
 

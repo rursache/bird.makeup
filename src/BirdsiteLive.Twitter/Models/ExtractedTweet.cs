@@ -17,5 +17,6 @@ namespace BirdsiteLive.Twitter.Models
         public string RetweetUrl { get; set; }
         public long RetweetId { get; set; }
         public TwitterUser OriginalAuthor { get; set; }
+        public TwitterUser Author { get; set; }
     }
 }
