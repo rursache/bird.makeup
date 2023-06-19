@@ -179,6 +179,7 @@ namespace BirdsiteLive.Twitter
 
             JsonElement retweet;
             TwitterUser OriginalAuthor;
+            TwitterUser author = null;
             JsonElement inReplyToPostIdElement;
             JsonElement inReplyToUserElement;
             string inReplyToUser = null;
@@ -189,6 +190,12 @@ namespace BirdsiteLive.Twitter
                     .GetProperty("tweet_results").GetProperty("result").GetProperty("core").GetProperty("user_results")
                     .GetProperty("result").GetProperty("legacy").GetProperty("screen_name").GetString();
 
+            JsonElement userDoc = tweet.GetProperty("content").GetProperty("itemContent")
+                    .GetProperty("tweet_results").GetProperty("result").GetProperty("core")
+                    .GetProperty("user_results").GetProperty("result");
+
+            author = _twitterUserService.Extract(userDoc); 
+            
             bool isReply = tweet.GetProperty("content").GetProperty("itemContent")
                     .GetProperty("tweet_results").GetProperty("result").GetProperty("legacy")
                     .TryGetProperty("in_reply_to_status_id_str", out inReplyToPostIdElement);
@@ -218,6 +225,7 @@ namespace BirdsiteLive.Twitter
                         .GetProperty("text").GetString();
                 }
                 OriginalAuthor = null;
+                
             }
             else 
             {
@@ -323,6 +331,7 @@ namespace BirdsiteLive.Twitter
                 quoteTweetLink = quoteTweetLink.Replace("/status/", "/statuses/");
                 MessageContent = MessageContent + "\n\n" + quoteTweetLink;
             }
+            
             var extractedTweet = new ExtractedTweet
             {
                 Id = Int64.Parse(tweet.GetProperty("entryId").GetString().Replace("tweet-", "")),
@@ -337,6 +346,7 @@ namespace BirdsiteLive.Twitter
                 RetweetUrl = "https://t.co/123",
                 RetweetId = retweetId,
                 OriginalAuthor = OriginalAuthor,
+                Author = author,
             };
        
             return extractedTweet;

@@ -47,4 +47,13 @@
             <input type="text" name="textbox" value="@ViewData.Model.InstanceHandle" onclick="this.select()" class="form-control" readonly />
         </div>
     }
+    @if (ViewData.Model.FediverseAccount != null)
+    {
+        <br/>
+        <br/>
+        <div>
+            <p>There is a native fediverse account associated with this Twitter account:</p>
+            <input type="text" name="textbox" value="@ViewData.Model.FediverseAccount" onclick="this.select()" class="form-control" readonly />
+        </div>
+    }
 </div>

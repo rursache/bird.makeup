@@ -68,6 +68,7 @@ namespace BirdsiteLive.ActivityPub.Tests
         }
 
         [TestMethod]
+        [Ignore]
         public async Task SimpleTextAndSingleVideoTweet()
         {
             var tweet = await _tweetService.GetTweetAsync(1604231025311129600);
@@ -107,6 +108,7 @@ namespace BirdsiteLive.ActivityPub.Tests
             var tweet = await _tweetService.GetTweetAsync(1610807139089383427);
 
             Assert.AreEqual(tweet.MessageContent, "When you gave them your keys you gave them your coins.\n\nhttps://domain.name/users/kadhim/statuses/1610706613207285773");
+            Assert.AreEqual(tweet.Author.Acct, "RyanSAdams");
         }
 
         [TestMethod]

@@ -39,8 +39,8 @@ foreach (string n in content.Split("\n"))
     if (n.Length < 2)
         continue;
     
-    var acct = s[1];
-    var fedi = s[2];
+    var acct = s[1].ToLower();
+    var fedi = "@" + s[2];
     await dal.UpdateTwitterUserFediAcctAsync(acct, fedi);
     if (twitterUser.Contains(acct))
         Console.WriteLine(fedi);

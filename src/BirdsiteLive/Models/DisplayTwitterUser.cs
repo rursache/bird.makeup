@@ -12,5 +12,6 @@
         public string MostPopularServer { get; set; }
 
         public string InstanceHandle { get; set; }
+        public string FediverseAccount { get; set; }
     }
 }
