@@ -5,7 +5,6 @@ using System.Linq;
 using System.Text.Json;
 using System.Net.Mime;
 using System.Text.RegularExpressions;
-using System.Threading;
 using System.Threading.Tasks;
 using BirdsiteLive.ActivityPub;
 using BirdsiteLive.ActivityPub.Models;
@@ -185,6 +184,44 @@ namespace BirdsiteLive.Controllers
             return View(displayTweet);
         }
 
+        // Mastodon API for QT in some apps
+        [Route("/api/v1/statuses/{statusId}")]
+        public async Task<IActionResult> mastoApi(string id, string statusId)
+        {
+            if (!long.TryParse(statusId, out var parsedStatusId))
+                return NotFound();
+
+            var tweet = await _twitterTweetService.GetTweetAsync(parsedStatusId);
+            if (tweet == null)
+                return NotFound();
+            
+            var user = await _twitterUserService.GetUserAsync(tweet.Author.Acct);
+            var status = _statusService.GetActivity(tweet.Author.Acct, tweet);
+            var res = new MastodonPostApi()
+            {
+                id = parsedStatusId,
+                content = status.apObject.content,
+                created_at = status.published,
+                uri = $"https://{_instanceSettings.Domain}/users/{tweet.Author.Acct}/statuses/{tweet.Id}",
+                url = $"https://{_instanceSettings.Domain}/@{tweet.Author.Acct}/{tweet.Id}",
+                account = new MastodonUserApi()
+                {
+                    Id = user.Id,
+                    username = user.Acct,
+                    acct = user.Acct,
+                    display_name = user.Name,
+                    Note = user.Description,
+                    avatar = user.ProfileImageUrl,
+                    avatar_static = user.ProfileImageUrl,
+                    header = user.ProfileBannerURL,
+                    header_static = user.ProfileBannerURL,
+                }
+            };
+
+
+            var jsonApUser = JsonSerializer.Serialize(res);
+            return Content(jsonApUser, "application/activity+json; charset=utf-8");
+        }
         [Route("/users/{id}/statuses/{statusId}/activity")]
         public async Task<IActionResult> Activity(string id, string statusId)
         {
