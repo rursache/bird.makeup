@@ -90,7 +90,7 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
 
             using (var dbConnection = Connection)
             {
-                var result = (await dbConnection.QueryAsync<TimeSpan>(query)).FirstOrDefault();
+                var result = (await dbConnection.QueryAsync<TimeSpan?>(query)).FirstOrDefault() ?? TimeSpan.Zero;
                 return result;
             }
         }
