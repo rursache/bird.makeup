@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -46,6 +47,12 @@ namespace BirdsiteLive.Twitter
             {
 
                 var httpResponse = await client.SendAsync(request);
+                if (httpResponse.StatusCode == HttpStatusCode.Unauthorized)
+                {
+                    _logger.LogError("Error retrieving user {Username}, Refreshing client", username);
+                    await _twitterAuthenticationInitializer.RefreshClient(request);
+                    return null;
+                }
                 httpResponse.EnsureSuccessStatusCode();
 
                 var c = await httpResponse.Content.ReadAsStringAsync();
@@ -68,12 +75,6 @@ namespace BirdsiteLive.Twitter
                 //{
                 //    throw;
                 //}
-            }
-            catch (HttpRequestException e)
-            {
-                _logger.LogError(e, "Error retrieving user {Username}, Refreshing client", username);
-                await _twitterAuthenticationInitializer.RefreshClient(request);
-                return null;
             }
             catch (Exception e)
             {
