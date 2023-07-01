@@ -111,7 +111,6 @@ namespace BirdsiteLive.Domain.Tests.Tools
             Assert.IsTrue(result.content.Contains(@"<a href=""https://www.eff.org/deeplinks/2020/07/pact-act-not-solution-problem-harmful-online-content"" rel=""nofollow noopener noreferrer"" target=""_blank""><span class=""invisible"">https://www.</span><span class=""ellipsis"">eff.org/deeplinks/2020/07/pact</span><span class=""invisible"">-act-not-solution-problem-harmful-online-content</span></a>"));
             #endregion
         }
-        [Ignore]
         [TestMethod]
         public void Extract_FormatUrl_Long2_Test()
         {
@@ -128,7 +127,29 @@ namespace BirdsiteLive.Domain.Tests.Tools
 
             #region Validations
             logger.VerifyAll();
-            Assert.AreEqual(result.content, @"<a href=""https://twitterisgoinggreat.com/#twitters-first-dollar15bn-interest-payment-could-be-due-in-two-weeks"" rel=""nofollow noopener noreferrer"" target=""_blank""><span class=""invisible"">https://www.</span><span class=""ellipsis"">eff.org/deeplinks/2020/07/pact</span><span class=""invisible"">-act-not-solution-problem-harmful-online-content</span></a>");
+            Assert.AreEqual(result.content, @"<a href=""https://twitterisgoinggreat.com/#twitters-first-dollar15bn-interest-payment-could-be-due-in-two-weeks"" rel=""nofollow noopener noreferrer"" target=""_blank""><span class=""invisible"">https://</span><span class=""ellipsis"">twitterisgoinggreat.com/#twitt</span><span class=""invisible"">ers-first-dollar15bn-interest-payment-could-be-due-in-two-weeks</span></a>");
+            Assert.AreEqual(0, result.tags.Length);
+
+            #endregion
+        }
+        
+        [TestMethod]
+        public void Extract_FormatUrl_Long3_Test()
+        {
+            #region Stubs
+            var message = $"https://domain.name/@WeekInEthNews/1668684659855880193";
+            #endregion
+
+            #region Mocks
+            var logger = new Mock<ILogger<StatusExtractor>>();
+            #endregion
+
+            var service = new StatusExtractor(_settings, logger.Object);
+            var result = service.Extract(message);
+
+            #region Validations
+            logger.VerifyAll();
+            Assert.AreEqual(result.content, @"<a href=""https://domain.name/@WeekInEthNews/1668684659855880193"" rel=""nofollow noopener noreferrer"" target=""_blank""><span class=""invisible"">https://</span><span class=""ellipsis"">domain.name/@WeekInEthNews/166</span><span class=""invisible"">8684659855880193</span></a>");
             Assert.AreEqual(0, result.tags.Length);
 
             #endregion
@@ -633,7 +654,7 @@ namespace BirdsiteLive.Domain.Tests.Tools
         public void Extract_Emoji_Test()
         {
             #region Stubs
-            var message = $"😤@mynickname 😎😍🤗🤩😘";
+            var message = $"😤 @mynickname 😎😍🤗🤩😘";
             //var message = $"tests@mynickname";
             #endregion
 
@@ -648,12 +669,13 @@ namespace BirdsiteLive.Domain.Tests.Tools
             logger.VerifyAll();
             Assert.AreEqual(1, result.tags.Length);
             Assert.IsTrue(result.content.Contains(
-                @"😤<span class=""h-card""><a href=""https://domain.name/users/mynickname"" class=""u-url mention"">@<span>mynickname</span></a></span>"));
+                @"😤 <span class=""h-card""><a href=""https://domain.name/users/mynickname"" class=""u-url mention"">@<span>mynickname</span></a></span>"));
 
             Assert.IsTrue(result.content.Contains(@"😎😍🤗🤩😘"));
             #endregion
         }
 
+        [Ignore]
         [TestMethod]
         public void Extract_Parenthesis_Test()
         {

@@ -327,8 +327,16 @@ namespace BirdsiteLive.Twitter
                 string quoteTweetLink = tweet.GetProperty("content").GetProperty("itemContent")
                         .GetProperty("tweet_results").GetProperty("result").GetProperty("legacy")
                         .GetProperty("quoted_status_permalink").GetProperty("expanded").GetString();
-                quoteTweetLink = quoteTweetLink.Replace("https://twitter.com/", $"https://{_instanceSettings.Domain}/users/");
-                quoteTweetLink = quoteTweetLink.Replace("/status/", "/statuses/");
+                Uri test = new Uri(quoteTweetLink);
+                string quoteTweetAcct = test.Segments[1].Replace("/", "");
+                string quoteTweetId = test.Segments[3];
+                
+                quoteTweetLink = quoteTweetLink.Replace("https://twitter.com/", $"https://{_instanceSettings.Domain}/@");
+                quoteTweetLink = quoteTweetLink.Replace("/status/", "/");
+
+                //MessageContent.Replace($"https://twitter.com/i/web/status/{}", "");
+                MessageContent = MessageContent.Replace($"https://twitter.com/{quoteTweetAcct}/status/{quoteTweetId}", "");
+                
                 MessageContent = MessageContent + "\n\n" + quoteTweetLink;
             }
             

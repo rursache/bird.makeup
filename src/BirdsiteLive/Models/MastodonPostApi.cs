@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace BirdsiteLive.Models;
 
@@ -20,18 +21,26 @@ public class MastodonPostApi
     public string content { get; set; }
     public MastodonUserApi account { get; set; }
     public MastodonAppApi application { get; } = new MastodonAppApi();
+    
+    public List<MastodonAppApi> media_attachments { get; set; } = new List<MastodonAppApi>();
+    public List<MastodonAppApi> mentions { get; set; } = new List<MastodonAppApi>();
+    public List<MastodonAppApi> tags { get; set; } = new List<MastodonAppApi>();
+    public List<MastodonAppApi> emojis { get; set; } = new List<MastodonAppApi>();
+    public string card { get; set; }
+    public string poll { get; set; }
+    public string reblog { get; set; }
 }
 public class MastodonUserApi
 {
-    public long Id { get; set; }
+    public long id { get; set; }
     public string username { get; set; }
     public string acct { get; set; }
     public string display_name { get; set; }
     public bool locked { get; set; } = false;
     public bool bot { get; set; } = true;
     public bool group { get; set; } = false;
-    public string Note { get; set; }
-    public string Url { get; set; }
+    public string note { get; set; }
+    public string url { get; set; }
     public string avatar { get; set; }
     public string avatar_static { get; set; }
     public string header { get; set; }
@@ -39,6 +48,9 @@ public class MastodonUserApi
     public int followers_count { get; set; } = 0;
     public int following_count { get; set; } = 0;
     public int statuses_count { get; set; } = 0;
+
+    public List<MastodonAppApi> fields { get; set; } = new List<MastodonAppApi>();
+    public List<MastodonAppApi> emojis { get; set; } = new List<MastodonAppApi>();
 }
 
 public class MastodonAppApi

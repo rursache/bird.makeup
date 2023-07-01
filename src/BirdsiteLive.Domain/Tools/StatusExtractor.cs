@@ -32,9 +32,6 @@ namespace BirdsiteLive.Domain.Tools
         {
             var tags = new List<Tag>();
 
-            // Replace return lines
-            messageContent = Regex.Replace(messageContent, @"\r\n\r\n?|\n\n", "</p><p>");
-            messageContent = Regex.Replace(messageContent, @"\r\n?|\n", "<br/>");
 
 
             // Extract Urls
@@ -124,6 +121,10 @@ namespace BirdsiteLive.Domain.Tools
                         $@"{m.Groups[1]}<span class=""h-card""><a href=""{url}"" class=""u-url mention"">@<span>{mention.ToLower()}</span></a></span>{m.Groups[3]}");
                 }
             }
+            
+            // Replace return lines
+            messageContent = Regex.Replace(messageContent, @"\r\n\r\n?|\n\n", "</p><p>");
+            messageContent = Regex.Replace(messageContent, @"\r\n?|\n", "<br/>");
 
             return (messageContent.Trim(), tags.ToArray());
         }

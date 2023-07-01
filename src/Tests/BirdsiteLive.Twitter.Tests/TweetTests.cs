@@ -17,6 +17,7 @@ namespace BirdsiteLive.ActivityPub.Tests
     public class TweetTests
     {
         private ITwitterTweetsService _tweetService;
+        
         [TestInitialize]
         public async Task TestInit()
         {
@@ -38,6 +39,7 @@ namespace BirdsiteLive.ActivityPub.Tests
             _tweetService = new TwitterTweetsService(auth, stats.Object, user2, twitterDal.Object, settings, logger3.Object);
 
         }
+
 
         [TestMethod]
         public async Task SimpleTextTweet()
@@ -107,8 +109,30 @@ namespace BirdsiteLive.ActivityPub.Tests
         {
             var tweet = await _tweetService.GetTweetAsync(1610807139089383427);
 
-            Assert.AreEqual(tweet.MessageContent, "When you gave them your keys you gave them your coins.\n\nhttps://domain.name/users/kadhim/statuses/1610706613207285773");
+            Assert.AreEqual(tweet.MessageContent, "When you gave them your keys you gave them your coins.\n\nhttps://domain.name/@kadhim/1610706613207285773");
             Assert.AreEqual(tweet.Author.Acct, "RyanSAdams");
+        }
+        
+        [TestMethod]
+        public async Task QTandTextContainsLink()
+        {
+            var tweet = await _tweetService.GetTweetAsync(1668932525522305026);
+
+            Assert.AreEqual(tweet.MessageContent, @"https://domain.name/@WeekInEthNews/1668684659855880193");
+            Assert.AreEqual(tweet.Author.Acct, "WeekInEthNews");
+        }
+        
+        [Ignore]
+        [TestMethod]
+        public async Task QTandTextContainsWebLink()
+        {
+            var tweet = await _tweetService.GetTweetAsync(1668969663340871682);
+
+            Assert.AreEqual(tweet.MessageContent, @"Friends, our Real World Risk Workshop (now transformed into summer school) #RWRI (18th ed.) takes place July 10-21 (remote).
+We have a few scholarships left but more importantly we are looking for a guest speaker on AI-LLM-Robotics for a 45 Q&amp;A with us.
+
+http://www.realworldrisk.com https://twitter.com/i/web/status/1668969663340871682");
+            Assert.AreEqual(tweet.Author.Acct, "nntaleb");
         }
 
         [TestMethod]
