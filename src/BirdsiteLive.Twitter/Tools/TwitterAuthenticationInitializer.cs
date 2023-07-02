@@ -52,6 +52,10 @@ namespace BirdsiteLive.Twitter.Tools
             _logger = logger;
             _instanceSettings = settings;
             _httpClientFactory = httpClientFactory;
+
+            var concuOpt = new ConcurrencyLimiterOptions();
+            concuOpt.PermitLimit = 1;
+            _rateLimiter = new ConcurrencyLimiter(concuOpt);
         }
         #endregion
 
@@ -99,17 +103,26 @@ namespace BirdsiteLive.Twitter.Tools
             string token;
             var httpClient = _httpClientFactory.CreateClient();
             string bearer = await GenerateBearerToken();
-            using (var request = new HttpRequestMessage(new HttpMethod("POST"), "https://api.twitter.com/1.1/guest/activate.json"))
-            {
-                request.Headers.TryAddWithoutValidation("Authorization", $"Bearer " + bearer); 
+            using RateLimitLease lease = await _rateLimiter.AcquireAsync(permitCount: 1);
+            using var request = new HttpRequestMessage(new HttpMethod("POST"),
+                "https://api.twitter.com/1.1/guest/activate.json");
+            request.Headers.TryAddWithoutValidation("Authorization", $"Bearer " + bearer);
+            //request.Headers.Add("User-Agent",
+            //    "Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; Googlebot/2.1; +http://www.google.com/bot.html) Chrome/113.0.5672.127 Safari/537.36");
 
-                var httpResponse = await httpClient.SendAsync(request);
+            HttpResponseMessage httpResponse;
+            do
+            {
+                httpResponse = await httpClient.SendAsync(request);
 
                 var c = await httpResponse.Content.ReadAsStringAsync();
+                if (httpResponse.StatusCode == HttpStatusCode.TooManyRequests)
+                    await Task.Delay(1000);
                 httpResponse.EnsureSuccessStatusCode();
                 var doc = JsonDocument.Parse(c);
                 token = doc.RootElement.GetProperty("guest_token").GetString();
-            }
+
+            } while (httpResponse.StatusCode != HttpStatusCode.OK);
 
             return (bearer, token);
 
@@ -124,11 +137,12 @@ namespace BirdsiteLive.Twitter.Tools
         public HttpRequestMessage MakeHttpRequest(HttpMethod m, string endpoint, bool addToken)
         {
             var request = new HttpRequestMessage(m, endpoint);
-            //(string bearer, string token) = _tokens[r];
             (string token, string bearer) = _token2.MaxBy(x => rnd.Next());
             request.Headers.TryAddWithoutValidation("Authorization", $"Bearer " + bearer); 
             request.Headers.TryAddWithoutValidation("Referer", "https://twitter.com/");
             request.Headers.TryAddWithoutValidation("x-twitter-active-user", "yes");
+            //request.Headers.Add("User-Agent",
+            //    "Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; Googlebot/2.1; +http://www.google.com/bot.html) Chrome/113.0.5672.127 Safari/537.36");
             if (addToken)
                 request.Headers.TryAddWithoutValidation("x-guest-token", token);
             //request.Headers.TryAddWithoutValidation("Referer", "https://twitter.com/");

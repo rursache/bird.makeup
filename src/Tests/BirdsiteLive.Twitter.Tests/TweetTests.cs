@@ -16,11 +16,13 @@ namespace BirdsiteLive.ActivityPub.Tests
     [TestClass]
     public class TweetTests
     {
-        private ITwitterTweetsService _tweetService;
+        private ITwitterTweetsService _tweetService = null;
         
         [TestInitialize]
         public async Task TestInit()
         {
+            if (_tweetService != null)
+                return;
             
             var logger1 = new Mock<ILogger<TwitterAuthenticationInitializer>>(MockBehavior.Strict);
             var logger2 = new Mock<ILogger<TwitterUserService>>(MockBehavior.Strict);
