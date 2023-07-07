@@ -39,6 +39,13 @@ namespace BirdsiteLive.ActivityPub.Tests
             Assert.AreEqual(user.Acct, "kobebryant");
         }
 
+        [TestMethod]
+        public async Task UserGrant()
+        {
+            var user = await _tweetService.GetUserAsync("grantimahara");
+            Assert.AreEqual(user.Name, "Grant Imahara");
+            Assert.AreEqual(user.Acct, "grantimahara");
+        }
 
     }
 }

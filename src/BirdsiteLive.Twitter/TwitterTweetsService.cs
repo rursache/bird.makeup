@@ -52,6 +52,7 @@ namespace BirdsiteLive.Twitter
             var client = await _twitterAuthenticationInitializer.MakeHttpClient();
 
 
+            // https://platform.twitter.com/embed/Tweet.html?id=1633788842770825216
             string reqURL =
                 "https://api.twitter.com/graphql/XjlydVWHFIDaAUny86oh2g/TweetDetail?variables=%7B%22focalTweetId%22%3A%22"
                 + statusId +
