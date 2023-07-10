@@ -64,6 +64,9 @@ namespace BirdsiteLive.Twitter.Tools
             var httpClient = _httpClientFactory.CreateClient();
             using (var request = new HttpRequestMessage(new HttpMethod("POST"), "https://api.twitter.com/oauth2/token?grant_type=client_credentials"))
             {
+                return
+                    "AAAAAAAAAAAAAAAAAAAAAFQODgEAAAAAVHTp76lzh3rFzcHbmHVvQxYYpTw%3DckAlMINMjmCwxUcaXbAN4XqJVdgMJaHqNOFgPMK0zN1qLqLQCF";
+                    
                 int r = rnd.Next(_apiKeys.Length);
                 var (login, password) = _apiKeys[r];
                 var authValue = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(Encoding.UTF8.GetBytes($"{login}:{password}")));

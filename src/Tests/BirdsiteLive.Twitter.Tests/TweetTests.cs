@@ -72,7 +72,6 @@ namespace BirdsiteLive.ActivityPub.Tests
         }
 
         [TestMethod]
-        [Ignore]
         public async Task SimpleTextAndSingleVideoTweet()
         {
             var tweet = await _tweetService.GetTweetAsync(1604231025311129600);
