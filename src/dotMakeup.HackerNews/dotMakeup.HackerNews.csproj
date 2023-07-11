@@ -5,11 +5,9 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
     </PropertyGroup>
-
+    
     <ItemGroup>
-      <Reference Include="Microsoft.Extensions.Http">
-        <HintPath>..\..\..\..\.nuget\packages\microsoft.extensions.http\5.0.0\lib\netstandard2.0\Microsoft.Extensions.Http.dll</HintPath>
-      </Reference>
+        <PackageReference Include="Microsoft.Extensions.Http" Version="5.0.0" />
     </ItemGroup>
 
 </Project>

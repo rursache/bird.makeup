@@ -39,6 +39,16 @@ namespace BirdsiteLive.Twitter.Tools
             ("CjulERsDeqhhjSme66ECg", "IQWdVyqFxghAtURHGeGiWAsmCAGmdW3WmbEx6Hck"), // iPad
             ("3rJOl1ODzm9yZy63FACdg", "5jPoQ5kQvMJFDYRNE8bQ4rHuds4xJqhvgNJM4awaE8"), // Mac
         };
+        
+        private readonly string[] _bTokens =  new[] 
+                {
+            // developer.twitter.com
+                    "AAAAAAAAAAAAAAAAAAAAACHguwAAAAAAaSlT0G31NDEyg%2BSnBN5JuyKjMCU%3Dlhg0gv0nE7KKyiJNEAojQbn8Y3wJm1xidDK7VnKGBP4ByJwHPb",
+            // tweetdeck new
+                    "AAAAAAAAAAAAAAAAAAAAAFQODgEAAAAAVHTp76lzh3rFzcHbmHVvQxYYpTw%3DckAlMINMjmCwxUcaXbAN4XqJVdgMJaHqNOFgPMK0zN1qLqLQCF",
+            // ipad -- TimelineSearch returns data in a different format, making nitter return empty results. on the other hand, it has high rate limits. build separate token pools per endpoint?
+                    "AAAAAAAAAAAAAAAAAAAAAGHtAgAAAAAA%2Bx7ILXNILCqkSGIzy6faIHZ9s3Q%3DQy97w6SIrzE7lQwPJEYQBsArEE2fC25caFwRBvAGi456G09vGR",
+        };
         public String BearerToken { 
             get
             {
@@ -64,6 +74,9 @@ namespace BirdsiteLive.Twitter.Tools
             var httpClient = _httpClientFactory.CreateClient();
             using (var request = new HttpRequestMessage(new HttpMethod("POST"), "https://api.twitter.com/oauth2/token?grant_type=client_credentials"))
             {
+                int r1 = rnd.Next(_bTokens.Length);
+                return _bTokens[r1];
+                
                 int r = rnd.Next(_apiKeys.Length);
                 var (login, password) = _apiKeys[r];
                 var authValue = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(Encoding.UTF8.GetBytes($"{login}:{password}")));
