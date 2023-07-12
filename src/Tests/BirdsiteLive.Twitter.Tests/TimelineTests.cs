@@ -52,7 +52,6 @@ namespace BirdsiteLive.ActivityPub.Tests
             Assert.IsTrue(tweets.Length > 5);
         }
 
-        [Ignore]
         [TestMethod]
         public async Task TimelineGrant()
         {

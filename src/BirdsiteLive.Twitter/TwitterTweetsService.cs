@@ -293,7 +293,12 @@ namespace BirdsiteLive.Twitter
                     .GetProperty("retweeted_status_result").GetProperty("result")
                     .GetProperty("core").GetProperty("user_result").GetProperty("result")
                     .GetProperty("legacy").GetProperty("screen_name").GetString();
-                OriginalAuthor = await _twitterUserService.GetUserAsync(OriginalAuthorUsername);
+                JsonElement OriginalAuthorDoc = tweet.GetProperty("content").GetProperty("content")
+                    .GetProperty("tweetResult").GetProperty("result").GetProperty("legacy")
+                    .GetProperty("retweeted_status_result").GetProperty("result")
+                    .GetProperty("core").GetProperty("user_result").GetProperty("result");
+                OriginalAuthor = _twitterUserService.Extract(OriginalAuthorDoc); 
+                //OriginalAuthor = await _twitterUserService.GetUserAsync(OriginalAuthorUsername);
                 retweetId = Int64.Parse(tweet.GetProperty("content").GetProperty("content")
                     .GetProperty("tweetResult").GetProperty("result").GetProperty("legacy")
                     .GetProperty("retweeted_status_result").GetProperty("result")
