@@ -201,26 +201,30 @@ namespace BirdsiteLive.Controllers
             if (!string.IsNullOrWhiteSpace(domain) && domain != _settings.Domain)
                 return NotFound();
 
-            try
+            var user = await _twitterUserDal.GetTwitterUserAsync(name);
+            if (user is null)
             {
-                await _twitterUserService.GetUserAsync(name);
-            }
-            catch (UserNotFoundException)
-            {
-                return NotFound();
-            }
-            catch (UserHasBeenSuspendedException)
-            {
-                return NotFound();
-            }
-            catch (RateLimitExceededException)
-            {
-                return new ObjectResult("Too Many Requests") { StatusCode = 429 };
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e, "Exception getting {Name}", name);
-                throw;
+                try
+                {
+                    await _twitterUserService.GetUserAsync(name);
+                }
+                catch (UserNotFoundException)
+                {
+                    return NotFound();
+                }
+                catch (UserHasBeenSuspendedException)
+                {
+                    return NotFound();
+                }
+                catch (RateLimitExceededException)
+                {
+                    return new ObjectResult("Too Many Requests") { StatusCode = 429 };
+                }
+                catch (Exception e)
+                {
+                    _logger.LogError(e, "Exception getting {Name}", name);
+                    throw;
+                }
             }
 
             var actorUrl = UrlFactory.GetActorUrl(_settings.Domain, name);
