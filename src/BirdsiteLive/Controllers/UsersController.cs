@@ -157,9 +157,10 @@ namespace BirdsiteLive.Controllers
             var tweet = await _twitterTweetService.GetTweetAsync(parsedStatusId);
             if (tweet == null)
                 return NotFound();
-            
-            var user = await _twitterUserService.GetUserAsync(id);
 
+            if (tweet.Author.Acct != id)
+                return NotFound();
+            
             var status = _statusService.GetStatus(id, tweet);
 
             if (acceptHeaders.Any())
@@ -178,8 +179,8 @@ namespace BirdsiteLive.Controllers
             {
                 Text = tweet.MessageContent,
                 OgUrl = $"https://twitter.com/{id}/status/{statusId}",
-                UserProfileImage = user.ProfileImageUrl,
-                UserName = user.Name,
+                UserProfileImage = tweet.Author.ProfileImageUrl,
+                UserName = tweet.Author.Name,
             };
             return View(displayTweet);
         }
@@ -233,8 +234,6 @@ namespace BirdsiteLive.Controllers
             if (tweet == null)
                 return NotFound();
             
-            var user = await _twitterUserService.GetUserAsync(id);
-
             var status = _statusService.GetActivity(id, tweet);
 
             var jsonApUser = JsonSerializer.Serialize(status);
