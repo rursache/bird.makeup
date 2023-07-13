@@ -166,7 +166,7 @@ namespace BirdsiteLive.Twitter
 
                 var httpResponse = await client.SendAsync(request);
                 var c = await httpResponse.Content.ReadAsStringAsync();
-                if (httpResponse.StatusCode == HttpStatusCode.Unauthorized)
+                if (httpResponse.StatusCode is HttpStatusCode.Unauthorized or HttpStatusCode.Forbidden)
                 {
                     _logger.LogError("Error retrieving timeline of {Username}; refreshing client", username);
                     await _twitterAuthenticationInitializer.RefreshClient(request);
