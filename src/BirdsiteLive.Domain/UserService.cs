@@ -11,6 +11,7 @@ using BirdsiteLive.ActivityPub.Models;
 using BirdsiteLive.Common.Regexes;
 using BirdsiteLive.Common.Settings;
 using BirdsiteLive.Cryptography;
+using BirdsiteLive.DAL.Contracts;
 using BirdsiteLive.Domain.BusinessUseCases;
 using BirdsiteLive.Domain.Repository;
 using BirdsiteLive.Domain.Statistics;
@@ -43,11 +44,12 @@ namespace BirdsiteLive.Domain
         private readonly IExtractionStatisticsHandler _statisticsHandler;
 
         private readonly ITwitterUserService _twitterUserService;
+        private readonly ITwitterUserDal _twitterUserDal;
 
         private readonly IModerationRepository _moderationRepository;
 
         #region Ctor
-        public UserService(InstanceSettings instanceSettings, ICryptoService cryptoService, IActivityPubService activityPubService, IProcessFollowUser processFollowUser, IProcessUndoFollowUser processUndoFollowUser, IStatusExtractor statusExtractor, IExtractionStatisticsHandler statisticsHandler, ITwitterUserService twitterUserService, IModerationRepository moderationRepository, IProcessDeleteUser processDeleteUser)
+        public UserService(InstanceSettings instanceSettings, ICryptoService cryptoService, IActivityPubService activityPubService, IProcessFollowUser processFollowUser, IProcessUndoFollowUser processUndoFollowUser, IStatusExtractor statusExtractor, IExtractionStatisticsHandler statisticsHandler, ITwitterUserService twitterUserService, IModerationRepository moderationRepository, IProcessDeleteUser processDeleteUser, ITwitterUserDal twitterUserDal)
         {
             _instanceSettings = instanceSettings;
             _cryptoService = cryptoService;
@@ -59,6 +61,7 @@ namespace BirdsiteLive.Domain
             _twitterUserService = twitterUserService;
             _moderationRepository = moderationRepository;
             _processDeleteUser = processDeleteUser;
+            _twitterUserDal = twitterUserDal;
         }
         #endregion
 
@@ -165,19 +168,22 @@ namespace BirdsiteLive.Domain
                     return await SendRejectFollowAsync(activity, followerHost);
             }
 
-            // Validate User Protected
-            var user = await _twitterUserService.GetUserAsync(twitterUser);
-            if (!user.Protected)
+            // Validate User 
+            var userDal = await _twitterUserDal.GetTwitterUserAsync(twitterUser);
+            if (userDal is null)
             {
-                // Execute
-                await _processFollowUser.ExecuteAsync(followerUserName, followerHost, twitterUser, followerInbox, followerSharedInbox, activity.actor);
+                // this will fail if the username doesn't exist
+                var user = await _twitterUserService.GetUserAsync(twitterUser);
+                if (user.Protected)
+                {
 
-                return await SendAcceptFollowAsync(activity, followerHost);
+                    return await SendRejectFollowAsync(activity, followerHost);
+                }
             }
-            else
-            {
-                return await SendRejectFollowAsync(activity, followerHost);
-            }
+            // Execute
+            await _processFollowUser.ExecuteAsync(followerUserName, followerHost, twitterUser, followerInbox,
+                followerSharedInbox, activity.actor);
+            return await SendAcceptFollowAsync(activity, followerHost);
         }
         
         private async Task<bool> SendAcceptFollowAsync(ActivityFollow activity, string followerHost)
