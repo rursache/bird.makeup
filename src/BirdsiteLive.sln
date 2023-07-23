@@ -57,6 +57,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "dotMakeup.HackerNews", "dot
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "dotMakeup.HackerNews.Tests", "Tests\dotMakeup.HackerNews.Tests\dotMakeup.HackerNews.Tests.csproj", "{6D650384-7BDD-4628-A46C-2FE4A688DBA4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "dotMakeup.Instagram", "dotMakeup.Instagram\dotMakeup.Instagram.csproj", "{0966D6C5-52E7-480A-AF31-FC484D10770F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "dotMakeup.Instagram.Tests", "Tests\dotMakeup.Instagram.Tests\dotMakeup.Instagram.Tests.csproj", "{4DC8E02D-7CA8-436C-8732-C8B23EE89A00}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -151,6 +155,14 @@ Global
 		{6D650384-7BDD-4628-A46C-2FE4A688DBA4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6D650384-7BDD-4628-A46C-2FE4A688DBA4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6D650384-7BDD-4628-A46C-2FE4A688DBA4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0966D6C5-52E7-480A-AF31-FC484D10770F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0966D6C5-52E7-480A-AF31-FC484D10770F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0966D6C5-52E7-480A-AF31-FC484D10770F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0966D6C5-52E7-480A-AF31-FC484D10770F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4DC8E02D-7CA8-436C-8732-C8B23EE89A00}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4DC8E02D-7CA8-436C-8732-C8B23EE89A00}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4DC8E02D-7CA8-436C-8732-C8B23EE89A00}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4DC8E02D-7CA8-436C-8732-C8B23EE89A00}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -177,6 +189,8 @@ Global
 		{060DE3F7-DB7E-45FD-B233-104C3C464F57} = {7ACCADEA-4B64-4ACB-A21D-0627674BBA9D}
 		{77C559D1-80A2-4B1C-A566-AE2D156944A4} = {7ACCADEA-4B64-4ACB-A21D-0627674BBA9D}
 		{6D650384-7BDD-4628-A46C-2FE4A688DBA4} = {A32D3458-09D0-4E0A-BA4B-8C411B816B94}
+		{0966D6C5-52E7-480A-AF31-FC484D10770F} = {7ACCADEA-4B64-4ACB-A21D-0627674BBA9D}
+		{4DC8E02D-7CA8-436C-8732-C8B23EE89A00} = {A32D3458-09D0-4E0A-BA4B-8C411B816B94}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {69E8DCAD-4C37-4010-858F-5F94E6FBABCE}
