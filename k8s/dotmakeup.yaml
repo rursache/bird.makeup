@@ -1,0 +1,102 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: dotmakeup
+spec:
+  selector:
+    matchLabels:
+      app: dotmakeup 
+  serviceName: "dotmakeup"
+  replicas: 1 
+  minReadySeconds: 10 
+  template:
+    metadata:
+      labels:
+        app: dotmakeup 
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: app
+                    operator: In
+                    values:
+                      - dotmakeup
+              topologyKey: "kubernetes.io/hostname"
+      terminationGracePeriodSeconds: 30
+      containers:
+        - name: nginx
+          image: cloutier/bird.makeup:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 80
+              name: web
+          env:
+            - name: Instance__domain
+              value: "bird.makeup"
+            - name: Instance__Name
+              value: "bird.makeup"
+            - name: Instance__ParallelTwitterRequests
+              value: "0"
+            - name: Instance__UserCacheCapacity
+              value: "50000"
+            - name: Instance__TweetCacheCapacity
+              value: "50000"
+            - name: db__type
+              value: "postgres"
+            - name: db__host
+              valueFrom:
+                secretKeyRef:
+                  name: dotmakeup-db
+                  key: host
+            - name: db__name
+              valueFrom:
+                secretKeyRef:
+                  name: dotmakeup-db
+                  key: name
+            - name: db__user
+              valueFrom:
+                secretKeyRef:
+                  name: dotmakeup-db
+                  key: user
+            - name: db__password
+              valueFrom:
+                secretKeyRef:
+                  name: dotmakeup-db
+                  key: password
+          volumeMounts:
+            - mountPath: "/app/secrets"
+              name: key
+              readOnly: true
+          livenessProbe:
+            httpGet:
+              path: /About
+              port: 80
+            initialDelaySeconds: 15
+            periodSeconds: 10
+          lifecycle:
+            postStart:
+              exec:
+                command:
+                  - /bin/sh
+                  - -c
+                  - cp /app/secrets/key.json /app/key.json
+      volumes:
+        - name: key
+          secret:
+            secretName: dotmakeup-key
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dotmakeup
+spec:
+  type: NodePort
+  selector:
+    app: dotmakeup
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+      nodePort: 30500
