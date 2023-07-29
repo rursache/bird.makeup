@@ -39,7 +39,7 @@ namespace BirdsiteLive.Pipeline.Processors
                 var ordinal = int.Parse( _ordinalRegex.Match( _instanceSettings.MachineName ).Groups[1].Value );
                 var range = _instanceSettings.n_end - _instanceSettings.n_start;
                 _n_start = _instanceSettings.n_start + (range * ordinal);
-                _n_end = _instanceSettings.n_end + (range * ordinal);
+                _n_end = _instanceSettings.n_end + (range * ordinal) - 1;
             }
             else
             {

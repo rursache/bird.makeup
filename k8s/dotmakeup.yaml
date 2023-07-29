@@ -7,7 +7,7 @@ spec:
     matchLabels:
       app: dotmakeup 
   serviceName: "dotmakeup"
-  replicas: 1 
+  replicas: 2 
   minReadySeconds: 10 
   template:
     metadata:
