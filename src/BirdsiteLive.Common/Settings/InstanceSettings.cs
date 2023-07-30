@@ -1,4 +1,6 @@
-﻿namespace BirdsiteLive.Common.Settings
+﻿using System;
+
+namespace BirdsiteLive.Common.Settings
 {
     public class InstanceSettings
     {
@@ -21,6 +23,9 @@
         public int m { get; set; } = 1;
         public int n_start { get; set; } = 0;
         public int n_end { get; set; } = 1;
+        public bool MultiplyNByOrdinal { get; set; } = false;
+
+        public string MachineName { get; set; } = Environment.MachineName;
         public int ParallelTwitterRequests { get; set; } = 10;
         public int ParallelFediversePosts { get; set; } = 10;
     }

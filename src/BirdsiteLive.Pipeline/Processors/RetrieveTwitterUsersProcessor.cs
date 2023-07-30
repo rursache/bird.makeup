@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
@@ -20,8 +21,10 @@ namespace BirdsiteLive.Pipeline.Processors
         private readonly InstanceSettings _instanceSettings;
         private readonly ILogger<RetrieveTwitterUsersProcessor> _logger;
         private static Random rng = new Random();
-        
-        public int WaitFactor = 1000 * 60; //1 min
+
+        private readonly Regex _ordinalRegex = new Regex(".*-([0-9])");
+        private readonly int _n_start;
+        private readonly int _n_end;
 
         #region Ctor
         public RetrieveTwitterUsersProcessor(ITwitterUserDal twitterUserDal, IFollowersDal followersDal, InstanceSettings instanceSettings, ILogger<RetrieveTwitterUsersProcessor> logger)
@@ -30,6 +33,19 @@ namespace BirdsiteLive.Pipeline.Processors
             _followersDal = followersDal;
             _instanceSettings = instanceSettings;
             _logger = logger;
+
+            if (_instanceSettings.MultiplyNByOrdinal)
+            {
+                var ordinal = int.Parse( _ordinalRegex.Match( _instanceSettings.MachineName ).Groups[1].Value );
+                var range = _instanceSettings.n_end - _instanceSettings.n_start;
+                _n_start = _instanceSettings.n_start + (range * ordinal);
+                _n_end = _instanceSettings.n_end + (range * ordinal) - 1;
+            }
+            else
+            {
+                _n_start = _instanceSettings.n_start;
+                _n_end = _instanceSettings.n_end;
+            }
         }
         #endregion
 
@@ -45,7 +61,7 @@ namespace BirdsiteLive.Pipeline.Processors
                         await Task.Delay(10000);
                 }
                 
-                var usersDal = await _twitterUserDal.GetAllTwitterUsersWithFollowersAsync(2000, _instanceSettings.n_start, _instanceSettings.n_end, _instanceSettings.m);
+                var usersDal = await _twitterUserDal.GetAllTwitterUsersWithFollowersAsync(2000, _n_start, _n_end, _instanceSettings.m);
 
                 var userCount = usersDal.Any() ? Math.Min(usersDal.Length, 200) : 1;
                 var splitUsers = usersDal.OrderBy(a => rng.Next()).ToArray().Split(userCount).ToList();

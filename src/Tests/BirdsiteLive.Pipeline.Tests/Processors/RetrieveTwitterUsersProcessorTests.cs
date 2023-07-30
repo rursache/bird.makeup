@@ -55,7 +55,6 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
             #endregion
 
             var processor = new RetrieveTwitterUsersProcessor(twitterUserDalMock.Object, followersDalMock.Object, instanceSettings, loggerMock.Object);
-            processor.WaitFactor = 10;
             var t = processor.GetTwitterUsersAsync(buffer, CancellationToken.None);
 
             await Task.WhenAny(t, Task.Delay(50));
@@ -108,7 +107,6 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
             #endregion
 
             var processor = new RetrieveTwitterUsersProcessor(twitterUserDalMock.Object, followersDalMock.Object, instanceSettings, loggerMock.Object);
-            processor.WaitFactor = 2;
             var t = processor.GetTwitterUsersAsync(buffer, CancellationToken.None);
 
             await Task.WhenAny(t, Task.Delay(300));
@@ -121,6 +119,116 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
             #endregion
         }
 
+        [TestMethod]
+        public async Task GetTwitterUsersAsync_Sharding()
+        {
+            #region Stubs
+            var buffer = new BufferBlock<UserWithDataToSync[]>();
+            var users = new List<SyncTwitterUser>();
+
+            for (var i = 0; i < 200; i++)
+                users.Add(new SyncTwitterUser());
+
+            var maxUsers = 1000;
+            var instanceSettings = new InstanceSettings()
+            {
+                n_start = 0,
+                n_end = 10,
+                m = 100,
+                MultiplyNByOrdinal = true,
+                MachineName = "dotmakeup-3"
+            };
+            #endregion
+
+            #region Mocks
+            var twitterUserDalMock = new Mock<ITwitterUserDal>(MockBehavior.Strict);
+            twitterUserDalMock
+                .SetupSequence(x => x.GetAllTwitterUsersWithFollowersAsync(
+                    It.Is<int>(y => true),
+                    It.Is<int>(y => y == 30),
+                    It.Is<int>(y => y == 39),
+                    It.Is<int>(y => true)))
+                .ReturnsAsync(users.ToArray())
+                .ReturnsAsync(new SyncTwitterUser[0])
+                .ReturnsAsync(new SyncTwitterUser[0])
+                .ReturnsAsync(new SyncTwitterUser[0])
+                .ReturnsAsync(new SyncTwitterUser[0]);
+            
+            var followersDalMock = new Mock<IFollowersDal>(MockBehavior.Strict);
+            followersDalMock
+                .Setup(x => x.GetFollowersAsync(It.Is<int>(x => true)))
+                .ReturnsAsync(new Follower[] {});
+            
+            var loggerMock = new Mock<ILogger<RetrieveTwitterUsersProcessor>>();
+            #endregion
+
+            var processor = new RetrieveTwitterUsersProcessor(twitterUserDalMock.Object, followersDalMock.Object, instanceSettings, loggerMock.Object);
+            var t = processor.GetTwitterUsersAsync(buffer, CancellationToken.None);
+
+            await Task.WhenAny(t, Task.Delay(5000));
+
+            #region Validations
+            twitterUserDalMock.VerifyAll();
+            Assert.IsTrue(0 < buffer.Count);
+            buffer.TryReceive(out var result);
+            Assert.IsTrue(1 < result.Length);
+            #endregion
+        }
+        [TestMethod]
+        public async Task GetTwitterUsersAsync_Sharding_0()
+        {
+            #region Stubs
+            var buffer = new BufferBlock<UserWithDataToSync[]>();
+            var users = new List<SyncTwitterUser>();
+
+            for (var i = 0; i < 200; i++)
+                users.Add(new SyncTwitterUser());
+
+            var maxUsers = 1000;
+            var instanceSettings = new InstanceSettings()
+            {
+                n_start = 0,
+                n_end = 10,
+                m = 100,
+                MultiplyNByOrdinal = true,
+                MachineName = "dotmakeup-0"
+            };
+            #endregion
+
+            #region Mocks
+            var twitterUserDalMock = new Mock<ITwitterUserDal>(MockBehavior.Strict);
+            twitterUserDalMock
+                .SetupSequence(x => x.GetAllTwitterUsersWithFollowersAsync(
+                    It.Is<int>(y => true),
+                    It.Is<int>(y => y == 0),
+                    It.Is<int>(y => y == 9),
+                    It.Is<int>(y => true)))
+                .ReturnsAsync(users.ToArray())
+                .ReturnsAsync(new SyncTwitterUser[0])
+                .ReturnsAsync(new SyncTwitterUser[0])
+                .ReturnsAsync(new SyncTwitterUser[0])
+                .ReturnsAsync(new SyncTwitterUser[0]);
+            
+            var followersDalMock = new Mock<IFollowersDal>(MockBehavior.Strict);
+            followersDalMock
+                .Setup(x => x.GetFollowersAsync(It.Is<int>(x => true)))
+                .ReturnsAsync(new Follower[] {});
+            
+            var loggerMock = new Mock<ILogger<RetrieveTwitterUsersProcessor>>();
+            #endregion
+
+            var processor = new RetrieveTwitterUsersProcessor(twitterUserDalMock.Object, followersDalMock.Object, instanceSettings, loggerMock.Object);
+            var t = processor.GetTwitterUsersAsync(buffer, CancellationToken.None);
+
+            await Task.WhenAny(t, Task.Delay(5000));
+
+            #region Validations
+            twitterUserDalMock.VerifyAll();
+            Assert.IsTrue(0 < buffer.Count);
+            buffer.TryReceive(out var result);
+            Assert.IsTrue(1 < result.Length);
+            #endregion
+        }
         [TestMethod]
         public async Task GetTwitterUsersAsync_Multi2_Test()
         {
@@ -161,7 +269,6 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
             #endregion
 
             var processor = new RetrieveTwitterUsersProcessor(twitterUserDalMock.Object, followersDalMock.Object, instanceSettings, loggerMock.Object);
-            processor.WaitFactor = 2;
             var t = processor.GetTwitterUsersAsync(buffer, CancellationToken.None);
 
             await Task.WhenAny(t, Task.Delay(5000));
@@ -207,7 +314,6 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
             #endregion
 
             var processor = new RetrieveTwitterUsersProcessor(twitterUserDalMock.Object, followersDalMock.Object, instanceSettings, loggerMock.Object);
-            processor.WaitFactor = 1;
             var t =processor.GetTwitterUsersAsync(buffer, CancellationToken.None);
 
             await Task.WhenAny(t, Task.Delay(50));
@@ -250,7 +356,6 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
             #endregion
 
             var processor = new RetrieveTwitterUsersProcessor(twitterUserDalMock.Object, followersDalMock.Object, instanceSettings, loggerMock.Object);
-            processor.WaitFactor = 10;
             var t = processor.GetTwitterUsersAsync(buffer, CancellationToken.None);
 
             await Task.WhenAny(t, Task.Delay(50));
@@ -289,7 +394,6 @@ namespace BirdsiteLive.Pipeline.Tests.Processors
             #endregion
 
             var processor = new RetrieveTwitterUsersProcessor(twitterUserDalMock.Object, followersDalMock.Object, instanceSettings, loggerMock.Object);
-            processor.WaitFactor = 1;
             await processor.GetTwitterUsersAsync(buffer, canTokenS.Token);
         }
 
