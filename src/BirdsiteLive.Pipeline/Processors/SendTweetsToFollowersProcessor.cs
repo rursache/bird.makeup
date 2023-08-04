@@ -64,7 +64,7 @@ namespace BirdsiteLive.Pipeline.Processors
                     await ProcessFollowersWithInboxAsync(userWithTweetsToSync.Tweets, followerWtInbox, user);
                     
                     _logger.LogInformation("Done sending " + userWithTweetsToSync.Tweets.Length + " tweets for "
-                        + userWithTweetsToSync.Followers.Length + "followers for user " + userWithTweetsToSync.User.Acct);
+                        + userWithTweetsToSync.Followers.Length + " followers for user " + userWithTweetsToSync.User.Acct);
                 }, ct);
                 _todo.Add(t);
 
@@ -86,7 +86,7 @@ namespace BirdsiteLive.Pipeline.Processors
             {
                 try
                 {
-                    _logger.LogInformation("Sending " + tweets.Length + " tweets from user " + user.Acct + " to instance " + followersPerInstance.Key);
+                    _logger.LogDebug("Sending " + tweets.Length + " tweets from user " + user.Acct + " to instance " + followersPerInstance.Key);
                     await _sendTweetsToSharedInbox.ExecuteAsync(tweets, user, followersPerInstance.Key, followersPerInstance.ToArray());
 
                     foreach (var f in followersPerInstance)
