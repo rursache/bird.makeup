@@ -1,6 +1,7 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
+using BirdsiteLive.Common.Settings;
 using BirdsiteLive.Pipeline.Models;
 using BirdsiteLive.Pipeline.Contracts;
 using Microsoft.Extensions.Logging;
@@ -31,9 +32,14 @@ namespace BirdsiteLive.Pipeline.Tests
             var retrieveFollowersProcessor = new Mock<IRetrieveFollowersProcessor>(MockBehavior.Strict);
             var sendTweetsToFollowersProcessor = new Mock<ISendTweetsToFollowersProcessor>(MockBehavior.Strict);
             var logger = new Mock<ILogger<StatusPublicationPipeline>>();
+
+            var setting = new InstanceSettings()
+            {
+                PipelineStartupDelay = 1
+            };
             #endregion
 
-            var pipeline = new StatusPublicationPipeline(retrieveTweetsProcessor.Object, retrieveTwitterUserProcessor.Object, retrieveFollowersProcessor.Object, sendTweetsToFollowersProcessor.Object, logger.Object);
+            var pipeline = new StatusPublicationPipeline(retrieveTweetsProcessor.Object, retrieveTwitterUserProcessor.Object, retrieveFollowersProcessor.Object, sendTweetsToFollowersProcessor.Object, setting, logger.Object);
             await pipeline.ExecuteAsync(ct.Token);
 
             #region Validations
