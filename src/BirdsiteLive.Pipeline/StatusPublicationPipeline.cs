@@ -1,8 +1,10 @@
 ﻿using System;
+using System.ComponentModel.Design.Serialization;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
+using BirdsiteLive.Common.Settings;
 using BirdsiteLive.DAL.Models;
 using BirdsiteLive.Pipeline.Contracts;
 using BirdsiteLive.Pipeline.Models;
@@ -21,15 +23,17 @@ namespace BirdsiteLive.Pipeline
         private readonly IRetrieveTweetsProcessor _retrieveTweetsProcessor;
         private readonly IRetrieveFollowersProcessor _retrieveFollowersProcessor;
         private readonly ISendTweetsToFollowersProcessor _sendTweetsToFollowersProcessor;
+        private readonly InstanceSettings _instanceSettings;
         private readonly ILogger<StatusPublicationPipeline> _logger;
 
         #region Ctor
-        public StatusPublicationPipeline(IRetrieveTweetsProcessor retrieveTweetsProcessor, IRetrieveTwitterUsersProcessor retrieveTwitterAccountsProcessor, IRetrieveFollowersProcessor retrieveFollowersProcessor, ISendTweetsToFollowersProcessor sendTweetsToFollowersProcessor, ILogger<StatusPublicationPipeline> logger)
+        public StatusPublicationPipeline(IRetrieveTweetsProcessor retrieveTweetsProcessor, IRetrieveTwitterUsersProcessor retrieveTwitterAccountsProcessor, IRetrieveFollowersProcessor retrieveFollowersProcessor, ISendTweetsToFollowersProcessor sendTweetsToFollowersProcessor, InstanceSettings instanceSettings, ILogger<StatusPublicationPipeline> logger)
         {
             _retrieveTweetsProcessor = retrieveTweetsProcessor;
             _retrieveFollowersProcessor = retrieveFollowersProcessor;
             _sendTweetsToFollowersProcessor = sendTweetsToFollowersProcessor;
             _retrieveTwitterAccountsProcessor = retrieveTwitterAccountsProcessor;
+            _instanceSettings = instanceSettings;
 
             _logger = logger;
         }
@@ -54,7 +58,7 @@ namespace BirdsiteLive.Pipeline
 
             // Launch twitter user retriever after a little delay
             // to give time for the Tweet cache to fill
-            await Task.Delay(30 * 1000, ct);
+            await Task.Delay(_instanceSettings.PipelineStartupDelay * 1000, ct);
             var retrieveTwitterAccountsTask = _retrieveTwitterAccountsProcessor.GetTwitterUsersAsync(twitterUserToRefreshBufferBlock, ct);
 
             // Wait

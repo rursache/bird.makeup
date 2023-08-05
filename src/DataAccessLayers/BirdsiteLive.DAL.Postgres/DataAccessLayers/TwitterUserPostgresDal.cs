@@ -119,7 +119,24 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
 
         public async Task<SyncTwitterUser[]> GetAllTwitterUsersWithFollowersAsync(int maxNumber, int nStart, int nEnd, int m)
         {
-            var query = "SELECT * FROM (SELECT unnest(followings) as follow FROM followers GROUP BY follow) AS f INNER JOIN twitter_users ON f.follow=twitter_users.id WHERE mod(id, $2) >= $3 AND mod(id, $2) <= $4 ORDER BY lastSync ASC NULLS FIRST LIMIT $1";
+            const string query = @"
+                WITH following AS (
+                    SELECT unnest(followings) as follow FROM followers
+                ),
+                following2 AS (
+                    SELECT id, lastsync FROM following
+                    INNER JOIN twitter_users ON following.follow=twitter_users.id
+                    WHERE mod(id, $2) >= $3 AND mod(id, $2) <= $4
+                    GROUP BY id
+                    ORDER BY lastSync ASC NULLS FIRST
+                    LIMIT $1
+                )
+                UPDATE twitter_users
+                SET lastsync = NOW()
+                FROM following2
+                WHERE following2.id = twitter_users.id
+                RETURNING * 
+                ";
 
             await using var connection = DataSource.CreateConnection();
             await connection.OpenAsync();

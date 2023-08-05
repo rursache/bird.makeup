@@ -38,11 +38,21 @@ spec:
             - name: Instance__Name
               value: "bird.makeup"
             - name: Instance__ParallelTwitterRequests
-              value: "0"
+              value: "10"
+            - name: Instance__ParallelFediversePosts
+              value: "40"
             - name: Instance__UserCacheCapacity
               value: "50000"
             - name: Instance__TweetCacheCapacity
               value: "50000"
+            - name: Instance__MultiplyNByOrdinal
+              value: "true"
+            - name: Instance__n_start
+              value: "0"
+            - name: Instance__n_end
+              value: "25"
+            - name: Instance__m
+              value: "100"
             - name: db__type
               value: "postgres"
             - name: db__host
