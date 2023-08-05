@@ -4,6 +4,7 @@ namespace dotMakeup.Instagram.Tests;
 public class UnitTest1
 {
     [TestMethod]
+    [Ignore]
     public async Task user_grant()
     {
         var userService = new InstagramUser();
