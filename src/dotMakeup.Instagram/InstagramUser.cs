@@ -1,15 +1,28 @@
 ﻿using System.Diagnostics;
+using System.Runtime.InteropServices;
 using Python.Runtime;
 
 namespace dotMakeup.Instagram;
 
 public class InstagramUser
 {
-    public async Task<string> GetUserAsync(string username)
+
+    public InstagramUser()
     {
-        Runtime.PythonDLL = @"/opt/homebrew/opt/python@3.11/Frameworks/Python.framework/Versions/3.11/lib/libpython3.11.dylib";
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+        {
+            Runtime.PythonDLL = @"/opt/homebrew/opt/python@3.11/Frameworks/Python.framework/Versions/3.11/lib/libpython3.11.dylib";
+        }
+        else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+        {
+            Runtime.PythonDLL = @"/lib64/libpython3.11.so";
+        }
+        
         PythonEngine.Initialize();
         PythonEngine.BeginAllowThreads();
+    }
+    public async Task<string> GetUserAsync(string username)
+    {
         string bio = null;
         using (Py.GIL())
         {
