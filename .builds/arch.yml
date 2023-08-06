@@ -3,6 +3,7 @@ packages:
   - dotnet-sdk
   - dotnet-runtime-6.0
   - docker
+  - instaloader
 sources:
   - https://git.sr.ht/~cloutier/bird.makeup
 secrets:

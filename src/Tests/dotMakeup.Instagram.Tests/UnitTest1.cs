@@ -5,7 +5,7 @@ public class UnitTest1
 {
     [TestMethod]
     [Ignore]
-    public async Task user()
+    public async Task user_grant()
     {
         var userService = new InstagramUser();
         var user = await userService.GetUserAsync("kobebryant");
