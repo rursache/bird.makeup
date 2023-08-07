@@ -8,6 +8,7 @@ using BirdsiteLive.Common.Structs;
 using BirdsiteLive.DAL.Contracts;
 using BirdsiteLive.DAL.Postgres.DataAccessLayers;
 using BirdsiteLive.DAL.Postgres.Settings;
+using BirdsiteLive.Middleware;
 using BirdsiteLive.Models;
 using BirdsiteLive.Services;
 using BirdsiteLive.Twitter;
@@ -132,12 +133,15 @@ namespace BirdsiteLive
 
             app.UseAuthorization();
 
+            app.UseSocialNetworkInterceptor();
+            
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");
             });
+
         }
     }
 }
