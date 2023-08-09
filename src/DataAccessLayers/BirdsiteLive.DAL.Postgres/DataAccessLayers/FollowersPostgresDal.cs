@@ -95,8 +95,7 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
 
             var query = $"SELECT * FROM {_settings.FollowersTableName} WHERE followings @> ARRAY[$1]";
 
-            await using var connection = DataSource.CreateConnection();
-            await connection.OpenAsync();
+            await using var connection = await DataSource.OpenConnectionAsync();
             await using var command = new NpgsqlCommand(query, connection) {
                 Parameters = { new() { Value = followedUserId}}
             };
@@ -117,7 +116,6 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
                     PostingErrorCount = reader["postingErrorCount"] as int? ?? default,
                 });
             }
-            await connection.CloseAsync();
             
             return followers.ToArray();
         }
