@@ -71,7 +71,7 @@ namespace BirdsiteLive
 
             if (string.Equals(dbSettings.Type, DbTypes.Postgres, StringComparison.OrdinalIgnoreCase))
             {
-                var connString = $"Host={dbSettings.Host};Username={dbSettings.User};Password={dbSettings.Password};Database={dbSettings.Name}";
+                var connString = $"Host={dbSettings.Host};Username={dbSettings.User};Password={dbSettings.Password};Database={dbSettings.Name};MinPoolSize=3;";
                 var postgresSettings = new PostgresSettings
                 {
                     ConnString = connString
