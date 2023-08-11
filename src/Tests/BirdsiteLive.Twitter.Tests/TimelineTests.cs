@@ -16,6 +16,7 @@ namespace BirdsiteLive.ActivityPub.Tests
     public class TimelineTests
     {
         private ITwitterTweetsService _tweetService;
+        private ICachedTwitterUserService _twitterUserService;
         [TestInitialize]
         public async Task TestInit()
         {
@@ -39,8 +40,8 @@ namespace BirdsiteLive.ActivityPub.Tests
 
             ITwitterAuthenticationInitializer auth = new TwitterAuthenticationInitializer(httpFactory.Object, settings, logger1.Object);
             ITwitterUserService user = new TwitterUserService(auth, stats.Object, logger2.Object);
-            ICachedTwitterUserService user2 = new CachedTwitterUserService(user, settings);
-            _tweetService = new TwitterTweetsService(auth, stats.Object, user2, twitterDal.Object, settings, logger3.Object);
+            _twitterUserService = new CachedTwitterUserService(user, settings);
+            _tweetService = new TwitterTweetsService(auth, stats.Object, _twitterUserService, twitterDal.Object, settings, logger3.Object);
 
         }
 
@@ -50,6 +51,12 @@ namespace BirdsiteLive.ActivityPub.Tests
             var tweets = await _tweetService.GetTimelineAsync("kobebryant", 1218020971346444288);
             Assert.AreEqual(tweets[0].MessageContent, "Continuing to move the game forward @KingJames. Much respect my brother 💪🏾 #33644");
             Assert.IsTrue(tweets.Length > 5);
+
+            
+            Assert.IsTrue(_twitterUserService.UserIsCached("kobebryant"));
+            bool aRetweetedAccountIsCached = _twitterUserService.UserIsCached("alleniverson");
+            Assert.IsTrue(aRetweetedAccountIsCached);
+            
         }
 
         [TestMethod]

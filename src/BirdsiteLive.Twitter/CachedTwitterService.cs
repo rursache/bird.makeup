@@ -62,7 +62,9 @@ namespace BirdsiteLive.Twitter
 
         public TwitterUser Extract(JsonElement result)
         {
-            return _twitterService.Extract(result);
+            var extract = _twitterService.Extract(result);
+            _userCache.Set(extract.Acct, extract, _cacheEntryOptions);
+            return extract;
         }
         public void PurgeUser(string username)
         {
