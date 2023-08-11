@@ -47,7 +47,12 @@ namespace BirdsiteLive
             if(string.Equals("insights", logsSettings.Type, StringComparison.OrdinalIgnoreCase))
             {
                 var key = logsSettings.InstrumentationKey;
-                services.AddApplicationInsightsTelemetry(key);
+                var aiOptions = new Microsoft.ApplicationInsights.AspNetCore.Extensions.ApplicationInsightsServiceOptions();
+                aiOptions.InstrumentationKey = key;
+                aiOptions.EnableDependencyTrackingTelemetryModule = false;
+                aiOptions.EnableDebugLogger = false;
+                aiOptions.EnableRequestTrackingTelemetryModule = false;
+                services.AddApplicationInsightsTelemetry(aiOptions);
             }
 
             services.AddControllersWithViews();
