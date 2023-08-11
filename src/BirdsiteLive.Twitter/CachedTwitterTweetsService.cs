@@ -2,6 +2,7 @@
 using System.Text.Json;
 using System.Threading.Tasks;
 using BirdsiteLive.Common.Settings;
+using BirdsiteLive.DAL.Models;
 using BirdsiteLive.Twitter.Models;
 using Microsoft.Extensions.Caching.Memory;
 
@@ -39,9 +40,9 @@ namespace BirdsiteLive.Twitter
         }
         #endregion
 
-        public async Task<ExtractedTweet[]> GetTimelineAsync(string username, long id)
+        public async Task<ExtractedTweet[]> GetTimelineAsync(SyncTwitterUser user, long id)
         {
-            var res = await _twitterService.GetTimelineAsync(username, id);
+            var res = await _twitterService.GetTimelineAsync(user, id);
             return res;
         }
         public async Task<ExtractedTweet> GetTweetAsync(long id)
