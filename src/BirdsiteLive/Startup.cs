@@ -1,22 +1,16 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
-using System.Threading.Tasks;
 using BirdsiteLive.Common.Settings;
 using BirdsiteLive.Common.Structs;
 using BirdsiteLive.DAL.Contracts;
 using BirdsiteLive.DAL.Postgres.DataAccessLayers;
 using BirdsiteLive.DAL.Postgres.Settings;
 using BirdsiteLive.Middleware;
-using BirdsiteLive.Models;
 using BirdsiteLive.Services;
 using BirdsiteLive.Twitter;
 using BirdsiteLive.Twitter.Tools;
 using Lamar;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -47,7 +41,13 @@ namespace BirdsiteLive
             if(string.Equals("insights", logsSettings.Type, StringComparison.OrdinalIgnoreCase))
             {
                 var key = logsSettings.InstrumentationKey;
-                services.AddApplicationInsightsTelemetry(key);
+                var aiOptions = new Microsoft.ApplicationInsights.AspNetCore.Extensions.ApplicationInsightsServiceOptions();
+                aiOptions.InstrumentationKey = key;
+                aiOptions.EnableDependencyTrackingTelemetryModule = false;
+                aiOptions.EnableDebugLogger = false;
+                aiOptions.EnableRequestTrackingTelemetryModule = false;
+                //aiOptions.EnableAdaptiveSampling = false;
+                services.AddApplicationInsightsTelemetry(aiOptions);
             }
 
             services.AddControllersWithViews();
@@ -58,7 +58,7 @@ namespace BirdsiteLive
         public void ConfigureContainer(ServiceRegistry services)
         {
             var instanceSettings = Configuration.GetSection("Instance").Get<InstanceSettings>();
-            services.For<InstanceSettings>().Use(x => instanceSettings);
+            services.For<InstanceSettings>().Use(_ => instanceSettings);
 
             var dbSettings = Configuration.GetSection("Db").Get<DbSettings>();
             services.For<DbSettings>().Use(x => dbSettings);

@@ -17,6 +17,8 @@ namespace BirdsiteLive.ActivityPub.Tests
     {
         private ITwitterTweetsService _tweetService;
         private ICachedTwitterUserService _twitterUserService;
+        private ITwitterUserDal _twitterUserDalMoq;
+
         [TestInitialize]
         public async Task TestInit()
         {
@@ -36,7 +38,8 @@ namespace BirdsiteLive.ActivityPub.Tests
                 .Setup(x => x.GetTwitterUserAsync(
                     It.Is<string>(y => true)
                 ))
-                .ReturnsAsync(new SyncTwitterUser { TwitterUserId = default });
+                .ReturnsAsync((string username) => new SyncTwitterUser { Acct = username, TwitterUserId = default });
+            _twitterUserDalMoq = twitterDal.Object;
 
             ITwitterAuthenticationInitializer auth = new TwitterAuthenticationInitializer(httpFactory.Object, settings, logger1.Object);
             ITwitterUserService user = new TwitterUserService(auth, stats.Object, logger2.Object);
@@ -48,7 +51,8 @@ namespace BirdsiteLive.ActivityPub.Tests
         [TestMethod]
         public async Task TimelineKobe()
         {
-            var tweets = await _tweetService.GetTimelineAsync("kobebryant", 1218020971346444288);
+            var user = await _twitterUserDalMoq.GetTwitterUserAsync("kobebryant");
+            var tweets = await _tweetService.GetTimelineAsync(user, 1218020971346444288);
             Assert.AreEqual(tweets[0].MessageContent, "Continuing to move the game forward @KingJames. Much respect my brother 💪🏾 #33644");
             Assert.IsTrue(tweets.Length > 5);
 
@@ -63,7 +67,8 @@ namespace BirdsiteLive.ActivityPub.Tests
         [Ignore]
         public async Task TimelineGrant()
         {
-            var tweets = await _tweetService.GetTimelineAsync("grantimahara", default);
+            var user = await _twitterUserDalMoq.GetTwitterUserAsync("grantimahara");
+            var tweets = await _tweetService.GetTimelineAsync(user, default);
             Assert.IsTrue(tweets[0].IsReply);
             Assert.IsTrue(tweets.Length > 10);
 

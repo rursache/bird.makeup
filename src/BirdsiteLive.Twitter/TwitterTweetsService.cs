@@ -21,7 +21,7 @@ namespace BirdsiteLive.Twitter
     public interface ITwitterTweetsService
     {
         Task<ExtractedTweet> GetTweetAsync(long statusId);
-        Task<ExtractedTweet[]> GetTimelineAsync(string username, long fromTweetId = -1);
+        Task<ExtractedTweet[]> GetTimelineAsync(SyncTwitterUser user, long fromTweetId = -1);
     }
 
     public class TwitterTweetsService : ITwitterTweetsService
@@ -131,13 +131,13 @@ namespace BirdsiteLive.Twitter
             }
         }
 
-        public async Task<ExtractedTweet[]> GetTimelineAsync(string username, long fromTweetId = -1)
+        public async Task<ExtractedTweet[]> GetTimelineAsync(SyncTwitterUser user, long fromTweetId = -1)
         {
 
             var client = await _twitterAuthenticationInitializer.MakeHttpClient();
 
             long userId;
-            SyncTwitterUser user = await _twitterUserDal.GetTwitterUserAsync(username);
+            string username = user.Acct;
             if (user.TwitterUserId == default) 
             {
                 var user2 = await _twitterUserService.GetUserAsync(username);

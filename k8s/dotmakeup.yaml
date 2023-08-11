@@ -26,12 +26,16 @@ spec:
               topologyKey: "kubernetes.io/hostname"
       terminationGracePeriodSeconds: 30
       containers:
-        - name: nginx
+        - name: dotmakeup
           image: cloutier/bird.makeup:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 80
               name: web
+          resources:
+            requests:
+              memory: "900Mi"
+              cpu: "500m"
           env:
             - name: Instance__domain
               value: "bird.makeup"
@@ -40,7 +44,7 @@ spec:
             - name: Instance__ParallelTwitterRequests
               value: "10"
             - name: Instance__ParallelFediversePosts
-              value: "40"
+              value: "10"
             - name: Instance__UserCacheCapacity
               value: "50000"
             - name: Instance__TweetCacheCapacity
