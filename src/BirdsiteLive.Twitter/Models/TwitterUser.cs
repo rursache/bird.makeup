@@ -1,6 +1,8 @@
-﻿namespace BirdsiteLive.Twitter.Models
+﻿using BirdsiteLive.Common.Interfaces;
+
+namespace BirdsiteLive.Twitter.Models
 {
-    public class TwitterUser
+    public class TwitterUser : SocialMediaUser
     {
         public long Id { get; set; }
         public string Name { get; set; }

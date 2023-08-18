@@ -259,6 +259,7 @@ namespace BirdsiteLive.Twitter
             
             string messageContent = tweet.RootElement.GetProperty("text").GetString();
             string username = tweet.RootElement.GetProperty("user").GetProperty("screen_name").GetString();
+            List<ExtractedMedia> Media = new();
 
             JsonElement replyTo;
             bool isReply = tweet.RootElement.TryGetProperty("parent", out replyTo);
@@ -271,6 +272,56 @@ namespace BirdsiteLive.Twitter
                 inReplyToId = Int64.Parse(tweet.RootElement.GetProperty("in_reply_to_status_id_str").GetString());
 
                 isThread = username == inReplyTo;
+            }
+
+            JsonElement entities;
+            if (tweet.RootElement.TryGetProperty("entities", out entities))
+            {
+                JsonElement urls;
+                if (entities.TryGetProperty("urls", out urls))
+                {
+                    foreach (JsonElement url in urls.EnumerateArray())
+                    {
+                        var urlTCO = url.GetProperty("url").GetString();
+                        var urlOriginal = url.GetProperty("expanded_url").GetString();
+
+                        messageContent = messageContent.Replace(urlTCO, urlOriginal);
+                    }
+                }
+                
+                JsonElement mediaEntity;
+                if (entities.TryGetProperty("media", out mediaEntity))
+                {
+                    foreach (JsonElement media in mediaEntity.EnumerateArray())
+                    {
+                        var urlTCO = media.GetProperty("url").GetString();
+
+                        messageContent = messageContent.Replace(urlTCO, String.Empty);
+                    }
+                }
+            }
+            
+            JsonElement mediaDetails;
+            if (tweet.RootElement.TryGetProperty("mediaDetails", out mediaDetails))
+            {
+                foreach (var media in mediaDetails.EnumerateArray())
+                {
+                        var url = media.GetProperty("media_url_https").GetString();
+                        var type = media.GetProperty("type").GetString();
+                        var altText = media.GetProperty("ext_alt_text").GetString();
+                        string returnType = null;
+
+                        if (type == "photo")
+                            returnType = "image/jpeg";
+                        
+                        var m = new ExtractedMedia()
+                        {
+                            Url = url,
+                            MediaType = returnType,
+                            AltText = altText,
+                        };
+                        Media.Add(m);
+                }
             }
 
             JsonElement qt;
@@ -293,7 +344,7 @@ namespace BirdsiteLive.Twitter
             
             return new ExtractedTweet()
             {
-                MessageContent = messageContent,
+                MessageContent = messageContent.Trim(),
                 Id = statusId,
                 IsReply = isReply,
                 IsThread = isThread,
@@ -301,6 +352,7 @@ namespace BirdsiteLive.Twitter
                 InReplyToAccount = inReplyTo,
                 InReplyToStatusId = inReplyToId,
                 Author = author,
+                Media = Media.Count() == 0 ? null : Media.ToArray(),
             };
 
         }
