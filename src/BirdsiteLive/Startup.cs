@@ -37,18 +37,12 @@ namespace BirdsiteLive
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            var logsSettings = Configuration.GetSection("Logging").Get<LogsSettings>();
-            if(string.Equals("insights", logsSettings.Type, StringComparison.OrdinalIgnoreCase))
-            {
-                var key = logsSettings.InstrumentationKey;
-                var aiOptions = new Microsoft.ApplicationInsights.AspNetCore.Extensions.ApplicationInsightsServiceOptions();
-                aiOptions.InstrumentationKey = key;
-                aiOptions.EnableDependencyTrackingTelemetryModule = false;
-                aiOptions.EnableDebugLogger = false;
-                aiOptions.EnableRequestTrackingTelemetryModule = false;
-                //aiOptions.EnableAdaptiveSampling = false;
-                services.AddApplicationInsightsTelemetry(aiOptions);
-            }
+            var aiOptions = new Microsoft.ApplicationInsights.AspNetCore.Extensions.ApplicationInsightsServiceOptions();
+            aiOptions.EnableDependencyTrackingTelemetryModule = false;
+            aiOptions.EnableDebugLogger = false;
+            aiOptions.EnableRequestTrackingTelemetryModule = false;
+            //aiOptions.EnableAdaptiveSampling = false;
+            services.AddApplicationInsightsTelemetry(aiOptions);
 
             services.AddControllersWithViews();
 

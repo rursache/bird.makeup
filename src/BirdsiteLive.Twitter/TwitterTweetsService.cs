@@ -32,6 +32,7 @@ namespace BirdsiteLive.Twitter
         private readonly ITwitterUserDal _twitterUserDal;
         private readonly ILogger<TwitterTweetsService> _logger;
         private readonly InstanceSettings _instanceSettings;
+        private readonly IHttpClientFactory _httpClientFactory;
         private static string gqlFeatures = """
         { 
           "android_graphql_skip_api_media_color_palette": false,
@@ -78,13 +79,14 @@ namespace BirdsiteLive.Twitter
         """.Replace(" ", "").Replace("\n", "");
 
         #region Ctor
-        public TwitterTweetsService(ITwitterAuthenticationInitializer twitterAuthenticationInitializer, ITwitterStatisticsHandler statisticsHandler, ICachedTwitterUserService twitterUserService, ITwitterUserDal twitterUserDal, InstanceSettings instanceSettings, ILogger<TwitterTweetsService> logger)
+        public TwitterTweetsService(ITwitterAuthenticationInitializer twitterAuthenticationInitializer, ITwitterStatisticsHandler statisticsHandler, ICachedTwitterUserService twitterUserService, ITwitterUserDal twitterUserDal, InstanceSettings instanceSettings, IHttpClientFactory httpClientFactory, ILogger<TwitterTweetsService> logger)
         {
             _twitterAuthenticationInitializer = twitterAuthenticationInitializer;
             _statisticsHandler = statisticsHandler;
             _twitterUserService = twitterUserService;
             _twitterUserDal = twitterUserDal;
             _instanceSettings = instanceSettings;
+            _httpClientFactory = httpClientFactory;
             _logger = logger;
         }
         #endregion
@@ -92,13 +94,14 @@ namespace BirdsiteLive.Twitter
 
         public async Task<ExtractedTweet> GetTweetAsync(long statusId)
         {
+            return await TweetFromSyndication(statusId);
 
             var client = await _twitterAuthenticationInitializer.MakeHttpClient();
 
 
             // https://platform.twitter.com/embed/Tweet.html?id=1633788842770825216
             string reqURL =
-                "https://api.twitter.com/graphql/83h5UyHZ9wEKBVzALX8R_g/ConversationTimelineV2?variables={%22focalTweetId%22%3A%22"
+                "https://twitter.com/i/api/graphql/XicnWRbyQ3WgVY__VataBQ/UserTweets?variables={%22focalTweetId%22%3A%22"
                 + statusId +
                 "%22,%22count%22:20,%22includeHasBirdwatchNotes%22:false}&features="+ gqlFeatures;
             using var request = _twitterAuthenticationInitializer.MakeHttpRequest(new HttpMethod("GET"), reqURL, true);
@@ -121,6 +124,9 @@ namespace BirdsiteLive.Twitter
 
                 var tweetInDoc = timeline.Where(x => x.GetProperty("entryId").GetString() == "tweet-" + statusId)
                     .ToArray().First();
+                
+                _statisticsHandler.GotNewTweets(1);
+                
                 return await Extract( tweetInDoc );
             }
             catch (Exception e)
@@ -151,13 +157,15 @@ namespace BirdsiteLive.Twitter
 
 
             var reqURL =
-                "https://api.twitter.com/graphql/8IS8MaO-2EN6GZZZb8jF0g/UserWithProfileTweetsAndRepliesQueryV2?variables=%7B%22rest_id%22%3A%22" +
+                "https://twitter.com/i/api/graphql/XicnWRbyQ3WgVY__VataBQ/UserTweets?variables=%7B%22userId%22%3A%22" +
                 userId +
                 "%22,%22count%22%3A40,%22includeHasBirdwatchNotes%22%3Atrue}&features=" +
                 gqlFeatures;
             //reqURL =
-            //    """https://twitter.com/i/api/graphql/rIIwMe1ObkGh_ByBtTCtRQ/UserTweets?variables={"userId":"44196397","count":20,"includePromotedContent":true,"withQuickPromoteEligibilityTweetFields":true,"withVoice":true,"withV2Timeline":true}&features={"rweb_lists_timeline_redesign_enabled":true,"responsive_web_graphql_exclude_directive_enabled":true,"verified_phone_label_enabled":false,"creator_subscriptions_tweet_preview_api_enabled":true,"responsive_web_graphql_timeline_navigation_enabled":true,"responsive_web_graphql_skip_user_profile_image_extensions_enabled":false,"tweetypie_unmention_optimization_enabled":true,"responsive_web_edit_tweet_api_enabled":true,"graphql_is_translatable_rweb_tweet_is_translatable_enabled":true,"view_counts_everywhere_api_enabled":true,"longform_notetweets_consumption_enabled":true,"responsive_web_twitter_article_tweet_consumption_enabled":false,"tweet_awards_web_tipping_enabled":false,"freedom_of_speech_not_reach_fetch_enabled":true,"standardized_nudges_misinfo":true,"tweet_with_visibility_results_prefer_gql_limited_actions_policy_enabled":true,"longform_notetweets_rich_text_read_enabled":true,"longform_notetweets_inline_media_enabled":true,"responsive_web_media_download_video_enabled":false,"responsive_web_enhance_cards_enabled":false}&fieldToggles={"withArticleRichContentState":false}""";
+            //    """https://twitter.com/i/api/graphql/rIIwMe1ObkGh_ByBtTCtRQ/UserTweets?variables={"userId":"44196397","count":20,"includePromotedContent":true,"withQuickPromoteEligibilityTweetFields":true,"withVoice":true,"withV2Timeline":true}&features={"rweb_lists_timeline_redesign_enabled":true,"responsive_web_graphql_exclude_directive_enabled":true,"verified_phone_label_enabled":false,"creator_subscriptions_tweet_preview_api_enabled":true,"responsive_web_graphql_timeline_navigation_enabled":true,"responsive_web_graphql_skip_user_profile_image_extensions_enabled":false,"tweetypie_unmention_optimization_enabled":true,"responsive_web_edit_tweet_api_enabled":true,"graphql_is_translatable_rweb_tweet_is_translatable_enabled":true,"view_counts_everywhere_api_enabled":true,"longform_notetweets_consumption_enabled":true,"responsive_web_twitter_article_tweet_consumption_enabled":false,"tweet_awards_web_tipping_enabled":false,"freedom_of_speech_not_reach_fetch_enabled":true,"standardized_nudges_misinfo":true,"tweet_with_visibility_results_prefer_gql_limited_actions_policy_enabled":true,"longform_notetweets_rich_text_read_enabled":true,"longform_notetweets_inline_media_enabled":true,"responsive_web_media_download_video_enabled":false,"responsive_web_enhance_cards_enabled":false}""";
             //reqURL = reqURL.Replace("44196397", userId.ToString());
+            //reqURL =
+            //    """https://twitter.com/i/api/graphql/XicnWRbyQ3WgVY__VataBQ/UserTweets?variables={"userId":"44196397","count":20,"includePromotedContent":true,"withQuickPromoteEligibilityTweetFields":true,"withVoice":true,"withV2Timeline":true}&features={"rweb_lists_timeline_redesign_enabled":true,"responsive_web_graphql_exclude_directive_enabled":true,"verified_phone_label_enabled":false,"creator_subscriptions_tweet_preview_api_enabled":true,"responsive_web_graphql_timeline_navigation_enabled":true,"responsive_web_graphql_skip_user_profile_image_extensions_enabled":false,"tweetypie_unmention_optimization_enabled":true,"responsive_web_edit_tweet_api_enabled":true,"graphql_is_translatable_rweb_tweet_is_translatable_enabled":true,"view_counts_everywhere_api_enabled":true,"longform_notetweets_consumption_enabled":true,"responsive_web_twitter_article_tweet_consumption_enabled":false,"tweet_awards_web_tipping_enabled":false,"freedom_of_speech_not_reach_fetch_enabled":true,"standardized_nudges_misinfo":true,"tweet_with_visibility_results_prefer_gql_limited_actions_policy_enabled":true,"longform_notetweets_rich_text_read_enabled":true,"longform_notetweets_inline_media_enabled":true,"responsive_web_media_download_video_enabled":false,"responsive_web_enhance_cards_enabled":false}""";
             JsonDocument results;
             List<ExtractedTweet> extractedTweets = new List<ExtractedTweet>();
             using var request = _twitterAuthenticationInitializer.MakeHttpRequest(new HttpMethod("GET"), reqURL, true);
@@ -183,12 +191,12 @@ namespace BirdsiteLive.Twitter
                 return null;
             }
 
-            var timeline = results.RootElement.GetProperty("data").GetProperty("user_result").GetProperty("result")
-                .GetProperty("timeline_response").GetProperty("timeline").GetProperty("instructions").EnumerateArray();
+            var timeline = results.RootElement.GetProperty("data").GetProperty("user").GetProperty("result")
+                .GetProperty("timeline_v2").GetProperty("timeline").GetProperty("instructions").EnumerateArray();
 
             foreach (JsonElement timelineElement in timeline) 
             {
-                if (timelineElement.GetProperty("__typename").GetString() != "TimelineAddEntries")
+                if (timelineElement.GetProperty("type").GetString() != "TimelineAddEntries")
                     continue;
 
                 
@@ -216,8 +224,85 @@ namespace BirdsiteLive.Twitter
 
                 }
             }
+            _statisticsHandler.GotNewTweets(extractedTweets.Count);
 
             return extractedTweets.ToArray();
+        }
+
+        private async Task<ExtractedTweet> TweetFromSyndication(long statusId)
+        {
+            string reqURL =
+                $"https://cdn.syndication.twimg.com/tweet-result?id={statusId}&lang=en&token=3ykp5xr72qv";
+            JsonDocument tweet;
+            var client = _httpClientFactory.CreateClient();
+            
+            using var request = new HttpRequestMessage
+            {
+                Method = HttpMethod.Get,
+                RequestUri = new Uri($"https://cdn.syndication.twimg.com/tweet-result?id={statusId}&lang=en&token=3ykp5xr72qv"),
+            };
+            //request.Headers.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36");
+            request.Headers.Add("User-Agent", "farts");
+            //using var request = new HttpRequestMessage(new HttpMethod("GET"), reqURL);
+            //using var request = _twitterAuthenticationInitializer.MakeHttpRequest(HttpMethod.Get, reqURL, false);
+            
+            using var httpResponse = await client.SendAsync(request);
+            if (httpResponse.StatusCode == HttpStatusCode.Unauthorized)
+            {
+                _logger.LogError("Error retrieving tweet {statusId}; refreshing client", statusId);
+            }
+
+            httpResponse.EnsureSuccessStatusCode();
+            var c = await httpResponse.Content.ReadAsStringAsync();
+            tweet = JsonDocument.Parse(c);
+
+            
+            string messageContent = tweet.RootElement.GetProperty("text").GetString();
+            string username = tweet.RootElement.GetProperty("user").GetProperty("screen_name").GetString();
+
+            JsonElement replyTo;
+            bool isReply = tweet.RootElement.TryGetProperty("parent", out replyTo);
+            string inReplyTo = null;
+            long? inReplyToId = null;
+            bool isThread = false;
+            if (isReply)
+            {
+                inReplyTo = tweet.RootElement.GetProperty("in_reply_to_screen_name").GetString();
+                inReplyToId = Int64.Parse(tweet.RootElement.GetProperty("in_reply_to_status_id_str").GetString());
+
+                isThread = username == inReplyTo;
+            }
+
+            JsonElement qt;
+            bool isQT = tweet.RootElement.TryGetProperty("quoted_tweet", out qt);
+            if (isQT)
+            {
+                string quoteTweetId = qt.GetProperty("id_str").GetString();
+                string quoteTweetAcct = qt.GetProperty("user").GetProperty("screen_name").GetString();
+                
+                string quoteTweetLink = $"https://{_instanceSettings.Domain}/@{quoteTweetAcct}/{quoteTweetId}";
+                
+                messageContent = messageContent + "\n\n" + quoteTweetLink;
+                
+            }
+
+            var author = new TwitterUser()
+            {
+                Acct = username,
+            };
+            
+            return new ExtractedTweet()
+            {
+                MessageContent = messageContent,
+                Id = statusId,
+                IsReply = isReply,
+                IsThread = isThread,
+                IsRetweet = false,
+                InReplyToAccount = inReplyTo,
+                InReplyToStatusId = inReplyToId,
+                Author = author,
+            };
+
         }
 
         private async Task<ExtractedTweet> Extract(JsonElement tweet)

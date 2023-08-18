@@ -5,6 +5,7 @@ namespace BirdsiteLive.Common.Extensions
 {
     public static class EnumerableExt
     {
+        // to delete
         public static IEnumerable<IEnumerable<T>> Split<T>(this T[] array, int size)
         {
             for (var i = 0; i < (float)array.Length / size; i++)
