@@ -12,5 +12,9 @@
         <PackageReference Include="System.Threading.RateLimiting" Version="7.0.0" />
         <PackageReference Include="pythonnet" Version="3.0.1" />
     </ItemGroup>
+    
+    <ItemGroup>
+      <ProjectReference Include="..\BirdsiteLive.Common\BirdsiteLive.Common.csproj" />
+    </ItemGroup>
 
 </Project>

@@ -1,13 +1,14 @@
 ﻿using System.Diagnostics;
 using System.Runtime.InteropServices;
+using dotMakeup.Instagram.Models;
 using Python.Runtime;
 
 namespace dotMakeup.Instagram;
 
-public class InstagramUser
+public class InstagramUserService
 {
 
-    public InstagramUser()
+    public InstagramUserService()
     {
         if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
         {
@@ -21,9 +22,10 @@ public class InstagramUser
         PythonEngine.Initialize();
         PythonEngine.BeginAllowThreads();
     }
-    public async Task<string> GetUserAsync(string username)
+    public async Task<InstagramUser> GetUserAsync(string username)
     {
         string bio = null;
+        string name = null;
         using (Py.GIL())
         {
             dynamic np = Py.Import("instaloader");
@@ -33,9 +35,14 @@ public class InstagramUser
             dynamic profile = np.Profile.from_username(insta.context, username);
 
             bio = profile.biography;
-            
+            name = profile.full_name;
+
         }
 
-        return bio;
+        return new InstagramUser()
+        {
+            Description = bio,
+            Name = name,
+        };
     }
 }
