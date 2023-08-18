@@ -64,7 +64,7 @@ namespace BirdsiteLive.Pipeline.Processors
                 var usersDal = await _twitterUserDal.GetAllTwitterUsersWithFollowersAsync(2000, _n_start, _n_end, _instanceSettings.m);
 
                 var userCount = usersDal.Any() ? Math.Min(usersDal.Length, 200) : 1;
-                var splitUsers = usersDal.OrderBy(a => rng.Next()).ToArray().Split(userCount).ToList();
+                var splitUsers = usersDal.OrderBy(a => rng.Next()).ToArray().Chunk(userCount).ToList();
 
                 foreach (var users in splitUsers)
                 {

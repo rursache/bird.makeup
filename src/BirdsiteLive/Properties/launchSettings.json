@@ -1,12 +1,4 @@
 {
-  "iisSettings": {
-    "windowsAuthentication": false,
-    "anonymousAuthentication": true,
-    "iisExpress": {
-      "applicationUrl": "http://localhost:58783",
-      "sslPort": 44377
-    }
-  },
   "profiles": {
     "IIS Express": {
       "commandName": "IISExpress",
@@ -22,12 +14,12 @@
         "ASPNETCORE_ENVIRONMENT": "Development",
         "Instance__ParallelTwitterRequests": "0"
       },
-      "applicationUrl": "http://localhost:5000"
+      "applicationUrl": "http://localhost:5042"
     },
     "Docker": {
       "commandName": "Docker",
       "launchBrowser": true,
-      "applicationUrl": "http://localhost:5000",
+      "applicationUrl": "http://localhost:5042",
       "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}",
       "publishAllPorts": true,
       "useSSL": false

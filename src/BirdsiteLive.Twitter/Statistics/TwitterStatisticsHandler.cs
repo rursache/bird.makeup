@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Timers;
 using BirdsiteLive.Twitter.Models;
+using Microsoft.ApplicationInsights;
 
 namespace BirdsiteLive.Statistics.Domain
 {
@@ -11,6 +12,7 @@ namespace BirdsiteLive.Statistics.Domain
     {
         void CalledUserApi();
         void CalledTweetApi();
+        void GotNewTweets(int number);
         void CalledTimelineApi();
         ApiStatistics GetStatistics();
 
@@ -27,10 +29,12 @@ namespace BirdsiteLive.Statistics.Domain
         private static ConcurrentDictionary<DateTime, ApiStatisticsSnapshot> _snapshots = new ConcurrentDictionary<DateTime, ApiStatisticsSnapshot>();
 
         private static System.Timers.Timer _resetTimer;
+        private TelemetryClient _telemetryClient;
 
         #region Ctor
-        public TwitterStatisticsHandler()
+        public TwitterStatisticsHandler(TelemetryClient telemetryClient)
         {
+            _telemetryClient = telemetryClient;
             if (_resetTimer == null)
             {
                 _resetTimer = new System.Timers.Timer();
@@ -75,6 +79,12 @@ namespace BirdsiteLive.Statistics.Domain
         public void CalledTweetApi()  //GET statuses/lookup - 300/15mins
         {
             Interlocked.Increment(ref _tweetCalls);
+        }
+
+        public void GotNewTweets(int number)
+        {
+            var metric = _telemetryClient.GetMetric("Twitter.NewTweets");
+            metric.TrackValue(number);
         }
 
         public void CalledTimelineApi()  // GET statuses/user_timeline - 1500/15 mins
