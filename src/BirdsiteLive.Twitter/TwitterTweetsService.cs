@@ -273,6 +273,22 @@ namespace BirdsiteLive.Twitter
                 isThread = username == inReplyTo;
             }
 
+            JsonElement entities;
+            if (tweet.RootElement.TryGetProperty("entities", out entities))
+            {
+                JsonElement urls;
+                if (entities.TryGetProperty("urls", out urls))
+                {
+                    foreach (JsonElement url in urls.EnumerateArray())
+                    {
+                        var urlTCO = url.GetProperty("url").GetString();
+                        var urlOriginal = url.GetProperty("expanded_url").GetString();
+
+                        messageContent = messageContent.Replace(urlTCO, urlOriginal);
+                    }
+                }
+            }
+            
             JsonElement qt;
             bool isQT = tweet.RootElement.TryGetProperty("quoted_tweet", out qt);
             if (isQT)
