@@ -140,6 +140,7 @@ namespace BirdsiteLive.Twitter
         public async Task<ExtractedTweet[]> GetTimelineAsync(SyncTwitterUser user, long fromTweetId = -1)
         {
 
+            return Array.Empty<ExtractedTweet>();
             var client = await _twitterAuthenticationInitializer.MakeHttpClient();
 
             long userId;
@@ -353,7 +354,8 @@ namespace BirdsiteLive.Twitter
                 string quoteTweetAcct = qt.GetProperty("user").GetProperty("screen_name").GetString();
                 
                 string quoteTweetLink = $"https://{_instanceSettings.Domain}/@{quoteTweetAcct}/{quoteTweetId}";
-                
+
+                messageContent = messageContent.Replace($"https://twitter.com/{quoteTweetAcct}/status/{quoteTweetId}", "");
                 messageContent = messageContent + "\n\n" + quoteTweetLink;
                 
             }
