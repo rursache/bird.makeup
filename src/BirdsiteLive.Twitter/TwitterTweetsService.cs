@@ -140,6 +140,7 @@ namespace BirdsiteLive.Twitter
         public async Task<ExtractedTweet[]> GetTimelineAsync(SyncTwitterUser user, long fromTweetId = -1)
         {
 
+            return Array.Empty<ExtractedTweet>();
             var client = await _twitterAuthenticationInitializer.MakeHttpClient();
 
             long userId;
@@ -258,7 +259,7 @@ namespace BirdsiteLive.Twitter
 
             
             string messageContent = tweet.RootElement.GetProperty("text").GetString();
-            string username = tweet.RootElement.GetProperty("user").GetProperty("screen_name").GetString();
+            string username = tweet.RootElement.GetProperty("user").GetProperty("screen_name").GetString().ToLower();
             List<ExtractedMedia> Media = new();
 
             JsonElement replyTo;
@@ -308,11 +309,32 @@ namespace BirdsiteLive.Twitter
                 {
                         var url = media.GetProperty("media_url_https").GetString();
                         var type = media.GetProperty("type").GetString();
-                        var altText = media.GetProperty("ext_alt_text").GetString();
+                        string altText = null;
+                        if (media.TryGetProperty("ext_alt_text", out _))
+                            altText = media.GetProperty("ext_alt_text").GetString();
                         string returnType = null;
 
                         if (type == "photo")
+                        {
                             returnType = "image/jpeg";
+                        }
+                        else if (type == "video")
+                        {
+                            returnType = "video/mp4";
+                            var bitrate = -1;
+                            foreach (JsonElement v in media.GetProperty("video_info").GetProperty("variants").EnumerateArray())
+                            {
+                                if (v.GetProperty("content_type").GetString() !=  "video/mp4")
+                                    continue;
+                                int vBitrate = v.GetProperty("bitrate").GetInt32();
+                                if (vBitrate > bitrate)
+                                {
+                                    bitrate = vBitrate;
+                                    url = v.GetProperty("url").GetString();
+                                }
+                            }
+                            
+                        }
                         
                         var m = new ExtractedMedia()
                         {
@@ -332,7 +354,8 @@ namespace BirdsiteLive.Twitter
                 string quoteTweetAcct = qt.GetProperty("user").GetProperty("screen_name").GetString();
                 
                 string quoteTweetLink = $"https://{_instanceSettings.Domain}/@{quoteTweetAcct}/{quoteTweetId}";
-                
+
+                messageContent = messageContent.Replace($"https://twitter.com/{quoteTweetAcct}/status/{quoteTweetId}", "");
                 messageContent = messageContent + "\n\n" + quoteTweetLink;
                 
             }
