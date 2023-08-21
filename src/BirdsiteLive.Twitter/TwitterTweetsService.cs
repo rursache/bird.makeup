@@ -259,7 +259,7 @@ namespace BirdsiteLive.Twitter
 
             
             string messageContent = tweet.RootElement.GetProperty("text").GetString();
-            string username = tweet.RootElement.GetProperty("user").GetProperty("screen_name").GetString();
+            string username = tweet.RootElement.GetProperty("user").GetProperty("screen_name").GetString().ToLower();
             List<ExtractedMedia> Media = new();
 
             JsonElement replyTo;
