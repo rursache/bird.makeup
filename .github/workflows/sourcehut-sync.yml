@@ -1,9 +1,10 @@
 name: Sync with SourceHut
 
 on:
-  schedule:
-      - cron: "0 8 * * *"
   workflow_dispatch:
+  repository_dispatch:
+    types:
+      - n8n_webhook
 
 jobs:
   sync:
