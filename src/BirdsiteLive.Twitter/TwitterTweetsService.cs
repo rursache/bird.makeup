@@ -308,11 +308,32 @@ namespace BirdsiteLive.Twitter
                 {
                         var url = media.GetProperty("media_url_https").GetString();
                         var type = media.GetProperty("type").GetString();
-                        var altText = media.GetProperty("ext_alt_text").GetString();
+                        string altText = null;
+                        if (media.TryGetProperty("ext_alt_text", out _))
+                            altText = media.GetProperty("ext_alt_text").GetString();
                         string returnType = null;
 
                         if (type == "photo")
+                        {
                             returnType = "image/jpeg";
+                        }
+                        else if (type == "video")
+                        {
+                            returnType = "video/mp4";
+                            var bitrate = -1;
+                            foreach (JsonElement v in media.GetProperty("video_info").GetProperty("variants").EnumerateArray())
+                            {
+                                if (v.GetProperty("content_type").GetString() !=  "video/mp4")
+                                    continue;
+                                int vBitrate = v.GetProperty("bitrate").GetInt32();
+                                if (vBitrate > bitrate)
+                                {
+                                    bitrate = vBitrate;
+                                    url = v.GetProperty("url").GetString();
+                                }
+                            }
+                            
+                        }
                         
                         var m = new ExtractedMedia()
                         {
