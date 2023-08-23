@@ -94,16 +94,18 @@ namespace BirdsiteLive.Twitter
 
         public async Task<ExtractedTweet> GetTweetAsync(long statusId)
         {
-            return await TweetFromSyndication(statusId);
+            //return await TweetFromSyndication(statusId);
 
             var client = await _twitterAuthenticationInitializer.MakeHttpClient();
 
 
-            // https://platform.twitter.com/embed/Tweet.html?id=1633788842770825216
             string reqURL =
                 "https://twitter.com/i/api/graphql/XicnWRbyQ3WgVY__VataBQ/UserTweets?variables={%22focalTweetId%22%3A%22"
                 + statusId +
                 "%22,%22count%22:20,%22includeHasBirdwatchNotes%22:false}&features="+ gqlFeatures;
+            reqURL =
+                "https://twitter.com/i/api/graphql/0hWvDhmW8YQ-S_ib3azIrw/TweetResultByRestId?variables=%7B%22tweetId%22%3A%221519480761749016577%22%2C%22withCommunity%22%3Afalse%2C%22includePromotedContent%22%3Afalse%2C%22withVoice%22%3Afalse%7D&features=%7B%22creator_subscriptions_tweet_preview_api_enabled%22%3Atrue%2C%22tweetypie_unmention_optimization_enabled%22%3Atrue%2C%22responsive_web_edit_tweet_api_enabled%22%3Atrue%2C%22graphql_is_translatable_rweb_tweet_is_translatable_enabled%22%3Atrue%2C%22view_counts_everywhere_api_enabled%22%3Atrue%2C%22longform_notetweets_consumption_enabled%22%3Atrue%2C%22responsive_web_twitter_article_tweet_consumption_enabled%22%3Afalse%2C%22tweet_awards_web_tipping_enabled%22%3Afalse%2C%22freedom_of_speech_not_reach_fetch_enabled%22%3Atrue%2C%22standardized_nudges_misinfo%22%3Atrue%2C%22tweet_with_visibility_results_prefer_gql_limited_actions_policy_enabled%22%3Atrue%2C%22longform_notetweets_rich_text_read_enabled%22%3Atrue%2C%22longform_notetweets_inline_media_enabled%22%3Atrue%2C%22responsive_web_graphql_exclude_directive_enabled%22%3Atrue%2C%22verified_phone_label_enabled%22%3Afalse%2C%22responsive_web_media_download_video_enabled%22%3Afalse%2C%22responsive_web_graphql_skip_user_profile_image_extensions_enabled%22%3Afalse%2C%22responsive_web_graphql_timeline_navigation_enabled%22%3Atrue%2C%22responsive_web_enhance_cards_enabled%22%3Afalse%7D";
+            reqURL = reqURL.Replace("1519480761749016577", statusId.ToString());
             using var request = _twitterAuthenticationInitializer.MakeHttpRequest(new HttpMethod("GET"), reqURL, true);
             try
             {
@@ -119,11 +121,9 @@ namespace BirdsiteLive.Twitter
                 tweet = JsonDocument.Parse(c);
 
 
-                var timeline = tweet.RootElement.GetProperty("data").GetProperty("timeline_response")
-                    .GetProperty("instructions").EnumerateArray().First().GetProperty("entries").EnumerateArray();
+                var tweetInDoc = tweet.RootElement.GetProperty("data").GetProperty("tweetResult")
+                    .GetProperty("result");
 
-                var tweetInDoc = timeline.Where(x => x.GetProperty("entryId").GetString() == "tweet-" + statusId)
-                    .ToArray().First();
                 
                 _statisticsHandler.GotNewTweets(1);
                 
@@ -140,7 +140,6 @@ namespace BirdsiteLive.Twitter
         public async Task<ExtractedTweet[]> GetTimelineAsync(SyncTwitterUser user, long fromTweetId = -1)
         {
 
-            return Array.Empty<ExtractedTweet>();
             var client = await _twitterAuthenticationInitializer.MakeHttpClient();
 
             long userId;
@@ -165,8 +164,8 @@ namespace BirdsiteLive.Twitter
             //reqURL =
             //    """https://twitter.com/i/api/graphql/rIIwMe1ObkGh_ByBtTCtRQ/UserTweets?variables={"userId":"44196397","count":20,"includePromotedContent":true,"withQuickPromoteEligibilityTweetFields":true,"withVoice":true,"withV2Timeline":true}&features={"rweb_lists_timeline_redesign_enabled":true,"responsive_web_graphql_exclude_directive_enabled":true,"verified_phone_label_enabled":false,"creator_subscriptions_tweet_preview_api_enabled":true,"responsive_web_graphql_timeline_navigation_enabled":true,"responsive_web_graphql_skip_user_profile_image_extensions_enabled":false,"tweetypie_unmention_optimization_enabled":true,"responsive_web_edit_tweet_api_enabled":true,"graphql_is_translatable_rweb_tweet_is_translatable_enabled":true,"view_counts_everywhere_api_enabled":true,"longform_notetweets_consumption_enabled":true,"responsive_web_twitter_article_tweet_consumption_enabled":false,"tweet_awards_web_tipping_enabled":false,"freedom_of_speech_not_reach_fetch_enabled":true,"standardized_nudges_misinfo":true,"tweet_with_visibility_results_prefer_gql_limited_actions_policy_enabled":true,"longform_notetweets_rich_text_read_enabled":true,"longform_notetweets_inline_media_enabled":true,"responsive_web_media_download_video_enabled":false,"responsive_web_enhance_cards_enabled":false}""";
             //reqURL = reqURL.Replace("44196397", userId.ToString());
-            //reqURL =
-            //    """https://twitter.com/i/api/graphql/XicnWRbyQ3WgVY__VataBQ/UserTweets?variables={"userId":"44196397","count":20,"includePromotedContent":true,"withQuickPromoteEligibilityTweetFields":true,"withVoice":true,"withV2Timeline":true}&features={"rweb_lists_timeline_redesign_enabled":true,"responsive_web_graphql_exclude_directive_enabled":true,"verified_phone_label_enabled":false,"creator_subscriptions_tweet_preview_api_enabled":true,"responsive_web_graphql_timeline_navigation_enabled":true,"responsive_web_graphql_skip_user_profile_image_extensions_enabled":false,"tweetypie_unmention_optimization_enabled":true,"responsive_web_edit_tweet_api_enabled":true,"graphql_is_translatable_rweb_tweet_is_translatable_enabled":true,"view_counts_everywhere_api_enabled":true,"longform_notetweets_consumption_enabled":true,"responsive_web_twitter_article_tweet_consumption_enabled":false,"tweet_awards_web_tipping_enabled":false,"freedom_of_speech_not_reach_fetch_enabled":true,"standardized_nudges_misinfo":true,"tweet_with_visibility_results_prefer_gql_limited_actions_policy_enabled":true,"longform_notetweets_rich_text_read_enabled":true,"longform_notetweets_inline_media_enabled":true,"responsive_web_media_download_video_enabled":false,"responsive_web_enhance_cards_enabled":false}""";
+            reqURL =
+                """https://twitter.com/i/api/graphql/XicnWRbyQ3WgVY__VataBQ/UserTweets?variables={"userId":""" + '"' + userId + '"' + ""","count":20,"includePromotedContent":true,"withQuickPromoteEligibilityTweetFields":true,"withVoice":true,"withV2Timeline":true}&features={"rweb_lists_timeline_redesign_enabled":true,"responsive_web_graphql_exclude_directive_enabled":true,"verified_phone_label_enabled":false,"creator_subscriptions_tweet_preview_api_enabled":true,"responsive_web_graphql_timeline_navigation_enabled":true,"responsive_web_graphql_skip_user_profile_image_extensions_enabled":false,"tweetypie_unmention_optimization_enabled":true,"responsive_web_edit_tweet_api_enabled":true,"graphql_is_translatable_rweb_tweet_is_translatable_enabled":true,"view_counts_everywhere_api_enabled":true,"longform_notetweets_consumption_enabled":true,"responsive_web_twitter_article_tweet_consumption_enabled":false,"tweet_awards_web_tipping_enabled":false,"freedom_of_speech_not_reach_fetch_enabled":true,"standardized_nudges_misinfo":true,"tweet_with_visibility_results_prefer_gql_limited_actions_policy_enabled":true,"longform_notetweets_rich_text_read_enabled":true,"longform_notetweets_inline_media_enabled":true,"responsive_web_media_download_video_enabled":false,"responsive_web_enhance_cards_enabled":false}""";
             JsonDocument results;
             List<ExtractedTweet> extractedTweets = new List<ExtractedTweet>();
             using var request = _twitterAuthenticationInitializer.MakeHttpRequest(new HttpMethod("GET"), reqURL, true);
@@ -209,10 +208,9 @@ namespace BirdsiteLive.Twitter
 
                     try 
                     {   
-                        var extractedTweet = await Extract(tweet);
-
-                        if (extractedTweet.Id == fromTweetId)
-                            break;
+                        JsonElement tweetRes = tweet.GetProperty("content").GetProperty("itemContent")
+                            .GetProperty("tweet_results").GetProperty("result");
+                        var extractedTweet = await Extract(tweetRes);
 
                         extractedTweets.Add(extractedTweet);
                     }
@@ -225,6 +223,7 @@ namespace BirdsiteLive.Twitter
 
                 }
             }
+            extractedTweets = extractedTweets.OrderByDescending(x => x.Id).Where(x => x.Id > fromTweetId).ToList();
             _statisticsHandler.GotNewTweets(extractedTweets.Count);
 
             return extractedTweets.ToArray();
@@ -355,7 +354,7 @@ namespace BirdsiteLive.Twitter
                 
                 string quoteTweetLink = $"https://{_instanceSettings.Domain}/@{quoteTweetAcct}/{quoteTweetId}";
 
-                messageContent = messageContent.Replace($"https://twitter.com/{quoteTweetAcct}/status/{quoteTweetId}", "");
+                messageContent = Regex.Replace(messageContent, Regex.Escape($"https://twitter.com/{quoteTweetAcct}/status/{quoteTweetId}"), "", RegexOptions.IgnoreCase);
                 messageContent = messageContent + "\n\n" + quoteTweetLink;
                 
             }
@@ -380,7 +379,7 @@ namespace BirdsiteLive.Twitter
 
         }
 
-        private async Task<ExtractedTweet> Extract(JsonElement tweet)
+        private async Task<ExtractedTweet> Extract(JsonElement tweetRes)
         {
 
             JsonElement retweet;
@@ -392,39 +391,33 @@ namespace BirdsiteLive.Twitter
             long? inReplyToPostId = null;
             long retweetId = default;
 
-            string userName = tweet.GetProperty("content").GetProperty("content")
-                    .GetProperty("tweetResult").GetProperty("result").GetProperty("core").GetProperty("user_result")
-                    .GetProperty("result").GetProperty("legacy").GetProperty("screen_name").GetString();
+            //JsonElement tweetRes__ = tweet.GetProperty("content").GetProperty("itemContent")
+            //    .GetProperty("tweet_results").GetProperty("result");
+            JsonElement userDoc = tweetRes.GetProperty("core")
+                    .GetProperty("user_results").GetProperty("result");
 
-            JsonElement userDoc = tweet.GetProperty("content").GetProperty("content")
-                    .GetProperty("tweetResult").GetProperty("result").GetProperty("core")
-                    .GetProperty("user_result").GetProperty("result");
+            string userName = userDoc.GetProperty("legacy").GetProperty("screen_name").GetString();
+
 
             author = _twitterUserService.Extract(userDoc); 
             
-            bool isReply = tweet.GetProperty("content").GetProperty("content")
-                    .GetProperty("tweetResult").GetProperty("result").GetProperty("legacy")
+            bool isReply = tweetRes.GetProperty("legacy")
                     .TryGetProperty("in_reply_to_status_id_str", out inReplyToPostIdElement);
-            tweet.GetProperty("content").GetProperty("content")
-                    .GetProperty("tweetResult").GetProperty("result").GetProperty("legacy")
+            tweetRes.GetProperty("legacy")
                     .TryGetProperty("in_reply_to_screen_name", out inReplyToUserElement);
             if (isReply) 
             {
                 inReplyToPostId = Int64.Parse(inReplyToPostIdElement.GetString());
                 inReplyToUser = inReplyToUserElement.GetString();
             }
-            bool isRetweet = tweet.GetProperty("content").GetProperty("content")
-                    .GetProperty("tweetResult").GetProperty("result").GetProperty("legacy")
+            bool isRetweet = tweetRes.GetProperty("legacy")
                     .TryGetProperty("retweeted_status_result", out retweet);
             string MessageContent;
             if (!isRetweet)
             {
-                MessageContent = tweet.GetProperty("content").GetProperty("content")
-                    .GetProperty("tweetResult").GetProperty("result").GetProperty("legacy")
+                MessageContent = tweetRes.GetProperty("legacy")
                     .GetProperty("full_text").GetString();
-                bool isNote = tweet.GetProperty("content").GetProperty("content")
-                        .GetProperty("tweetResult").GetProperty("result")
-                        .TryGetProperty("note_tweet", out var note);
+                bool isNote = tweetRes.TryGetProperty("note_tweet", out var note);
                 if (isNote)
                 {
                     MessageContent = note.GetProperty("note_tweet_results").GetProperty("result")
@@ -435,12 +428,10 @@ namespace BirdsiteLive.Twitter
             }
             else 
             {
-                MessageContent = tweet.GetProperty("content").GetProperty("content")
-                    .GetProperty("tweetResult").GetProperty("result").GetProperty("legacy")
+                MessageContent = tweetRes.GetProperty("legacy")
                     .GetProperty("retweeted_status_result").GetProperty("result")
                     .GetProperty("legacy").GetProperty("full_text").GetString();
-                bool isNote = tweet.GetProperty("content").GetProperty("content")
-                    .GetProperty("tweetResult").GetProperty("result").GetProperty("legacy")
+                bool isNote = tweetRes.GetProperty("legacy")
                     .GetProperty("retweeted_status_result").GetProperty("result")
                     .TryGetProperty("note_tweet", out var note);
                 if (isNote)
@@ -448,34 +439,24 @@ namespace BirdsiteLive.Twitter
                     MessageContent = note.GetProperty("note_tweet_results").GetProperty("result")
                         .GetProperty("text").GetString();
                 }
-                string OriginalAuthorUsername = tweet.GetProperty("content").GetProperty("content")
-                    .GetProperty("tweetResult").GetProperty("result").GetProperty("legacy")
-                    .GetProperty("retweeted_status_result").GetProperty("result")
-                    .GetProperty("core").GetProperty("user_result").GetProperty("result")
-                    .GetProperty("legacy").GetProperty("screen_name").GetString();
-                JsonElement OriginalAuthorDoc = tweet.GetProperty("content").GetProperty("content")
-                    .GetProperty("tweetResult").GetProperty("result").GetProperty("legacy")
+                JsonElement OriginalAuthorDoc = tweetRes.GetProperty("legacy")
                     .GetProperty("retweeted_status_result").GetProperty("result")
                     .GetProperty("core").GetProperty("user_result").GetProperty("result");
                 OriginalAuthor = _twitterUserService.Extract(OriginalAuthorDoc); 
                 //OriginalAuthor = await _twitterUserService.GetUserAsync(OriginalAuthorUsername);
-                retweetId = Int64.Parse(tweet.GetProperty("content").GetProperty("content")
-                    .GetProperty("tweetResult").GetProperty("result").GetProperty("legacy")
+                retweetId = Int64.Parse(tweetRes.GetProperty("legacy")
                     .GetProperty("retweeted_status_result").GetProperty("result")
                     .GetProperty("rest_id").GetString());
             }
 
-            string creationTime = tweet.GetProperty("content").GetProperty("content")
-                    .GetProperty("tweetResult").GetProperty("result").GetProperty("legacy")
+            string creationTime = tweetRes.GetProperty("legacy")
                     .GetProperty("created_at").GetString().Replace(" +0000", "");
 
             JsonElement extendedEntities;
-            bool hasMedia = tweet.GetProperty("content").GetProperty("content")
-                    .GetProperty("tweetResult").GetProperty("result").GetProperty("legacy")
+            bool hasMedia = tweetRes.GetProperty("legacy")
                     .TryGetProperty("extended_entities", out extendedEntities);
 
-            JsonElement.ArrayEnumerator urls = tweet.GetProperty("content").GetProperty("content")
-                    .GetProperty("tweetResult").GetProperty("result").GetProperty("legacy")
+            JsonElement.ArrayEnumerator urls = tweetRes.GetProperty("legacy")
                     .GetProperty("entities").GetProperty("urls").EnumerateArray();
             foreach (JsonElement url in urls)
             {
@@ -528,21 +509,19 @@ namespace BirdsiteLive.Twitter
                 }
             }
 
-            bool isQuoteTweet = tweet.GetProperty("content").GetProperty("content")
-                    .GetProperty("tweetResult").GetProperty("result").GetProperty("legacy")
+            bool isQuoteTweet = tweetRes.GetProperty("legacy")
                     .GetProperty("is_quote_status").GetBoolean();
 
             if (isQuoteTweet) 
             {
 
-                string quoteTweetId = tweet.GetProperty("content").GetProperty("content")
-                        .GetProperty("tweetResult").GetProperty("result").GetProperty("legacy")
+                string quoteTweetId = tweetRes.GetProperty("legacy")
                         .GetProperty("quoted_status_id_str").GetString();
-                string quoteTweetAcct = tweet.GetProperty("content").GetProperty("content")
-                        .GetProperty("tweetResult").GetProperty("result")
-                        .GetProperty("quoted_status_result").GetProperty("result")
-                        .GetProperty("core").GetProperty("user_result").GetProperty("result")
-                        .GetProperty("legacy").GetProperty("screen_name").GetString();
+                JsonElement quoteTweetAcctDoc = tweetRes
+                    .GetProperty("quoted_status_result").GetProperty("result")
+                    .GetProperty("core").GetProperty("user_results").GetProperty("result");
+                TwitterUser QTauthor = _twitterUserService.Extract(quoteTweetAcctDoc);
+                string quoteTweetAcct = QTauthor.Acct;
                 //Uri test = new Uri(quoteTweetLink);
                 //string quoteTweetAcct = test.Segments[1].Replace("/", "");
                 //string quoteTweetId = test.Segments[3];
@@ -550,14 +529,16 @@ namespace BirdsiteLive.Twitter
                 string quoteTweetLink = $"https://{_instanceSettings.Domain}/@{quoteTweetAcct}/{quoteTweetId}";
 
                 //MessageContent.Replace($"https://twitter.com/i/web/status/{}", "");
-                MessageContent = MessageContent.Replace($"https://twitter.com/{quoteTweetAcct}/status/{quoteTweetId}", "");
+               // MessageContent = MessageContent.Replace($"https://twitter.com/{quoteTweetAcct}/status/{quoteTweetId}", "");
+                MessageContent = MessageContent.Replace($"https://twitter.com/{quoteTweetAcct}/status/{quoteTweetId}", "", StringComparison.OrdinalIgnoreCase);
                 
+                //MessageContent = Regex.Replace(MessageContent, Regex.Escape($"https://twitter.com/{quoteTweetAcct}/status/{quoteTweetId}"), "", RegexOptions.IgnoreCase);
                 MessageContent = MessageContent + "\n\n" + quoteTweetLink;
             }
             
             var extractedTweet = new ExtractedTweet
             {
-                Id = Int64.Parse(tweet.GetProperty("entryId").GetString().Replace("tweet-", "")),
+                Id = Int64.Parse(tweetRes.GetProperty("rest_id").GetString()),
                 InReplyToStatusId = inReplyToPostId,
                 InReplyToAccount = inReplyToUser,
                 MessageContent = MessageContent.Trim(),

@@ -52,36 +52,31 @@ namespace BirdsiteLive.ActivityPub.Tests
         public async Task TimelineKobe()
         {
             var user = await _twitterUserDalMoq.GetTwitterUserAsync("kobebryant");
-            var tweets = await _tweetService.GetTimelineAsync(user, 1218020971346444288);
+            var tweets = await _tweetService.GetTimelineAsync(user, 1117506566939234304);
             
             if (tweets.Length == 0)
                 Assert.Inconclusive();
-            
+           
+            Assert.AreEqual(tweets.Length, 13);
             Assert.AreEqual(tweets[0].MessageContent, "Continuing to move the game forward @KingJames. Much respect my brother 💪🏾 #33644");
-            Assert.IsTrue(tweets.Length > 5);
+            Assert.IsTrue(tweets.Length < 20);
 
             
             Assert.IsTrue(_twitterUserService.UserIsCached("kobebryant"));
-            bool aRetweetedAccountIsCached = _twitterUserService.UserIsCached("alleniverson");
+            bool aRetweetedAccountIsCached = _twitterUserService.UserIsCached("djvlad");
             Assert.IsTrue(aRetweetedAccountIsCached);
             
         }
 
         [TestMethod]
-        [Ignore]
         public async Task TimelineGrant()
         {
             var user = await _twitterUserDalMoq.GetTwitterUserAsync("grantimahara");
             var tweets = await _tweetService.GetTimelineAsync(user, default);
-            Assert.IsTrue(tweets[0].IsReply);
             Assert.IsTrue(tweets.Length > 10);
 
-            Assert.AreEqual(tweets[2].MessageContent, "Liftoff!");
-            Assert.AreEqual(tweets[2].RetweetId, 1266812530833240064);
-            Assert.AreEqual(tweets[2].Id, 1266813644626489345);
-            Assert.AreEqual(tweets[2].OriginalAuthor.Acct, "SpaceX");
-            Assert.AreEqual(tweets[2].Author.Acct, "grantimahara");
-            Assert.IsTrue(tweets[2].IsRetweet);
+            Assert.AreEqual(tweets[3].MessageContent, "Show me your WFH space! Here’s mine: a bunch of electronics equipment on a foldout table. 😁");
+            Assert.AreEqual(tweets[3].Author.Acct, "grantimahara");
         }
 
     }

@@ -119,7 +119,7 @@ namespace BirdsiteLive.ActivityPub.Tests
         {
             var tweet = await _tweetService.GetTweetAsync(1668932525522305026);
 
-            Assert.AreEqual(tweet.MessageContent, @"https://domain.name/@WeekInEthNews/1668684659855880193");
+            Assert.AreEqual(tweet.MessageContent, @"https://domain.name/@weekinethnews/1668684659855880193");
             Assert.AreEqual(tweet.Author.Acct, "weekinethnews");
         }
         
@@ -159,7 +159,6 @@ http://www.realworldrisk.com https://twitter.com/i/web/status/166896966334087168
         }
         
         [TestMethod]
-        [Ignore]
         public async Task LongFormTweet()
         {
             var a = 1;

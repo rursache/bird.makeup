@@ -26,7 +26,7 @@ namespace BirdsiteLive.Twitter
         private readonly ILogger<TwitterUserService> _logger;
 
         private readonly string endpoint =
-            "https://api.twitter.com/graphql/pVrmNaXcxPjisIvKtLDMEA/UserByScreenName?variables=%7B%22screen_name%22%3A%22elonmusk%22%2C%22withSafetyModeUserFields%22%3Atrue%7D&features=" + gqlFeatures;
+            "https://twitter.com/i/api/graphql/SAMkL5y_N9pmahSw8yy6gw/UserByScreenName?variables=%7B%22screen_name%22%3A%22elonmusk%22%2C%22withSafetyModeUserFields%22%3Atrue%7D&features=%7B%22hidden_profile_likes_enabled%22%3Afalse%2C%22hidden_profile_subscriptions_enabled%22%3Atrue%2C%22responsive_web_graphql_exclude_directive_enabled%22%3Atrue%2C%22verified_phone_label_enabled%22%3Afalse%2C%22subscriptions_verification_info_is_identity_verified_enabled%22%3Afalse%2C%22subscriptions_verification_info_verified_since_enabled%22%3Atrue%2C%22highlights_tweets_tab_ui_enabled%22%3Atrue%2C%22creator_subscriptions_tweet_preview_api_enabled%22%3Atrue%2C%22responsive_web_graphql_skip_user_profile_image_extensions_enabled%22%3Afalse%2C%22responsive_web_graphql_timeline_navigation_enabled%22%3Atrue%7D&fieldToggles=%7B%22withAuxiliaryUserLabels%22%3Afalse%7D";
 
         private static string gqlFeatures = """
         { 
@@ -150,7 +150,7 @@ namespace BirdsiteLive.Twitter
             return new TwitterUser
             {
                 Id = long.Parse(result.GetProperty("rest_id").GetString()),
-                Acct = result.GetProperty("legacy").GetProperty("screen_name").GetString(), 
+                Acct = result.GetProperty("legacy").GetProperty("screen_name").GetString().ToLower(), 
                 Name =  result.GetProperty("legacy").GetProperty("name").GetString(), //res.RootElement.GetProperty("data").GetProperty("name").GetString(),
                 Description =  "", //res.RootElement.GetProperty("data").GetProperty("description").GetString(),
                 Url =  "", //res.RootElement.GetProperty("data").GetProperty("url").GetString(),
