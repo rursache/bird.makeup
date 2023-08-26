@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
-using System.Net.Mime;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using BirdsiteLive.ActivityPub;
 using BirdsiteLive.ActivityPub.Models;
@@ -17,10 +14,8 @@ using BirdsiteLive.Models;
 using BirdsiteLive.Tools;
 using BirdsiteLive.Twitter;
 using BirdsiteLive.Twitter.Models;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Primitives;
 
 namespace BirdsiteLive.Controllers
 {
@@ -130,6 +125,7 @@ namespace BirdsiteLive.Controllers
             if (userDal != null)
                 followers = await _followersDal.GetFollowersAsync(userDal.Id);
 
+
             var displayableUser = new DisplayTwitterUser
             {
                 Name = user.Name,
@@ -141,7 +137,7 @@ namespace BirdsiteLive.Controllers
                 FollowerCount = followers.Length,
                 MostPopularServer = followers.GroupBy(x => x.Host).OrderByDescending(x => x.Count()).Select(x => x.Key).FirstOrDefault("N/A"),
                 FediverseAccount = userDal.FediAcct,
-                InstanceHandle = $"@{user.Acct.ToLowerInvariant()}@{_instanceSettings.Domain}"
+                InstanceHandle = $"@{user.Acct.ToLowerInvariant()}@{_instanceSettings.Domain}",
             };
             return View(displayableUser);
         }
@@ -222,6 +218,29 @@ namespace BirdsiteLive.Controllers
 
 
             var jsonApUser = JsonSerializer.Serialize(res);
+            return Content(jsonApUser, "application/activity+json; charset=utf-8");
+        }
+        [Route("/users/{id}/collections/featured")]
+        public async Task<IActionResult> Featured(string id)
+        {
+            var user = await _twitterUserService.GetUserAsync(id);
+            if (user == null)
+                return NotFound();
+
+            var featured = new Featured()
+            {
+                id = $"https://{_instanceSettings.Domain}/users/{id}/collections/featured"
+            };
+            foreach (long statusId in user.PinnedPosts)
+            {
+                var tweet = await _twitterTweetService.GetTweetAsync(statusId);
+                var status = _statusService.GetActivity(id, tweet);
+                status.apObject.context = null;
+
+                featured.orderedItems.Add(status.apObject);
+            }
+
+            var jsonApUser = JsonSerializer.Serialize(featured);
             return Content(jsonApUser, "application/activity+json; charset=utf-8");
         }
         [Route("/users/{id}/statuses/{statusId}/activity")]

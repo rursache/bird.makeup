@@ -79,6 +79,12 @@ namespace BirdsiteLive.Domain
 
                 _statisticsHandler.ExtractedDescription(extracted.tags.Count(x => x.type == "Mention"));
             }
+            
+            string featured = null;
+            if (twitterUser.PinnedPosts.Count() > 0)
+            {
+                featured = $"https://{_instanceSettings.Domain}/users/{twitterUser.Acct}/collections/featured";
+            }
 
             var user = new Actor
             {
@@ -90,6 +96,7 @@ namespace BirdsiteLive.Domain
                 inbox = $"{actorUrl}/inbox",
                 summary = "This account is a replica from Twitter. Its author can't see your replies. If you find this service useful, please consider supporting us via our Patreon. <br>" + description,
                 url = actorUrl,
+                featured = featured,
                 manuallyApprovesFollowers = twitterUser.Protected,
                 publicKey = new PublicKey()
                 {
