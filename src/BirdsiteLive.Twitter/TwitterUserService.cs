@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -147,6 +148,16 @@ namespace BirdsiteLive.Twitter
                 profileBannerURL = profileBannerURLObject.GetString();
             }
 
+            List<long> pinnedTweets = new();
+            JsonElement pinnedDoc;
+            if (result.GetProperty("legacy").TryGetProperty("pinned_tweet_ids_str", out pinnedDoc))
+            {
+                foreach (JsonElement id in pinnedDoc.EnumerateArray())
+                {
+                    pinnedTweets.Add(Int64.Parse(id.GetString()));
+                }
+            }
+
             return new TwitterUser
             {
                 Id = long.Parse(result.GetProperty("rest_id").GetString()),
@@ -158,6 +169,7 @@ namespace BirdsiteLive.Twitter
                 ProfileBackgroundImageUrl =  profileBannerURL,
                 ProfileBannerURL = profileBannerURL,
                 Protected = false, //res.RootElement.GetProperty("data").GetProperty("protected").GetBoolean(), 
+                PinnedPosts = pinnedTweets,
             };
 
         }

@@ -5,6 +5,7 @@ namespace BirdsiteLive.ActivityPub.Models
     public class Note
     {
         [JsonPropertyName("@context")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public string[] context { get; set; } = new[] { "https://www.w3.org/ns/activitystreams" };
 
         public string id { get; set; }
