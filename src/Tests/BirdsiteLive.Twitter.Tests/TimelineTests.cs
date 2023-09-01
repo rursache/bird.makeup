@@ -72,11 +72,20 @@ namespace BirdsiteLive.ActivityPub.Tests
         public async Task TimelineGrant()
         {
             var user = await _twitterUserDalMoq.GetTwitterUserAsync("grantimahara");
-            var tweets = await _tweetService.GetTimelineAsync(user, default);
-            Assert.IsTrue(tweets.Length > 10);
+            user.Followers = 99999999; // we want to make sure it's a VIP user
+            var tweets = await _tweetService.GetTimelineAsync(user, 1232042440875335680);
 
-            Assert.AreEqual(tweets[3].MessageContent, "Show me your WFH space! Here’s mine: a bunch of electronics equipment on a foldout table. 😁");
-            Assert.AreEqual(tweets[3].Author.Acct, "grantimahara");
+            Assert.AreEqual(tweets.Length, 19);
+            
+            Assert.IsTrue(tweets[0].IsReply);
+            Assert.IsFalse(tweets[0].IsRetweet);
+ 
+            Assert.AreEqual(tweets[2].MessageContent, "Liftoff!");
+            Assert.IsTrue(tweets[2].IsRetweet);
+            Assert.AreEqual(tweets[2].RetweetId, 1266812530833240064); 
+            //Assert.AreEqual(tweets[2].Id, 1266813644626489345);
+            Assert.AreEqual(tweets[2].OriginalAuthor.Acct, "spacex");
+            Assert.AreEqual(tweets[2].Author.Acct, "grantimahara");
         }
 
     }
