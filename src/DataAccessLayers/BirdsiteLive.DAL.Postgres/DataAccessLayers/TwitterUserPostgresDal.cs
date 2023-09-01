@@ -124,7 +124,7 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
                     SELECT unnest(followings) as follow FROM followers
                 ),
                 following2 AS (
-                    SELECT id, lastsync FROM following
+                    SELECT id, lastsync, count(*) as followers FROM following
                     INNER JOIN twitter_users ON following.follow=twitter_users.id
                     WHERE mod(id, $2) >= $3 AND mod(id, $2) <= $4
                     GROUP BY id
@@ -161,6 +161,7 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
                         LastTweetPostedId = reader["lastTweetPostedId"] as long? ?? default,
                         LastSync = reader["lastSync"] as DateTime? ?? default,
                         FetchingErrorCount = reader["fetchingErrorCount"] as int? ?? default,
+                        Followers = reader["followers"] as int? ?? default,
                     }
                 );
 
