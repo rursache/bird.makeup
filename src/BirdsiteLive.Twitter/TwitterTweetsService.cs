@@ -14,6 +14,8 @@ using Microsoft.Extensions.Logging;
 using System.Text.RegularExpressions;
 using BirdsiteLive.DAL.Contracts;
 using BirdsiteLive.DAL.Models;
+using AngleSharp;
+using AngleSharp.Dom;
 
 namespace BirdsiteLive.Twitter
 {
@@ -32,6 +34,7 @@ namespace BirdsiteLive.Twitter
         private readonly ILogger<TwitterTweetsService> _logger;
         private readonly InstanceSettings _instanceSettings;
         private readonly IHttpClientFactory _httpClientFactory;
+        private readonly IBrowsingContext _context;
 
         #region Ctor
         public TwitterTweetsService(ITwitterAuthenticationInitializer twitterAuthenticationInitializer, ITwitterStatisticsHandler statisticsHandler, ICachedTwitterUserService twitterUserService, ITwitterUserDal twitterUserDal, InstanceSettings instanceSettings, IHttpClientFactory httpClientFactory, ILogger<TwitterTweetsService> logger)
@@ -43,6 +46,9 @@ namespace BirdsiteLive.Twitter
             _instanceSettings = instanceSettings;
             _httpClientFactory = httpClientFactory;
             _logger = logger;
+            
+            var config = Configuration.Default.WithDefaultLoader();
+            _context = BrowsingContext.New(config);
         }
         #endregion
 
@@ -90,6 +96,8 @@ namespace BirdsiteLive.Twitter
 
         public async Task<ExtractedTweet[]> GetTimelineAsync(SyncTwitterUser user, long fromTweetId = -1)
         {
+            if (user.Followers > 60)
+                return await TweetFromNitter(user, fromTweetId);
 
             var client = await _twitterAuthenticationInitializer.MakeHttpClient();
 
@@ -175,6 +183,43 @@ namespace BirdsiteLive.Twitter
             return extractedTweets.ToArray();
         }
 
+        private async Task<ExtractedTweet[]> TweetFromNitter(SyncTwitterUser user, long fromId)
+        {
+            var address = $"https://nitter.poast.org/{user.Acct}/with_replies";
+            var document = await _context.OpenAsync(address);
+            var cellSelector = ".tweet-link";
+            var cells = document.QuerySelectorAll(cellSelector);
+            var titles = cells.Select(m => m.GetAttribute("href"));
+
+            List<ExtractedTweet> tweets = new List<ExtractedTweet>();
+            string pattern = @".*\/([0-9]+)#m";
+            Regex rg = new Regex(pattern);
+            foreach (string title in titles)
+            {
+                MatchCollection matchedId = rg.Matches(title);
+                var matchString = matchedId[0].Groups[1].Value;
+                var match = Int64.Parse(matchString);
+
+                if (match < fromId)
+                    break;
+                
+                var tweet = await TweetFromSyndication(match);
+                if (tweet.Author.Acct != user.Acct)
+                {
+                    tweet.IsRetweet = true;
+                    tweet.OriginalAuthor = tweet.Author;
+                    tweet.Author = await _twitterUserService.GetUserAsync(user.Acct);
+                    tweet.RetweetId = tweet.Id;
+                    // Sadly not given by Nitter UI
+                    tweet.Id = new Random().NextInt64(1000002530833240064, 1266812530833240064);
+                }
+                tweets.Add(tweet);
+                await Task.Delay(100);
+            }
+            
+            _statisticsHandler.GotNewTweets(tweets.Count);
+            return tweets.ToArray();
+        }
         private async Task<ExtractedTweet> TweetFromSyndication(long statusId)
         {
             string reqURL =
