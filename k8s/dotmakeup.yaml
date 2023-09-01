@@ -64,6 +64,8 @@ spec:
                 secretKeyRef:
                   name: dotmakeup-db
                   key: host
+            - name: db__port
+              value: "20184"
             - name: db__name
               valueFrom:
                 secretKeyRef:
@@ -79,6 +81,12 @@ spec:
                 secretKeyRef:
                   name: dotmakeup-db
                   key: password
+            - name: ApplicationInsights__ConnectionString
+              valueFrom:
+                secretKeyRef:
+                  name: dotmakeup-app-insights
+                  key: ConnectionString
+                  optional: true
           volumeMounts:
             - mountPath: "/app/secrets"
               name: key

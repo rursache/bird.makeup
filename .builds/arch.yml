@@ -3,11 +3,13 @@ packages:
   - dotnet-sdk
   - dotnet-runtime-6.0
   - docker
+  - kubectl
   - instaloader
 sources:
   - https://git.sr.ht/~cloutier/bird.makeup
 secrets:
   -  d9970e85-5aef-4cfd-b6ed-0ccf1be5308b
+  -  ec87d89b-55c6-43d4-bf36-bf6e93da089f
 tasks:
   - test: |
       sudo systemctl start docker
@@ -24,3 +26,6 @@ tasks:
       dotnet publish --os linux --arch x64 /t:PublishContainer -c Release
       docker tag cloutier/bird.makeup:1.0 cloutier/bird.makeup:latest
       docker push cloutier/bird.makeup:latest
+  - deploy: |
+      cd bird.makeup/k8s
+      kubectl apply -f dotmakeup.yaml
