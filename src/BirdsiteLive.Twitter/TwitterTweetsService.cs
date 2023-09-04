@@ -209,18 +209,25 @@ namespace BirdsiteLive.Twitter
 
                 if (match < fromId)
                     break;
-                
-                var tweet = await TweetFromSyndication(match);
-                if (tweet.Author.Acct != user.Acct)
+
+                try
                 {
-                    tweet.IsRetweet = true;
-                    tweet.OriginalAuthor = tweet.Author;
-                    tweet.Author = await _twitterUserService.GetUserAsync(user.Acct);
-                    tweet.RetweetId = tweet.Id;
-                    // Sadly not given by Nitter UI
-                    tweet.Id = new Random().NextInt64(1000002530833240064, 1266812530833240064);
+                    var tweet = await TweetFromSyndication(match);
+                    if (tweet.Author.Acct != user.Acct)
+                    {
+                        tweet.IsRetweet = true;
+                        tweet.OriginalAuthor = tweet.Author;
+                        tweet.Author = await _twitterUserService.GetUserAsync(user.Acct);
+                        tweet.RetweetId = tweet.Id;
+                        // Sadly not given by Nitter UI
+                        tweet.Id = new Random().NextInt64(1000002530833240064, 1266812530833240064);
+                    }
+                    tweets.Add(tweet);
                 }
-                tweets.Add(tweet);
+                catch (Exception e)
+                {
+                    _logger.LogError($"error fetching tweet {match} from user {user.Acct}");
+                }
                 await Task.Delay(100);
             }
             
