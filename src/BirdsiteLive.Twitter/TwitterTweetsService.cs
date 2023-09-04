@@ -96,9 +96,8 @@ namespace BirdsiteLive.Twitter
 
         public async Task<ExtractedTweet[]> GetTimelineAsync(SyncTwitterUser user, long fromTweetId = -1)
         {
-            await Task.Delay(1000);
-        
-            return await TweetFromNitter(user, fromTweetId);
+            if (user.Followers > 15)
+                return await TweetFromNitter(user, fromTweetId);
 
             var client = await _twitterAuthenticationInitializer.MakeHttpClient();
 
@@ -208,20 +207,29 @@ namespace BirdsiteLive.Twitter
                 var matchString = matchedId[0].Groups[1].Value;
                 var match = Int64.Parse(matchString);
 
-                if (match < fromId)
+                if (match <= fromId)
                     break;
-                
-                var tweet = await TweetFromSyndication(match);
-                if (tweet.Author.Acct != user.Acct)
+
+                try
                 {
-                    tweet.IsRetweet = true;
-                    tweet.OriginalAuthor = tweet.Author;
-                    tweet.Author = await _twitterUserService.GetUserAsync(user.Acct);
-                    tweet.RetweetId = tweet.Id;
-                    // Sadly not given by Nitter UI
-                    tweet.Id = new Random().NextInt64(1000002530833240064, 1266812530833240064);
+                    //var tweet = await TweetFromSyndication(match);
+                    var tweet = await GetTweetAsync(match);
+                    if (tweet.Author.Acct != user.Acct)
+                    {
+                        tweet.IsRetweet = true;
+                        tweet.OriginalAuthor = tweet.Author;
+                        tweet.Author = await _twitterUserService.GetUserAsync(user.Acct);
+                        tweet.RetweetId = tweet.Id;
+                        // Sadly not given by Nitter UI
+                        var gen = new TwitterSnowflakeGenerator(1, 1);
+                        tweet.Id = gen.NextId();
+                    }
+                    tweets.Add(tweet);
                 }
-                tweets.Add(tweet);
+                catch (Exception e)
+                {
+                    _logger.LogError($"error fetching tweet {match} from user {user.Acct}");
+                }
                 await Task.Delay(100);
             }
             
