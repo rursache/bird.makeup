@@ -14,6 +14,6 @@ namespace BirdsiteLive.DAL.Models
         public DateTime LastSync { get; set; }
 
         public int FetchingErrorCount { get; set; } //TODO: update DAL
-        public int Followers { get; set; } 
+        public long Followers { get; set; } 
     }
 }

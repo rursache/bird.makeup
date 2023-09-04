@@ -96,7 +96,8 @@ namespace BirdsiteLive.Twitter
 
         public async Task<ExtractedTweet[]> GetTimelineAsync(SyncTwitterUser user, long fromTweetId = -1)
         {
-            return await TweetFromNitter(user, fromTweetId);
+            if (user.Followers > 15)
+                return await TweetFromNitter(user, fromTweetId);
 
             var client = await _twitterAuthenticationInitializer.MakeHttpClient();
 
