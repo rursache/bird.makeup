@@ -161,7 +161,7 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
                         LastTweetPostedId = reader["lastTweetPostedId"] as long? ?? default,
                         LastSync = reader["lastSync"] as DateTime? ?? default,
                         FetchingErrorCount = reader["fetchingErrorCount"] as int? ?? default,
-                        Followers = reader["followers"] as int? ?? default,
+                        Followers = reader["followers"] as long? ?? default,
                     }
                 );
 
