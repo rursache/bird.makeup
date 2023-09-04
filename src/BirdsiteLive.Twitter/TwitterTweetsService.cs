@@ -221,7 +221,8 @@ namespace BirdsiteLive.Twitter
                         tweet.Author = await _twitterUserService.GetUserAsync(user.Acct);
                         tweet.RetweetId = tweet.Id;
                         // Sadly not given by Nitter UI
-                        tweet.Id = tweet.RetweetId - 1;
+                        var gen = new TwitterSnowflakeGenerator(1, 1);
+                        tweet.Id = gen.NextId();
                     }
                     tweets.Add(tweet);
                 }

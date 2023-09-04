@@ -83,7 +83,7 @@ namespace BirdsiteLive.ActivityPub.Tests
             Assert.AreEqual(tweets[2].MessageContent, "Liftoff!");
             Assert.IsTrue(tweets[2].IsRetweet);
             Assert.AreEqual(tweets[2].RetweetId, 1266812530833240064); 
-            //Assert.AreEqual(tweets[2].Id, 1266813644626489345);
+            Assert.IsTrue(tweets[2].Id > 1698746132626280448);
             Assert.AreEqual(tweets[2].OriginalAuthor.Acct, "spacex");
             Assert.AreEqual(tweets[2].Author.Acct, "grantimahara");
         }
