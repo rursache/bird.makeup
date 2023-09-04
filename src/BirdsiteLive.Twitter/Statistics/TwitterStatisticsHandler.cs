@@ -12,6 +12,7 @@ namespace BirdsiteLive.Statistics.Domain
     {
         void CalledUserApi();
         void CalledTweetApi();
+        void CalledApi(string ApiName);
         void GotNewTweets(int number);
         void CalledTimelineApi();
         ApiStatistics GetStatistics();
@@ -79,6 +80,12 @@ namespace BirdsiteLive.Statistics.Domain
         public void CalledTweetApi()  //GET statuses/lookup - 300/15mins
         {
             Interlocked.Increment(ref _tweetCalls);
+        }
+
+        public void CalledApi(string ApiName)
+        {
+            var metric = _telemetryClient.GetMetric("ApiCalled." + ApiName);
+            metric.TrackValue(1);
         }
 
         public void GotNewTweets(int number)
