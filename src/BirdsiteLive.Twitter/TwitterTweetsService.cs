@@ -96,7 +96,8 @@ namespace BirdsiteLive.Twitter
 
         public async Task<ExtractedTweet[]> GetTimelineAsync(SyncTwitterUser user, long fromTweetId = -1)
         {
-            return await TweetFromNitter(user, fromTweetId);
+            if (user.Followers > 15)
+                return await TweetFromNitter(user, fromTweetId);
 
             var client = await _twitterAuthenticationInitializer.MakeHttpClient();
 
@@ -184,8 +185,15 @@ namespace BirdsiteLive.Twitter
 
         private async Task<ExtractedTweet[]> TweetFromNitter(SyncTwitterUser user, long fromId)
         {
-            var address = $"https://nitter.poast.org/{user.Acct}/with_replies";
+            List<string> domains = new List<string>() {"nitter.poast.org", "nitter.privacydev.net", "nitter.d420.de", "nitter.nicfab.eu", "nitter.salastil.com"} ;
+            Random rnd = new Random();
+            int randIndex = rnd.Next(domains.Count);
+            var domain = domains[randIndex];
+            //domain = domains.Last();
+            var address = $"https://{domain}/{user.Acct}/with_replies";
             var document = await _context.OpenAsync(address);
+            _statisticsHandler.CalledApi("Nitter");
+                
             var cellSelector = ".tweet-link";
             var cells = document.QuerySelectorAll(cellSelector);
             var titles = cells.Select(m => m.GetAttribute("href"));
