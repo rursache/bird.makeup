@@ -361,6 +361,8 @@ namespace BirdsiteLive.Twitter
             {
                 Acct = username,
             };
+
+            var createdaAt = DateTime.Parse(tweet.RootElement.GetProperty("created_at").GetString(), null, System.Globalization.DateTimeStyles.RoundtripKind);
             
             return new ExtractedTweet()
             {
@@ -372,6 +374,7 @@ namespace BirdsiteLive.Twitter
                 InReplyToAccount = inReplyTo,
                 InReplyToStatusId = inReplyToId,
                 Author = author,
+                CreatedAt = createdaAt,
                 Media = Media.Count() == 0 ? null : Media.ToArray(),
             };
 
