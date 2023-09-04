@@ -221,7 +221,7 @@ namespace BirdsiteLive.Twitter
                         tweet.Author = await _twitterUserService.GetUserAsync(user.Acct);
                         tweet.RetweetId = tweet.Id;
                         // Sadly not given by Nitter UI
-                        tweet.Id = new Random().NextInt64(1000002530833240064, 1266812530833240064);
+                        tweet.Id = tweet.RetweetId - 1;
                     }
                     tweets.Add(tweet);
                 }
