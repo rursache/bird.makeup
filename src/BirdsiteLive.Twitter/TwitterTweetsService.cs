@@ -96,7 +96,7 @@ namespace BirdsiteLive.Twitter
 
         public async Task<ExtractedTweet[]> GetTimelineAsync(SyncTwitterUser user, long fromTweetId = -1)
         {
-            await Task.delay(1000)
+            await Task.delay(1000);
         
             return await TweetFromNitter(user, fromTweetId);
 
