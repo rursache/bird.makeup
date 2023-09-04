@@ -207,7 +207,7 @@ namespace BirdsiteLive.Twitter
                 var matchString = matchedId[0].Groups[1].Value;
                 var match = Int64.Parse(matchString);
 
-                if (match < fromId)
+                if (match <= fromId)
                     break;
 
                 try

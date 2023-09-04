@@ -75,7 +75,7 @@ namespace BirdsiteLive.ActivityPub.Tests
             user.Followers = 99999999; // we want to make sure it's a VIP user
             var tweets = await _tweetService.GetTimelineAsync(user, 1232042440875335680);
 
-            Assert.AreEqual(tweets.Length, 19);
+            Assert.AreEqual(tweets.Length, 18);
             
             Assert.IsTrue(tweets[0].IsReply);
             Assert.IsFalse(tweets[0].IsRetweet);
