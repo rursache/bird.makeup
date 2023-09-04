@@ -212,7 +212,8 @@ namespace BirdsiteLive.Twitter
 
                 try
                 {
-                    var tweet = await TweetFromSyndication(match);
+                    //var tweet = await TweetFromSyndication(match);
+                    var tweet = await GetTweetAsync(match);
                     if (tweet.Author.Acct != user.Acct)
                     {
                         tweet.IsRetweet = true;
