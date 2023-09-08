@@ -42,7 +42,7 @@ spec:
             - name: Instance__Name
               value: "bird.makeup"
             - name: Instance__ParallelTwitterRequests
-              value: "3"
+              value: "2"
             - name: Instance__ParallelFediversePosts
               value: "10"
             - name: Instance__UserCacheCapacity

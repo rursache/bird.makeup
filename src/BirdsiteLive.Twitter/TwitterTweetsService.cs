@@ -164,6 +164,14 @@ namespace BirdsiteLive.Twitter
                     {   
                         JsonElement tweetRes = tweet.GetProperty("content").GetProperty("itemContent")
                             .GetProperty("tweet_results").GetProperty("result");
+                        
+                        // this reduce error logs if we can't parse old tweets
+                        JsonElement restId;
+                        if (!tweetRes.TryGetProperty("rest_id", out restId))
+                            continue;
+                        if (Int64.Parse(restId.GetString()) < fromTweetId)
+                            continue;
+                        
                         var extractedTweet = await Extract(tweetRes);
 
                         extractedTweets.Add(extractedTweet);
@@ -185,11 +193,12 @@ namespace BirdsiteLive.Twitter
 
         private async Task<ExtractedTweet[]> TweetFromNitter(SyncTwitterUser user, long fromId)
         {
-            List<string> domains = new List<string>() {"nitter.poast.org", "nitter.privacydev.net", "nitter.d420.de", "nitter.nicfab.eu", "nitter.salastil.com"} ;
+            List<string> domains = new List<string>() {"nitter.poast.org", "nitter.privacydev.net", "nitter.d420.de", "nitter.nicfab.eu", "bird.habedieeh.re"} ;
             Random rnd = new Random();
             int randIndex = rnd.Next(domains.Count);
             var domain = domains[randIndex];
             //domain = domains.Last();
+            //domain = domains[2];
             var address = $"https://{domain}/{user.Acct}/with_replies";
             var document = await _context.OpenAsync(address);
             _statisticsHandler.CalledApi("Nitter");
