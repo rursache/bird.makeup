@@ -96,7 +96,7 @@ namespace BirdsiteLive.Twitter
 
         public async Task<ExtractedTweet[]> GetTimelineAsync(SyncTwitterUser user, long fromTweetId = -1)
         {
-            if (user.Followers > 15)
+            if (user.Followers > 10)
                 return await TweetFromNitter(user, fromTweetId);
 
             var client = await _twitterAuthenticationInitializer.MakeHttpClient();
@@ -206,10 +206,14 @@ namespace BirdsiteLive.Twitter
             var cellSelector = ".tweet-link";
             var cells = document.QuerySelectorAll(cellSelector);
             var titles = cells.Select(m => m.GetAttribute("href"));
+            
+            if (titles.Any())
+                _statisticsHandler.CalledApi("Nitter.Success-" + domain);
 
             List<ExtractedTweet> tweets = new List<ExtractedTweet>();
             string pattern = @".*\/([0-9]+)#m";
             Regex rg = new Regex(pattern);
+            
             foreach (string title in titles)
             {
                 MatchCollection matchedId = rg.Matches(title);
