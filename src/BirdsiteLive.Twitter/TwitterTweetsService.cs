@@ -221,7 +221,7 @@ namespace BirdsiteLive.Twitter
                 var match = Int64.Parse(matchString);
 
                 if (match <= fromId)
-                    break;
+                    continue;
 
                 try
                 {
