@@ -19,6 +19,7 @@ namespace BirdsiteLive.Twitter
 
         private readonly MemoryCache _tweetCache;
         private readonly MemoryCacheEntryOptions _cacheEntryOptions;
+        private readonly MemoryCacheEntryOptions _cacheEntryOptionsError;
 
         #region Ctor
         public CachedTwitterTweetsService(ITwitterTweetsService twitterService, InstanceSettings settings)
@@ -34,9 +35,17 @@ namespace BirdsiteLive.Twitter
                 //Priority on removing when reaching size limit (memory pressure)
                 .SetPriority(CacheItemPriority.Low)
                 // Keep in cache for this time, reset time if accessed.
-                .SetSlidingExpiration(TimeSpan.FromMinutes(60))
+                .SetSlidingExpiration(TimeSpan.FromDays(1))
                 // Remove from cache after this time, regardless of sliding expiration
-                .SetAbsoluteExpiration(TimeSpan.FromDays(1));
+                .SetAbsoluteExpiration(TimeSpan.FromDays(2));
+            _cacheEntryOptionsError = new MemoryCacheEntryOptions()
+                .SetSize(1)
+                //Priority on removing when reaching size limit (memory pressure)
+                .SetPriority(CacheItemPriority.Low)
+                // Keep in cache for this time, reset time if accessed.
+                .SetSlidingExpiration(TimeSpan.FromMinutes(5))
+                // Remove from cache after this time, regardless of sliding expiration
+                .SetAbsoluteExpiration(TimeSpan.FromMinutes(30));
         }
         #endregion
 
@@ -50,7 +59,11 @@ namespace BirdsiteLive.Twitter
             if (!_tweetCache.TryGetValue(id, out Task<ExtractedTweet> tweet))
             {
                 tweet = _twitterService.GetTweetAsync(id);
-                await _tweetCache.Set(id, tweet, _cacheEntryOptions);
+                
+                if (tweet is null)
+                    await _tweetCache.Set(id, tweet, _cacheEntryOptionsError);
+                else
+                    await _tweetCache.Set(id, tweet, _cacheEntryOptions);
             }
 
             return await tweet;

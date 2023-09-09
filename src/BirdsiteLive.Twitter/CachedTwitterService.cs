@@ -24,10 +24,18 @@ namespace BirdsiteLive.Twitter
             //Priority on removing when reaching size limit (memory pressure)
             .SetPriority(CacheItemPriority.Low)
             // Keep in cache for this time, reset time if accessed.
-            .SetSlidingExpiration(TimeSpan.FromMinutes(60))
+            .SetSlidingExpiration(TimeSpan.FromDays(1))
             // Remove from cache after this time, regardless of sliding expiration
-            .SetAbsoluteExpiration(TimeSpan.FromDays(1));
+            .SetAbsoluteExpiration(TimeSpan.FromDays(2));
 
+        private readonly MemoryCacheEntryOptions _cacheEntryOptionsError = new MemoryCacheEntryOptions()
+            .SetSize(1)//Size amount
+            //Priority on removing when reaching size limit (memory pressure)
+            .SetPriority(CacheItemPriority.Low)
+            // Keep in cache for this time, reset time if accessed.
+            .SetSlidingExpiration(TimeSpan.FromMinutes(5))
+            // Remove from cache after this time, regardless of sliding expiration
+            .SetAbsoluteExpiration(TimeSpan.FromMinutes(30));
         #region Ctor
         public CachedTwitterUserService(ITwitterUserService twitterService, InstanceSettings settings)
         {
@@ -49,7 +57,10 @@ namespace BirdsiteLive.Twitter
             if (!_userCache.TryGetValue(username, out Task<TwitterUser> user))
             {
                 user = _twitterService.GetUserAsync(username);
-                await _userCache.Set(username, user, _cacheEntryOptions);
+                if (user is null)
+                    await _userCache.Set(username, user, _cacheEntryOptionsError);
+                else
+                    await _userCache.Set(username, user, _cacheEntryOptions);
             }
 
             return await user;

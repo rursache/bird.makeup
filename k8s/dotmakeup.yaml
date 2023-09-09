@@ -41,6 +41,8 @@ spec:
               value: "bird.makeup"
             - name: Instance__Name
               value: "bird.makeup"
+            - name: Instance__TwitterRequestDelay
+              value: "100"
             - name: Instance__ParallelTwitterRequests
               value: "1"
             - name: Instance__ParallelFediversePosts

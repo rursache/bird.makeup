@@ -75,6 +75,7 @@ namespace BirdsiteLive.Pipeline.Processors.SubTasks
                 if (todo.Count > _settings.ParallelTwitterRequests)
                 {
                     await Task.WhenAll(todo);
+                    await Task.Delay(_settings.TwitterRequestDelay);
                     todo.Clear();
                 }
                 

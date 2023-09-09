@@ -102,7 +102,6 @@ namespace BirdsiteLive.Twitter.Tools
 
             await RefreshCred();
             await Task.Delay(1000);
-            await RefreshCred();
         }
 
         private async Task RefreshCred()
@@ -130,7 +129,7 @@ namespace BirdsiteLive.Twitter.Tools
 
                 var c = await httpResponse.Content.ReadAsStringAsync();
                 if (httpResponse.StatusCode == HttpStatusCode.TooManyRequests)
-                    await Task.Delay(1000);
+                    await Task.Delay(10 * 1000);
                 httpResponse.EnsureSuccessStatusCode();
                 var doc = JsonDocument.Parse(c);
                 token = doc.RootElement.GetProperty("guest_token").GetString();
