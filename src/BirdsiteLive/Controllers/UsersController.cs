@@ -120,10 +120,14 @@ namespace BirdsiteLive.Controllers
             if (notFound) return View("UserNotFound");
 
             Follower[] followers = new Follower[] { };
-            
+
+            string fediAccount = null;
             var userDal = await _twitterUserDal.GetTwitterUserAsync(user.Acct);
             if (userDal != null)
+            {
                 followers = await _followersDal.GetFollowersAsync(userDal.Id);
+                fediAccount = userDal.FediAcct;
+            }
 
 
             var displayableUser = new DisplayTwitterUser
@@ -136,7 +140,7 @@ namespace BirdsiteLive.Controllers
                 Protected = user.Protected,
                 FollowerCount = followers.Length,
                 MostPopularServer = followers.GroupBy(x => x.Host).OrderByDescending(x => x.Count()).Select(x => x.Key).FirstOrDefault("N/A"),
-                FediverseAccount = userDal.FediAcct,
+                FediverseAccount = fediAccount,
                 InstanceHandle = $"@{user.Acct.ToLowerInvariant()}@{_instanceSettings.Domain}",
             };
             return View(displayableUser);
