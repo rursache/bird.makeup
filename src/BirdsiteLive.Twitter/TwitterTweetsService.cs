@@ -136,8 +136,6 @@ namespace BirdsiteLive.Twitter
                 }
                 httpResponse.EnsureSuccessStatusCode();
                 results = JsonDocument.Parse(c);
-
-                _statisticsHandler.CalledTweetApi();
             }
             catch (Exception e)
             {
@@ -193,7 +191,7 @@ namespace BirdsiteLive.Twitter
 
         private async Task<ExtractedTweet[]> TweetFromNitter(SyncTwitterUser user, long fromId)
         {
-            List<string> domains = new List<string>() {"nitter.poast.org", "nitter.privacydev.net", "nitter.d420.de", "nitter.nicfab.eu", "bird.habedieeh.re"} ;
+            List<string> domains = new List<string>() {"nitter.poast.org", "nitter.privacydev.net", "nitter.nicfab.eu", "bird.habedieeh.re"} ;
             Random rnd = new Random();
             int randIndex = rnd.Next(domains.Count);
             var domain = domains[randIndex];
