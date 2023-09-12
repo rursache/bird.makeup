@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
@@ -92,13 +93,27 @@ namespace BirdsiteLive.Pipeline.Processors
                     foreach (var f in followersPerInstance)
                         await ProcessWorkingUserAsync(f);
                 }
+                catch (HttpRequestException e)
+                {
+                    var follower = followersPerInstance.First();
+                    _logger.LogError(e, "Posting to {Host}{Route} failed (forbidden). Removing following relation", follower.Host, follower.SharedInboxRoute);
+
+                    if (e.StatusCode == HttpStatusCode.Forbidden)
+                    {
+                        foreach (var f in followersPerInstance)
+                        {
+                            f.Followings.Remove(user.Id);
+                            await _followersDal.UpdateFollowerAsync(f);
+                        }
+                    }
+                }
                 catch (Exception e)
                 {
                     var follower = followersPerInstance.First();
                     _logger.LogError(e, "Posting to {Host}{Route} failed", follower.Host, follower.SharedInboxRoute);
 
                     foreach (var f in followersPerInstance)
-                        await ProcessFailingUserAsync(f);
+                        await ProcessFailingUserAsync(f, user);
                 }
             }
         }
@@ -115,7 +130,7 @@ namespace BirdsiteLive.Pipeline.Processors
                 catch (Exception e)
                 {
                     _logger.LogError(e, "Posting to {Host}{Route} failed", follower.Host, follower.InboxRoute);
-                    await ProcessFailingUserAsync(follower);
+                    await ProcessFailingUserAsync(follower, user);
                 }
             }
         }
@@ -129,7 +144,7 @@ namespace BirdsiteLive.Pipeline.Processors
             }
         }
 
-        private async Task ProcessFailingUserAsync(Follower follower)
+        private async Task ProcessFailingUserAsync(Follower follower, SyncTwitterUser user)
         {
             follower.PostingErrorCount++;
 
