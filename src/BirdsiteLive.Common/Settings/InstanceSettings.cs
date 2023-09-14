@@ -27,6 +27,7 @@ namespace BirdsiteLive.Common.Settings
 
         public string MachineName { get; set; } = Environment.MachineName;
         public int ParallelTwitterRequests { get; set; } = 10;
+        public int TwitterRequestDelay { get; set; } = 0;
         public int ParallelFediversePosts { get; set; } = 10;
         public int PipelineStartupDelay { get; set; } = 5 * 60;
     }

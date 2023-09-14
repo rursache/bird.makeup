@@ -96,9 +96,8 @@ namespace BirdsiteLive.Twitter
 
         public async Task<ExtractedTweet[]> GetTimelineAsync(SyncTwitterUser user, long fromTweetId = -1)
         {
-            await Task.Delay(1000);
-            
-            return await TweetFromNitter(user, fromTweetId);
+            if (user.Followers > 6)
+                return await TweetFromNitter(user, fromTweetId);
 
             var client = await _twitterAuthenticationInitializer.MakeHttpClient();
 
@@ -137,8 +136,6 @@ namespace BirdsiteLive.Twitter
                 }
                 httpResponse.EnsureSuccessStatusCode();
                 results = JsonDocument.Parse(c);
-
-                _statisticsHandler.CalledTweetApi();
             }
             catch (Exception e)
             {
@@ -165,6 +162,14 @@ namespace BirdsiteLive.Twitter
                     {   
                         JsonElement tweetRes = tweet.GetProperty("content").GetProperty("itemContent")
                             .GetProperty("tweet_results").GetProperty("result");
+                        
+                        // this reduce error logs if we can't parse old tweets
+                        JsonElement restId;
+                        if (!tweetRes.TryGetProperty("rest_id", out restId))
+                            continue;
+                        if (Int64.Parse(restId.GetString()) < fromTweetId)
+                            continue;
+                        
                         var extractedTweet = await Extract(tweetRes);
 
                         extractedTweets.Add(extractedTweet);
@@ -186,11 +191,12 @@ namespace BirdsiteLive.Twitter
 
         private async Task<ExtractedTweet[]> TweetFromNitter(SyncTwitterUser user, long fromId)
         {
-            List<string> domains = new List<string>() {"nitter.poast.org", "nitter.privacydev.net", "nitter.d420.de", "nitter.nicfab.eu", "nitter.salastil.com"} ;
+            List<string> domains = new List<string>() {"nitter.poast.org", "nitter.privacydev.net", "nitter.nicfab.eu", "bird.habedieeh.re"} ;
             Random rnd = new Random();
             int randIndex = rnd.Next(domains.Count);
             var domain = domains[randIndex];
             //domain = domains.Last();
+            //domain = domains[2];
             var address = $"https://{domain}/{user.Acct}/with_replies";
             var document = await _context.OpenAsync(address);
             _statisticsHandler.CalledApi("Nitter");
@@ -198,10 +204,14 @@ namespace BirdsiteLive.Twitter
             var cellSelector = ".tweet-link";
             var cells = document.QuerySelectorAll(cellSelector);
             var titles = cells.Select(m => m.GetAttribute("href"));
+            
+            if (titles.Any())
+                _statisticsHandler.CalledApi("Nitter.Success-" + domain);
 
             List<ExtractedTweet> tweets = new List<ExtractedTweet>();
             string pattern = @".*\/([0-9]+)#m";
             Regex rg = new Regex(pattern);
+            
             foreach (string title in titles)
             {
                 MatchCollection matchedId = rg.Matches(title);
@@ -209,7 +219,7 @@ namespace BirdsiteLive.Twitter
                 var match = Int64.Parse(matchString);
 
                 if (match <= fromId)
-                    break;
+                    continue;
 
                 try
                 {

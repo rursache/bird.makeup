@@ -41,8 +41,10 @@ spec:
               value: "bird.makeup"
             - name: Instance__Name
               value: "bird.makeup"
+            - name: Instance__TwitterRequestDelay
+              value: "150"
             - name: Instance__ParallelTwitterRequests
-              value: "3"
+              value: "1"
             - name: Instance__ParallelFediversePosts
               value: "10"
             - name: Instance__UserCacheCapacity
@@ -54,7 +56,7 @@ spec:
             - name: Instance__n_start
               value: "0"
             - name: Instance__n_end
-              value: "25"
+              value: "20"
             - name: Instance__m
               value: "100"
             - name: db__type
