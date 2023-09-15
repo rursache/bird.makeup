@@ -431,10 +431,9 @@ namespace BirdsiteLive.Twitter
             JsonElement userDoc = tweetRes.GetProperty("core")
                     .GetProperty("user_results").GetProperty("result");
 
-            string userName = userDoc.GetProperty("legacy").GetProperty("screen_name").GetString();
 
-
-            author = _twitterUserService.Extract(userDoc); 
+            author = _twitterUserService.Extract(userDoc);
+            string userName = author.Acct;
             
             bool isReply = tweetRes.GetProperty("legacy")
                     .TryGetProperty("in_reply_to_status_id_str", out inReplyToPostIdElement);

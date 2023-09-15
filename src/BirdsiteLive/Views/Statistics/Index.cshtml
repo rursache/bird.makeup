@@ -13,18 +13,3 @@
     <li>Followers: @Model.FollowersCount</li>
     <li>Failing Followers: @Model.FailingFollowersCount</li>
 </ul>
-
-<h4>Twitter API (Min, Avg, Max for the last 24h)</h4>
-<ul>
-    <li>Users Calls: @Model.TwitterStatistics.UserCallsCountMin ;  @Model.TwitterStatistics.UserCallsCountAvg ;  @Model.TwitterStatistics.UserCallsCountMax / @Model.TwitterStatistics.UserCallsMax</li>
-    <li>Tweets Calls: @Model.TwitterStatistics.TweetCallsCountMin ; @Model.TwitterStatistics.TweetCallsCountAvg ; @Model.TwitterStatistics.TweetCallsCountMax / @Model.TwitterStatistics.TweetCallsMax</li>
-    <li>Timeline Calls: @Model.TwitterStatistics.TimelineCallsCountMin ; @Model.TwitterStatistics.TimelineCallsCountAvg ; @Model.TwitterStatistics.TimelineCallsCountMax / @Model.TwitterStatistics.TimelineCallsMax</li>
-</ul>
-
-<h4>Mentions Extraction</h4>
-<ul>
-    <li>In descriptions (current day): @Model.ExtractionStatistics.MentionsInDescriptionsExtraction</li>
-    <li>In statuses (current day): @Model.ExtractionStatistics.MentionsInStatusesExtraction</li>
-    <li>In descriptions (last day): @Model.ExtractionStatistics.LastMentionsInDescriptionsExtraction</li>
-    <li>In statuses (last day): @Model.ExtractionStatistics.LastMentionsInStatusesExtraction</li>
-</ul>

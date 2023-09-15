@@ -129,7 +129,7 @@ namespace BirdsiteLive.Twitter
             }
             finally
             {
-                _statisticsHandler.CalledUserApi();
+                _statisticsHandler.CalledApi("Twitter.User");
             }
 
             // Expand URLs

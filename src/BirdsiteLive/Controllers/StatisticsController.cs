@@ -35,8 +35,6 @@ namespace BirdsiteLive.Controllers
                 FailingFollowersCount = await _followersDal.GetFailingFollowersCountAsync(),
                 TwitterUserCount = await _twitterUserDal.GetTwitterUsersCountAsync(),
                 FailingTwitterUserCount = await _twitterUserDal.GetFailingTwitterUsersCountAsync(),
-                TwitterStatistics = _twitterStatistics.GetStatistics(),
-                ExtractionStatistics = _extractionStatistics.GetStatistics(),
             };
             return View(stats);
         }
