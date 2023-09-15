@@ -23,7 +23,7 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
     public class DbInitializerPostgresDal : PostgresBase, IDbInitializerDal
     {
         private readonly PostgresTools _tools;
-        private readonly Version _currentVersion = new Version(3, 0);
+        private readonly Version _currentVersion = new Version(3, 1);
         private const string DbVersionType = "db-version";
 
         #region Ctor
@@ -39,17 +39,14 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
 
             try
             {
-                using (var dbConnection = Connection)
-                {
-                    dbConnection.Open();
+                using var dbConnection = Connection;
 
-                    var result = (await dbConnection.QueryAsync<DbVersion>(query, new { type = DbVersionType })).FirstOrDefault();
+                var result = (await dbConnection.QueryAsync<DbVersion>(query, new { type = DbVersionType })).FirstOrDefault();
 
-                    if (result == default)
-                        return null;
+                if (result == default)
+                    return null;
 
-                    return new Version(result.Major, result.Minor);
-                }
+                return new Version(result.Major, result.Minor);
             }
             catch (PostgresException e)
             {
@@ -137,7 +134,8 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
                 new Tuple<Version, Version>(new Version(2,2), new Version(2,3)),
                 new Tuple<Version, Version>(new Version(2,3), new Version(2,4)),
                 new Tuple<Version, Version>(new Version(2,4), new Version(2,5)),
-                new Tuple<Version, Version>(new Version(2,5), new Version(3,0))
+                new Tuple<Version, Version>(new Version(2,5), new Version(3,0)),
+                new Tuple<Version, Version>(new Version(3,0), new Version(3,1))
             };
         }
 
@@ -222,6 +220,18 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
                 );";
                 await _tools.ExecuteRequestAsync(createInstagramPost);
             }
+            else if (from == new Version(3, 0) && to == new Version(3, 1))
+            {
+                var addStatusCount = $@"ALTER TABLE {_settings.TwitterUserTableName} ADD statusescount integer";
+                await _tools.ExecuteRequestAsync(addStatusCount);
+                
+                var createSettings = $@"CREATE TABLE {_settings.SettingTableName}
+                (
+                    setting_key TEXT PRIMARY KEY,
+                    setting_value JSONB
+                );";
+                await _tools.ExecuteRequestAsync(createSettings);
+            }
             else
             {
                 throw new NotImplementedException();
@@ -253,6 +263,7 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
                 $@"DROP TABLE {_settings.CachedTweetsTableName};",
                 $@"DROP TABLE {_settings.InstagramUserTableName};",
                 $@"DROP TABLE {_settings.CachedInstaPostsTableName};",
+                $@"DROP TABLE {_settings.SettingTableName};",
                 $@"DROP TABLE {_settings.WorkersTableName};"
             };
 
