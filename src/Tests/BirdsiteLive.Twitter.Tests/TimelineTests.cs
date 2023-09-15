@@ -84,6 +84,7 @@ namespace BirdsiteLive.ActivityPub.Tests
         {
             var user = await _twitterUserDalMoq.GetTwitterUserAsync("grantimahara");
             user.Followers = 99999999; // we want to make sure it's a VIP user
+            user.StatusesCount = 10;
             var tweets = await _tweetService.GetTimelineAsync(user, 1232042440875335680);
 
             if (tweets.Length == 0)

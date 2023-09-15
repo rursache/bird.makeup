@@ -14,6 +14,7 @@ namespace BirdsiteLive.DAL.Contracts
         Task<SyncTwitterUser[]> GetAllTwitterUsersAsync();
         Task UpdateTwitterUserAsync(int id, long lastTweetPostedId, int fetchingErrorCount, DateTime lastSync);
         Task UpdateTwitterUserIdAsync(string username, long twitterUserId);
+        Task UpdateTwitterStatusesCountAsync(string username, long StatusesCount);
         Task UpdateTwitterUserAsync(SyncTwitterUser user);
         Task DeleteTwitterUserAsync(string acct);
         Task DeleteTwitterUserAsync(int id);

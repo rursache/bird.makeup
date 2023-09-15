@@ -162,6 +162,7 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
                         LastSync = reader["lastSync"] as DateTime? ?? default,
                         FetchingErrorCount = reader["fetchingErrorCount"] as int? ?? default,
                         Followers = reader["followers"] as long? ?? default,
+                        StatusesCount = reader["statusescount"] as long? ?? -1,
                     }
                 );
 
@@ -218,6 +219,22 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
 
             await command.ExecuteNonQueryAsync();
         }
+
+        public async Task UpdateTwitterStatusesCountAsync(string username, long StatusesCount)
+        {
+            if(username == default) throw new ArgumentException("id");
+            if(StatusesCount == default) throw new ArgumentException("statuses count");
+
+            var query = $"UPDATE {_settings.TwitterUserTableName} SET statusescount = $1 WHERE acct = $2";
+            await using var connection = DataSource.CreateConnection();
+            await connection.OpenAsync();
+            await using var command = new NpgsqlCommand(query, connection) {
+                Parameters = { new() { Value = StatusesCount}, new() { Value = username}}
+            };
+
+            await command.ExecuteNonQueryAsync();
+        }
+
         public async Task UpdateTwitterUserAsync(int id, long lastTweetPostedId, int fetchingErrorCount, DateTime lastSync)
         {
             if(id == default) throw new ArgumentException("id");
