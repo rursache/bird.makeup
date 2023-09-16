@@ -16,6 +16,8 @@ using BirdsiteLive.DAL.Contracts;
 using BirdsiteLive.DAL.Models;
 using AngleSharp;
 using AngleSharp.Dom;
+using AngleSharp.Io;
+using HttpMethod = System.Net.Http.HttpMethod;
 
 namespace BirdsiteLive.Twitter
 {
@@ -47,7 +49,12 @@ namespace BirdsiteLive.Twitter
             _httpClientFactory = httpClientFactory;
             _logger = logger;
             
-            var config = Configuration.Default.WithDefaultLoader();
+            var requester = new DefaultHttpRequester();
+            requester.Headers["User-Agent"] = "Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/117.0";
+            requester.Headers["Accept"] = "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8";
+            requester.Headers["Accept-Encoding"] = "gzip, deflate";
+            requester.Headers["Accept-Language"] = "en-US,en;q=0.5";
+            var config = Configuration.Default.With(requester).WithDefaultLoader();
             _context = BrowsingContext.New(config);
         }
         #endregion
@@ -190,7 +197,7 @@ namespace BirdsiteLive.Twitter
             }
             else if (user.StatusesCount != twitterUser.StatusCount)
             {
-                if (user.Followers > 6)
+                if (user.Followers > 3)
                     extractedTweets = await TweetFromNitter(user, fromTweetId);
                 await Task.Delay(100);
                 await _twitterUserDal.UpdateTwitterStatusesCountAsync(username, twitterUser.StatusCount);
@@ -205,7 +212,7 @@ namespace BirdsiteLive.Twitter
 
         private async Task<List<ExtractedTweet>> TweetFromNitter(SyncTwitterUser user, long fromId)
         {
-            List<string> domains = new List<string>() {"nitter.poast.org", "nitter.privacydev.net", "bird.habedieeh.re"} ;
+            List<string> domains = new List<string>() {"nitter.poast.org", "nitter.privacydev.net", "nitter.net", "nitter.cz", "nitter.d420.de", "nitter.services.woodland.cafe", "nitter.salastil.com"} ;
             Random rnd = new Random();
             int randIndex = rnd.Next(domains.Count);
             var domain = domains[randIndex];
