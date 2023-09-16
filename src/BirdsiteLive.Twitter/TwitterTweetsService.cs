@@ -96,7 +96,6 @@ namespace BirdsiteLive.Twitter
 
         public async Task<ExtractedTweet[]> GetTimelineAsync(SyncTwitterUser user, long fromTweetId = -1)
         {
-            return await TweetFromNitter(user, fromTweetId);
 
             var client = await _twitterAuthenticationInitializer.MakeHttpClient();
 
@@ -183,14 +182,30 @@ namespace BirdsiteLive.Twitter
                 }
             }
             extractedTweets = extractedTweets.OrderByDescending(x => x.Id).Where(x => x.Id > fromTweetId).ToList();
-            _statisticsHandler.GotNewTweets(extractedTweets.Count);
+
+            var twitterUser = await _twitterUserService.GetUserAsync(username);
+            if (user.StatusesCount == -1)
+            {
+                await _twitterUserDal.UpdateTwitterStatusesCountAsync(username, twitterUser.StatusCount);
+            }
+            else if (user.StatusesCount != twitterUser.StatusCount)
+            {
+                if (user.Followers > 6)
+                    extractedTweets = await TweetFromNitter(user, fromTweetId);
+                await Task.Delay(100);
+                await _twitterUserDal.UpdateTwitterStatusesCountAsync(username, twitterUser.StatusCount);
+            }
+            else
+            {
+                _statisticsHandler.GotNewTweets(extractedTweets.Count);
+            }
 
             return extractedTweets.ToArray();
         }
 
-        private async Task<ExtractedTweet[]> TweetFromNitter(SyncTwitterUser user, long fromId)
+        private async Task<List<ExtractedTweet>> TweetFromNitter(SyncTwitterUser user, long fromId)
         {
-            List<string> domains = new List<string>() {"nitter.poast.org", "nitter.privacydev.net", "nitter.nicfab.eu", "bird.habedieeh.re"} ;
+            List<string> domains = new List<string>() {"nitter.poast.org", "nitter.privacydev.net", "bird.habedieeh.re"} ;
             Random rnd = new Random();
             int randIndex = rnd.Next(domains.Count);
             var domain = domains[randIndex];
@@ -244,7 +259,7 @@ namespace BirdsiteLive.Twitter
             }
             
             _statisticsHandler.GotNewTweets(tweets.Count);
-            return tweets.ToArray();
+            return tweets;
         }
         private async Task<ExtractedTweet> TweetFromSyndication(long statusId)
         {
@@ -416,10 +431,9 @@ namespace BirdsiteLive.Twitter
             JsonElement userDoc = tweetRes.GetProperty("core")
                     .GetProperty("user_results").GetProperty("result");
 
-            string userName = userDoc.GetProperty("legacy").GetProperty("screen_name").GetString();
 
-
-            author = _twitterUserService.Extract(userDoc); 
+            author = _twitterUserService.Extract(userDoc);
+            string userName = author.Acct;
             
             bool isReply = tweetRes.GetProperty("legacy")
                     .TryGetProperty("in_reply_to_status_id_str", out inReplyToPostIdElement);

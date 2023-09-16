@@ -54,16 +54,16 @@ namespace BirdsiteLive.Twitter
         }
         public async Task<TwitterUser> GetUserAsync(string username)
         {
-            if (!_userCache.TryGetValue(username, out Task<TwitterUser> user))
+            if (!_userCache.TryGetValue(username, out TwitterUser user))
             {
-                user = _twitterService.GetUserAsync(username);
+                user = await _twitterService.GetUserAsync(username);
                 if (user is null)
-                    await _userCache.Set(username, user, _cacheEntryOptionsError);
+                    _userCache.Set(username, user, _cacheEntryOptionsError);
                 else
-                    await _userCache.Set(username, user, _cacheEntryOptions);
+                    _userCache.Set(username, user, _cacheEntryOptions);
             }
 
-            return await user;
+            return user;
         }
 
         public bool IsUserApiRateLimited()

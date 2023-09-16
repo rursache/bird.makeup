@@ -49,12 +49,6 @@ namespace BirdsiteLive.Twitter.Tools
             // ipad -- TimelineSearch returns data in a different format, making nitter return empty results. on the other hand, it has high rate limits. build separate token pools per endpoint?
                     "AAAAAAAAAAAAAAAAAAAAAGHtAgAAAAAA%2Bx7ILXNILCqkSGIzy6faIHZ9s3Q%3DQy97w6SIrzE7lQwPJEYQBsArEE2fC25caFwRBvAGi456G09vGR",
         };
-        public String BearerToken { 
-            get
-            {
-                return _instanceSettings.TwitterBearerToken;
-            }
-        }
 
         #region Ctor
         public TwitterAuthenticationInitializer(IHttpClientFactory httpClientFactory, InstanceSettings settings, ILogger<TwitterAuthenticationInitializer> logger)

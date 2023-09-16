@@ -10,14 +10,10 @@ namespace BirdsiteLive.Statistics.Domain
 {
     public interface ITwitterStatisticsHandler
     {
-        void CalledUserApi();
-        void CalledTweetApi();
         void CalledApi(string ApiName);
         void GotNewTweets(int number);
-        void CalledTimelineApi();
         ApiStatistics GetStatistics();
 
-        int GetCurrentUserCalls();
     }
 
     //Rate limits: https://developer.twitter.com/en/docs/twitter-api/v1/rate-limits
@@ -67,21 +63,6 @@ namespace BirdsiteLive.Statistics.Domain
             foreach (var old in oldSnapshots) _snapshots.TryRemove(old, out var data);
         }
 
-        public int GetCurrentUserCalls()
-        {
-            return _userCalls;
-        }
-
-        public void CalledUserApi()  //GET users/show - 300/15mins
-        {
-            Interlocked.Increment(ref _userCalls);
-        }
-
-        public void CalledTweetApi()  //GET statuses/lookup - 300/15mins
-        {
-            Interlocked.Increment(ref _tweetCalls);
-        }
-
         public void CalledApi(string ApiName)
         {
             var metric = _telemetryClient.GetMetric("ApiCalled." + ApiName);
@@ -92,11 +73,6 @@ namespace BirdsiteLive.Statistics.Domain
         {
             var metric = _telemetryClient.GetMetric("Twitter.NewTweets");
             metric.TrackValue(number);
-        }
-
-        public void CalledTimelineApi()  // GET statuses/user_timeline - 1500/15 mins
-        {
-            Interlocked.Increment(ref _timelineCalls);
         }
 
         public ApiStatistics GetStatistics()

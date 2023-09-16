@@ -129,7 +129,7 @@ namespace BirdsiteLive.Twitter
             }
             finally
             {
-                _statisticsHandler.CalledUserApi();
+                _statisticsHandler.CalledApi("Twitter.User");
             }
 
             // Expand URLs
@@ -170,6 +170,7 @@ namespace BirdsiteLive.Twitter
                 ProfileBannerURL = profileBannerURL,
                 Protected = false, //res.RootElement.GetProperty("data").GetProperty("protected").GetBoolean(), 
                 PinnedPosts = pinnedTweets,
+                StatusCount = result.GetProperty("legacy").GetProperty("statuses_count").GetInt32()
             };
 
         }

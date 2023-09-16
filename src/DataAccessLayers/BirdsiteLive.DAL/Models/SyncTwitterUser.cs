@@ -15,5 +15,6 @@ namespace BirdsiteLive.DAL.Models
 
         public int FetchingErrorCount { get; set; } //TODO: update DAL
         public long Followers { get; set; } 
+        public long StatusesCount { get; set; }
     }
 }
