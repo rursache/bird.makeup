@@ -162,7 +162,7 @@ namespace BirdsiteLive.DAL.Postgres.DataAccessLayers
                         LastSync = reader["lastSync"] as DateTime? ?? default,
                         FetchingErrorCount = reader["fetchingErrorCount"] as int? ?? default,
                         Followers = reader["followers"] as long? ?? default,
-                        StatusesCount = reader["statusescount"] as long? ?? -1,
+                        StatusesCount = reader["statusescount"] as int? ?? -1,
                     }
                 );
 
