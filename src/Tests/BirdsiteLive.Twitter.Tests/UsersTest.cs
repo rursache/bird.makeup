@@ -44,7 +44,7 @@ namespace BirdsiteLive.ActivityPub.Tests
         {
             var user = await _tweetService.GetUserAsync("grantimahara");
             Assert.AreEqual(user.Name, "Grant Imahara");
-            Assert.AreEqual(user.StatusCount, 12496);
+            Assert.AreEqual(user.StatusCount, 12495);
             Assert.AreEqual(user.Acct, "grantimahara");
         }
 
