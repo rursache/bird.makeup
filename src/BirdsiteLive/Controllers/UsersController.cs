@@ -5,6 +5,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using BirdsiteLive.ActivityPub;
 using BirdsiteLive.ActivityPub.Models;
+using BirdsiteLive.Common.Interfaces;
 using BirdsiteLive.Common.Regexes;
 using BirdsiteLive.Common.Settings;
 using BirdsiteLive.DAL.Contracts;
@@ -28,10 +29,11 @@ namespace BirdsiteLive.Controllers
         private readonly InstanceSettings _instanceSettings;
         private readonly IFollowersDal _followersDal;
         private readonly ITwitterUserDal _twitterUserDal;
+        private readonly ISocialMediaService _socialMediaService;
         private readonly ILogger<UsersController> _logger;
 
         #region Ctor
-        public UsersController(ICachedTwitterUserService twitterUserService, IUserService userService, IStatusService statusService, InstanceSettings instanceSettings, ICachedTwitterTweetsService twitterTweetService, IFollowersDal followersDal, ITwitterUserDal twitterUserDal, ILogger<UsersController> logger)
+        public UsersController(ICachedTwitterUserService twitterUserService, IUserService userService, IStatusService statusService, InstanceSettings instanceSettings, ICachedTwitterTweetsService twitterTweetService, IFollowersDal followersDal, ITwitterUserDal twitterUserDal, ISocialMediaService socialMediaService, ILogger<UsersController> logger)
         {
             _twitterUserService = twitterUserService;
             _userService = userService;
@@ -40,6 +42,7 @@ namespace BirdsiteLive.Controllers
             _twitterTweetService = twitterTweetService;
             _followersDal = followersDal;
             _twitterUserDal = twitterUserDal;
+            _socialMediaService = socialMediaService;
             _logger = logger;
         }
         #endregion
@@ -65,7 +68,7 @@ namespace BirdsiteLive.Controllers
 
             id = id.Trim(new[] { ' ', '@' }).ToLowerInvariant();
 
-            TwitterUser user = null;
+            SocialMediaUser user = null;
             var isSaturated = false;
             var notFound = false;
 
@@ -75,7 +78,7 @@ namespace BirdsiteLive.Controllers
             {
                 try
                 {
-                    user = await _twitterUserService.GetUserAsync(id);
+                    user = await _socialMediaService.GetUserAsync(id);
                 }
                 catch (UserNotFoundException)
                 {

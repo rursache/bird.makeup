@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using BirdsiteLive.ActivityPub;
 using BirdsiteLive.ActivityPub.Converters;
 using BirdsiteLive.ActivityPub.Models;
+using BirdsiteLive.Common.Interfaces;
 using BirdsiteLive.Common.Regexes;
 using BirdsiteLive.Common.Settings;
 using BirdsiteLive.Cryptography;
@@ -24,6 +25,7 @@ namespace BirdsiteLive.Domain
     public interface IUserService
     {
         Actor GetUser(TwitterUser twitterUser);
+        Actor GetUser(SocialMediaUser twitterUser);
         Task<bool> FollowRequestedAsync(string signature, string method, string path, string queryString, Dictionary<string, string> requestHeaders, ActivityFollow activity, string body);
         Task<bool> UndoFollowRequestedAsync(string signature, string method, string path, string queryString, Dictionary<string, string> requestHeaders, ActivityUndoFollow activity, string body);
 
@@ -66,6 +68,10 @@ namespace BirdsiteLive.Domain
         #endregion
 
         public Actor GetUser(TwitterUser twitterUser)
+        {
+            return GetUser((SocialMediaUser)twitterUser);
+        }
+        public Actor GetUser(SocialMediaUser twitterUser)
         {
             var actorUrl = UrlFactory.GetActorUrl(_instanceSettings.Domain, twitterUser.Acct);
             var acct = twitterUser.Acct.ToLowerInvariant();

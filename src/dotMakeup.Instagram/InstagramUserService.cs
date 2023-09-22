@@ -26,6 +26,7 @@ public class InstagramUserService
     {
         string bio = null;
         string name = null;
+        string profilePic = null;
         using (Py.GIL())
         {
             dynamic np = Py.Import("instaloader");
@@ -36,12 +37,16 @@ public class InstagramUserService
 
             bio = profile.biography;
             name = profile.full_name;
+            profilePic = profile.profile_pic_url;
+
 
         }
 
         return new InstagramUser()
         {
             Description = bio,
+            Acct = username,
+            ProfileImageUrl = profilePic,
             Name = name,
         };
     }
