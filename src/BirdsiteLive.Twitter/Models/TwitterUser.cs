@@ -17,5 +17,6 @@ namespace BirdsiteLive.Twitter.Models
         public bool Protected { get; set; }
         public IEnumerable<long> PinnedPosts { get; set; }
         public int StatusCount { get; set; }
+        public string Location { get; set; }
     }
 }

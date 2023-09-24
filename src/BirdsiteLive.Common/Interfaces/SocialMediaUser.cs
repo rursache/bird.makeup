@@ -12,5 +12,6 @@ public interface SocialMediaUser
         public string ProfileBannerURL{ get; set; }
         public bool Protected { get; set; }
         public string Description { get; set; }
+        public string Location { get; set; }
         public IEnumerable<long> PinnedPosts { get; set; }
 }

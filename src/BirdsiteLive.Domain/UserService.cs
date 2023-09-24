@@ -92,6 +92,35 @@ namespace BirdsiteLive.Domain
                 featured = $"https://{_instanceSettings.Domain}/users/{twitterUser.Acct}/collections/featured";
             }
 
+            List<UserAttachment> attachment = new List<UserAttachment>()
+            {
+                new UserAttachment
+                {
+                    type = "PropertyValue",
+                    name = "Official",
+                    value =
+                        $"<a href=\"https://twitter.com/{acct}\" rel=\"me nofollow noopener noreferrer\" target=\"_blank\"><span class=\"invisible\">https://</span><span class=\"ellipsis\">twitter.com/{acct}</span></a>"
+                },
+                new UserAttachment
+                {
+                    type = "PropertyValue",
+                    name = "Support this service",
+                    value =
+                        $"<a href=\"https://www.patreon.com/birddotmakeup\" rel=\"me nofollow noopener noreferrer\" target=\"_blank\"><span class=\"invisible\">https://</span><span class=\"ellipsis\">www.patreon.com/birddotmakeup</span></a>"
+                }
+            };
+
+            if (twitterUser.Location is not null)
+            {
+                var locationAttachment = new UserAttachment()
+                {
+                    type = "PropertyValue",
+                    name = "Location",
+                    value = twitterUser.Location,
+                };
+                attachment.Insert(0, locationAttachment);
+            }
+
             var user = new Actor
             {
                 id = actorUrl,
@@ -120,21 +149,7 @@ namespace BirdsiteLive.Domain
                     mediaType = "image/jpeg",
                     url = twitterUser.ProfileBannerURL
                 },
-                attachment = new []
-                {
-                    new UserAttachment
-                    {
-                        type = "PropertyValue",
-                        name = "Official",
-                        value = $"<a href=\"https://twitter.com/{acct}\" rel=\"me nofollow noopener noreferrer\" target=\"_blank\"><span class=\"invisible\">https://</span><span class=\"ellipsis\">twitter.com/{acct}</span></a>"
-                    },
-                    new UserAttachment
-                    {
-                        type = "PropertyValue",
-                        name = "Support this service",
-                        value = $"<a href=\"https://www.patreon.com/birddotmakeup\" rel=\"me nofollow noopener noreferrer\" target=\"_blank\"><span class=\"invisible\">https://</span><span class=\"ellipsis\">www.patreon.com/birddotmakeup</span></a>"
-                    }
-                },
+                attachment = attachment.ToArray(),
                 endpoints = new EndPoints
                 {
                     sharedInbox = $"https://{_instanceSettings.Domain}/inbox"
