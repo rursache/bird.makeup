@@ -17,6 +17,6 @@ public class InstagramService : ISocialMediaService
         public async Task<SocialMediaUser> GetUserAsync(string username)
         {
             var user = await _userService.GetUserAsync(username);
-            return user;
+            return (SocialMediaUser)user;
         }
 }

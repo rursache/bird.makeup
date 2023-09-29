@@ -42,12 +42,6 @@ public class InstagramUserService
 
         }
 
-        return new InstagramUser()
-        {
-            Description = bio,
-            Acct = username,
-            ProfileImageUrl = profilePic,
-            Name = name,
-        };
+        return new InstagramUser();
     }
 }
