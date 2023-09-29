@@ -22,5 +22,6 @@
     <ProjectReference Include="..\BirdsiteLive.Pipeline\BirdsiteLive.Pipeline.csproj" />
     <ProjectReference Include="..\BirdsiteLive.Twitter\BirdsiteLive.Twitter.csproj" />
     <ProjectReference Include="..\DataAccessLayers\BirdsiteLive.DAL.Postgres\BirdsiteLive.DAL.Postgres.csproj" />
+    <ProjectReference Include="..\dotMakeup.Instagram\dotMakeup.Instagram.csproj" />
   </ItemGroup>
 </Project>

@@ -197,9 +197,9 @@ namespace BirdsiteLive.Twitter
             }
             else if (user.StatusesCount != twitterUser.StatusCount)
             {
-                extractedTweets = await TweetFromNitter(user, fromTweetId);
-                
-                await Task.Delay(250);
+                if (user.Followers > 1)
+                    extractedTweets = await TweetFromNitter(user, fromTweetId);
+                await Task.Delay(3500);
                 await _twitterUserDal.UpdateTwitterStatusesCountAsync(username, twitterUser.StatusCount);
             }
             else
@@ -212,7 +212,7 @@ namespace BirdsiteLive.Twitter
 
         private async Task<List<ExtractedTweet>> TweetFromNitter(SyncTwitterUser user, long fromId)
         {
-            List<string> domains = new List<string>() {"nitter.poast.org", "nitter.privacydev.net", "nitter.cz", "nitter.services.woodland.cafe", "nitter.salastil.com"} ;
+            List<string> domains = new List<string>() {"nitter.poast.org", "nitter.privacydev.net", "nitter.services.woodland.cafe", "nitter.salastil.com", "nitter.x86-64-unknown-linux-gnu.zip", "nitter.perennialte.ch"} ;
             Random rnd = new Random();
             int randIndex = rnd.Next(domains.Count);
             var domain = domains[randIndex];

@@ -158,6 +158,15 @@ namespace BirdsiteLive.Twitter
                 }
             }
 
+            string location = null;
+            JsonElement locationDoc;
+            if (result.GetProperty("legacy").TryGetProperty("location", out locationDoc))
+            {
+                location = locationDoc.GetString();
+                if (location == "")
+                    location = null;
+            } 
+
             return new TwitterUser
             {
                 Id = long.Parse(result.GetProperty("rest_id").GetString()),
@@ -170,7 +179,8 @@ namespace BirdsiteLive.Twitter
                 ProfileBannerURL = profileBannerURL,
                 Protected = false, //res.RootElement.GetProperty("data").GetProperty("protected").GetBoolean(), 
                 PinnedPosts = pinnedTweets,
-                StatusCount = result.GetProperty("legacy").GetProperty("statuses_count").GetInt32()
+                StatusCount = result.GetProperty("legacy").GetProperty("statuses_count").GetInt32(),
+                Location = location,
             };
 
         }

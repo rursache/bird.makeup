@@ -1,4 +1,5 @@
 using System;
+using BirdsiteLive.Common.Interfaces;
 using BirdsiteLive.Common.Settings;
 using BirdsiteLive.Common.Structs;
 using BirdsiteLive.DAL.Contracts;
@@ -8,6 +9,7 @@ using BirdsiteLive.Middleware;
 using BirdsiteLive.Services;
 using BirdsiteLive.Twitter;
 using BirdsiteLive.Twitter.Tools;
+using dotMakeup.Instagram;
 using Lamar;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -85,6 +87,11 @@ namespace BirdsiteLive
             services.For<ITwitterUserService>().Use<TwitterUserService>().Singleton();
 
             services.For<ITwitterAuthenticationInitializer>().Use<TwitterAuthenticationInitializer>().Singleton();
+            
+            if (true)
+                services.For<ISocialMediaService>().Use<TwitterService>().Singleton();
+            else
+                services.For<ISocialMediaService>().Use<InstagramService>().Singleton();
             
             services.For<ICachedStatisticsService>().Use<CachedStatisticsService>().Singleton();
 

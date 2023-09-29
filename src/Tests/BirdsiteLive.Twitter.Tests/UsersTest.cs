@@ -37,6 +37,7 @@ namespace BirdsiteLive.ActivityPub.Tests
             var user = await _tweetService.GetUserAsync("kobebryant");
             Assert.AreEqual(user.Name, "Kobe Bryant");
             Assert.AreEqual(user.Acct, "kobebryant");
+            Assert.AreEqual(user.Location, null);
         }
 
         [TestMethod]
@@ -46,6 +47,7 @@ namespace BirdsiteLive.ActivityPub.Tests
             Assert.AreEqual(user.Name, "Grant Imahara");
             Assert.AreEqual(user.StatusCount, 12495);
             Assert.AreEqual(user.Acct, "grantimahara");
+            Assert.AreEqual(user.Location, "Los Angeles, CA");
         }
 
     }

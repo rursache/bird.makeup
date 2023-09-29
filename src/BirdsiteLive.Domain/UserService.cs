@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using BirdsiteLive.ActivityPub;
 using BirdsiteLive.ActivityPub.Converters;
 using BirdsiteLive.ActivityPub.Models;
+using BirdsiteLive.Common.Interfaces;
 using BirdsiteLive.Common.Regexes;
 using BirdsiteLive.Common.Settings;
 using BirdsiteLive.Cryptography;
@@ -24,6 +25,7 @@ namespace BirdsiteLive.Domain
     public interface IUserService
     {
         Actor GetUser(TwitterUser twitterUser);
+        Actor GetUser(SocialMediaUser twitterUser);
         Task<bool> FollowRequestedAsync(string signature, string method, string path, string queryString, Dictionary<string, string> requestHeaders, ActivityFollow activity, string body);
         Task<bool> UndoFollowRequestedAsync(string signature, string method, string path, string queryString, Dictionary<string, string> requestHeaders, ActivityUndoFollow activity, string body);
 
@@ -67,6 +69,10 @@ namespace BirdsiteLive.Domain
 
         public Actor GetUser(TwitterUser twitterUser)
         {
+            return GetUser((SocialMediaUser)twitterUser);
+        }
+        public Actor GetUser(SocialMediaUser twitterUser)
+        {
             var actorUrl = UrlFactory.GetActorUrl(_instanceSettings.Domain, twitterUser.Acct);
             var acct = twitterUser.Acct.ToLowerInvariant();
 
@@ -84,6 +90,35 @@ namespace BirdsiteLive.Domain
             if (twitterUser.PinnedPosts.Count() > 0)
             {
                 featured = $"https://{_instanceSettings.Domain}/users/{twitterUser.Acct}/collections/featured";
+            }
+
+            List<UserAttachment> attachment = new List<UserAttachment>()
+            {
+                new UserAttachment
+                {
+                    type = "PropertyValue",
+                    name = "Official",
+                    value =
+                        $"<a href=\"https://twitter.com/{acct}\" rel=\"me nofollow noopener noreferrer\" target=\"_blank\"><span class=\"invisible\">https://</span><span class=\"ellipsis\">twitter.com/{acct}</span></a>"
+                },
+                new UserAttachment
+                {
+                    type = "PropertyValue",
+                    name = "Support this service",
+                    value =
+                        $"<a href=\"https://www.patreon.com/birddotmakeup\" rel=\"me nofollow noopener noreferrer\" target=\"_blank\"><span class=\"invisible\">https://</span><span class=\"ellipsis\">www.patreon.com/birddotmakeup</span></a>"
+                }
+            };
+
+            if (twitterUser.Location is not null)
+            {
+                var locationAttachment = new UserAttachment()
+                {
+                    type = "PropertyValue",
+                    name = "Location",
+                    value = twitterUser.Location,
+                };
+                attachment.Insert(0, locationAttachment);
             }
 
             var user = new Actor
@@ -114,21 +149,7 @@ namespace BirdsiteLive.Domain
                     mediaType = "image/jpeg",
                     url = twitterUser.ProfileBannerURL
                 },
-                attachment = new []
-                {
-                    new UserAttachment
-                    {
-                        type = "PropertyValue",
-                        name = "Official",
-                        value = $"<a href=\"https://twitter.com/{acct}\" rel=\"me nofollow noopener noreferrer\" target=\"_blank\"><span class=\"invisible\">https://</span><span class=\"ellipsis\">twitter.com/{acct}</span></a>"
-                    },
-                    new UserAttachment
-                    {
-                        type = "PropertyValue",
-                        name = "Support this service",
-                        value = $"<a href=\"https://www.patreon.com/birddotmakeup\" rel=\"me nofollow noopener noreferrer\" target=\"_blank\"><span class=\"invisible\">https://</span><span class=\"ellipsis\">www.patreon.com/birddotmakeup</span></a>"
-                    }
-                },
+                attachment = attachment.ToArray(),
                 endpoints = new EndPoints
                 {
                     sharedInbox = $"https://{_instanceSettings.Domain}/inbox"
