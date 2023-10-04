@@ -213,19 +213,19 @@ namespace BirdsiteLive.Twitter
         private async Task<List<ExtractedTweet>> TweetFromNitter(SyncTwitterUser user, long fromId)
         {
             List<string> domains = new List<string>() {
-                 "nitter.poast.org", 
-+                "nitter.privacydev.net", 
-+                "nitter.salastil.com", 
-+                "nitter.x86-64-unknown-linux-gnu.zip", 
-+                "nitter.perennialte.ch", 
-+                "nitter.projectsegfau.lt", 
-+                "nitter.eu.projectsegfau.lt", 
-+                "nitter.perennialte.ch",
-+                "n.opnxng.com",
-+                "nitter.mint.lgbt",
-+                "nitter.hostux.net",
-+                "nitter.dafriser.be",
-+                "nitter.nohost.network"
+                "nitter.poast.org", 
+                "nitter.privacydev.net", 
+                "nitter.salastil.com", 
+                "nitter.x86-64-unknown-linux-gnu.zip", 
+                "nitter.perennialte.ch", 
+                "nitter.projectsegfau.lt", 
+                "nitter.eu.projectsegfau.lt", 
+                "nitter.perennialte.ch",
+                "n.opnxng.com",
+                "nitter.mint.lgbt",
+                "nitter.hostux.net",
+                "nitter.dafriser.be",
+                "nitter.nohost.network"
             } ;
             Random rnd = new Random();
             int randIndex = rnd.Next(domains.Count);
