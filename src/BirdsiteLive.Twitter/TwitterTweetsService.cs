@@ -215,17 +215,13 @@ namespace BirdsiteLive.Twitter
             List<string> domains = new List<string>() {
                 "nitter.poast.org", 
                 "nitter.privacydev.net", 
-                "nitter.x86-64-unknown-linux-gnu.zip", 
                 "nitter.perennialte.ch", 
-                "nitter.projectsegfau.lt", 
-                "nitter.eu.projectsegfau.lt", 
-                "n.opnxng.com",
                 "nitter.mint.lgbt",
                 "nitter.hostux.net",
-                "nitter.dafriser.be",
                 "nitter.nohost.network",
                 "nitter.rawbit.ninja",
-                "nitter.catsarch.com",
+                "nitter.tux.pizza",
+                "nitter.esmailelbob.xyz"
             } ;
             Random rnd = new Random();
             int randIndex = rnd.Next(domains.Count);
