@@ -1,47 +1,45 @@
 name: Docker
-
-on: [push, pull_request, workflow_dispatch]
-
+on:
+  workflow_dispatch:
+  push:
+    branches: [ "master" ]
+    tags: [ 'v*.*.*' ]
 env:
-  ENDPOINT: "rursache/bird.makeup"
-  BRANCH: "master"
-
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
     steps:
-      - uses: actions/checkout@v3.1.0
-
-      - name: Build image
-        run: |
-          docker build --no-cache -t ${{ github.sha }} .
-
-      - name: Tag image
-        if: ${{ github.ref == format('refs/heads/{0}', env.BRANCH) && env.ENDPOINT != 'user/endpoint' }}
-        run: |
-          docker tag ${{ github.sha }} ${ENDPOINT}
-          docker tag ${{ github.sha }} ${ENDPOINT}:${{ github.sha }}
-          docker tag ${{ github.sha }} ghcr.io/${ENDPOINT}
-          docker tag ${{ github.sha }} ghcr.io/${ENDPOINT}:${{ github.sha }}
-
-      - name: Credential check
-        if: ${{ github.ref == format('refs/heads/{0}', env.BRANCH) && env.ENDPOINT != 'user/endpoint' }}
-        run: |
-          echo "GHUSER=${{ secrets.GHUSER }}" >> $GITHUB_ENV
-          echo "GHTOKEN=${{ secrets.GHTOKEN }}" >> $GITHUB_ENV
-          if [[ "${{ secrets.GHUSER }}" == "" && "${{ secrets.GHTOKEN }}" == "" ]]; then
-            echo "::error::Push credential secrets missing."
-            echo "::error::You must set GHUSER & GHTOKEN in your repo settings."
-            exit 1
-          fi
-
-      - name: Login to GitHub Container Registry
-        if: ${{ github.ref == format('refs/heads/{0}', env.BRANCH) && env.GHUSER && env.GHTOKEN && env.ENDPOINT != 'user/endpoint' }}
-        run: |
-          echo "${{ secrets.GHTOKEN }}" | docker login ghcr.io -u ${{ secrets.GHUSER }} --password-stdin
-
-      - name: Push tags to GitHub Container Registry
-        if: ${{ github.ref == format('refs/heads/{0}', env.BRANCH) && env.GHUSER && env.GHTOKEN && env.ENDPOINT != 'user/endpoint' }}
-        run: |
-          docker push ghcr.io/${ENDPOINT}:${{ github.sha }}
-          docker push ghcr.io/${ENDPOINT}
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Log into registry ${{ env.REGISTRY }}
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Extract Docker metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          flavor: |
+            latest=true
+      - name: Build and push Docker image
+        id: build-and-push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          platforms: linux/amd64,linux/arm/v6,linux/arm/v7,linux/arm64
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
